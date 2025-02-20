@@ -9,6 +9,7 @@ on:
     branches: [ "main", "develop" ]
     types: [opened, reopened, ready_for_review, synchronize]
     paths-ignore:
+      - ".github/**"
       - "docs/**"
       - "frontend/**"
 
