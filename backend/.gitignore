@@ -38,3 +38,5 @@ out/
 
 ### Custom ###
 src/resources/application.yml
+build.gradle
+.gitignore
