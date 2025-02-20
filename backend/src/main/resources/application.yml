@@ -1,8 +1,5 @@
 spring:
 
-    h2:
-        console:
-                enabled: true
     datasource:
         url: jdbc:mysql://localhost:3306/
         username: root
