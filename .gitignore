@@ -2,6 +2,3 @@
 .DS_Store
 mysql_logs/
 .idea
-docker-compose.yaml
-README.md
-.gitignore
