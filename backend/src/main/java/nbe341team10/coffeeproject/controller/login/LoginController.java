@@ -29,7 +29,10 @@ public class LoginController {
         // 중복 검사
         if(userRepository.existsByUsername(dto.getUsername())){
             throw new RuntimeException("Username is already in use");
+        } else if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email is already in use");
         }
+
         UserEntity user = loginService.join(dto);
         UserResponse response=new UserResponse(user);
         return ResponseEntity.ok(response);
