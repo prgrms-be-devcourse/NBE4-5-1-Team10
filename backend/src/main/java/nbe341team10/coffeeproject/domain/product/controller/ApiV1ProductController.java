@@ -1,12 +1,15 @@
 package nbe341team10.coffeeproject.domain.product.controller;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.product.dto.ProductDto;
+import nbe341team10.coffeeproject.domain.product.dto.ProductDetailDto;
+import nbe341team10.coffeeproject.domain.product.dto.ProductListDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
+import nbe341team10.coffeeproject.global.exception.ServiceException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +22,7 @@ import java.util.List;
 public class ApiV1ProductController {
     private final ProductService productService;
 
-    public record ItemsResBody(List<ProductDto> items) {}
+    public record ItemsResBody(List<ProductListDto> items) {}
 
     @GetMapping()
     @Transactional(readOnly = true)
@@ -31,8 +34,22 @@ public class ApiV1ProductController {
                 "200-1",
                 "Products list retrieved successfully.",
                 new ItemsResBody(products.stream()
-                        .map(ProductDto::new)
+                        .map(ProductListDto::new)
                         .toList())
+        );
+    }
+
+
+    @GetMapping("{productId}")
+    public RsData<ProductDetailDto> getItem(@PathVariable long productId) {
+        Product product = productService.getItem(productId).orElseThrow(
+                () -> new ServiceException("404-1", "Product not found.")
+        );
+
+        return new RsData<>(
+                "200-1",
+                "Product retrieved successfully.",
+                new ProductDetailDto(product)
         );
     }
 }

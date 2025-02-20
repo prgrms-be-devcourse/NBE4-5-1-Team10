@@ -7,7 +7,7 @@ import nbe341team10.coffeeproject.domain.product.entity.Product;
 
 @Getter
 @AllArgsConstructor
-public class ProductDto {
+public class ProductDetailDto {
     private Long id;
     private String name;
     private String description;
@@ -15,7 +15,7 @@ public class ProductDto {
     private String imageUrl;
     private int stockQuantity;
 
-    public ProductDto(Product product) {
+    public ProductDetailDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
