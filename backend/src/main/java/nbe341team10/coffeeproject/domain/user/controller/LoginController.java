@@ -25,19 +25,25 @@ public class LoginController {
 
     // 회원가입
     @PostMapping("/join")
-    public ResponseEntity<UserResponse> Join(@Valid @RequestBody UserJoinRequest dto) {
+    public ResponseEntity<RsData<UserResponse>> Join(@Valid @RequestBody UserJoinRequest dto) {
         // 중복 검사
         if(userRepository.existsByUsername(dto.username())){
-            throw new RuntimeException("Username is already in use");
+            throw new ServiceException("400-1","Username already exists");
         } else if (userRepository.existsByEmail(dto.email())) {
-            throw new RuntimeException("Email is already in use");
+            throw new ServiceException("400-1","Email is already in use");
         }
 
         Users user = loginService.join(dto);
         UserResponse response=new UserResponse(user);
-        return ResponseEntity.ok(response);
-    }
 
+        RsData<UserResponse> rsData=new RsData<>(
+                "200",
+                "success",
+                response
+        );
+
+        return ResponseEntity.ok(rsData);
+    }
 
 }
 
