@@ -31,7 +31,7 @@ public class ApiV1ProductControllerTest {
 
     @Test
     @DisplayName("상품 목록 조회")
-    void products() throws Exception {
+    void items() throws Exception {
 //        Given 사용자가 상품 목록을 조회하면
 //        When 시스템이 상품 목록을 가져오면
 //        Then 사용자가 상품 목록을 볼 수 있다.
@@ -43,7 +43,7 @@ public class ApiV1ProductControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1ProductController.class))
-                .andExpect(handler().methodName("getProducts"))
+                .andExpect(handler().methodName("getItems"))
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("Products list retrieved successfully."))
                 .andExpect(jsonPath("$.data.items.length()").value(4));
