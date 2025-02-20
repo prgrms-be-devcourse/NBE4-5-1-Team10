@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
-import nbe341team10.coffeeproject.global.dto.ResponseData;
+import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,11 +23,11 @@ public class ApiV1ProductController {
 
     @GetMapping()
     @Transactional(readOnly = true)
-    public ResponseData<ItemsResBody> getItems() {
+    public RsData<ItemsResBody> getItems() {
 
         List<Product> products = productService.getItems();
 
-        return new ResponseData<>(
+        return new RsData<>(
                 "200-1",
                 "Products list retrieved successfully.",
                 new ItemsResBody(products.stream()
