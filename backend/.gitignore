@@ -35,9 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
+.gitignore
 
 ### Custom ###
-src/resources/application.yml
-src/main/resources/application.yml
-### 둘중하나만 걸려라
 

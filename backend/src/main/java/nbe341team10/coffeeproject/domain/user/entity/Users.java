@@ -2,6 +2,8 @@ package nbe341team10.coffeeproject.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import nbe341team10.coffeeproject.global.entity.BaseTime;
 
 @Entity
 @SuperBuilder

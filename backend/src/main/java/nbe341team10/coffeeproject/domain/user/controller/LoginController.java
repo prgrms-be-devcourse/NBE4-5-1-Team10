@@ -8,6 +8,8 @@ import nbe341team10.coffeeproject.domain.user.dto.UserResponse;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.domain.user.service.LoginService;
+import nbe341team10.coffeeproject.global.dto.RsData;
+import nbe341team10.coffeeproject.global.exception.ServiceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
