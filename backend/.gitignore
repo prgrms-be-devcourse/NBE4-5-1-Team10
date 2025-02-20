@@ -40,3 +40,4 @@ out/
 src/resources/application.yml
 build.gradle
 .gitignore
+src/main/resources/application.yml
