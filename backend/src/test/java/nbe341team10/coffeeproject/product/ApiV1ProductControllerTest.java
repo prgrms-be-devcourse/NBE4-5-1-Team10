@@ -41,7 +41,7 @@ public class ApiV1ProductControllerTest {
                 .andExpect(jsonPath("$.data.items[%d]".formatted(i)).exists())
                 .andExpect(jsonPath("$.data.items[%d].id".formatted(i)).value(product.getId()))
                 .andExpect(jsonPath("$.data.items[%d].name".formatted(i)).value(product.getName()))
-                .andExpect(jsonPath("$.data.items[%d].description".formatted(i)).value(product.getDescription()))
+                .andExpect(jsonPath("$.data.items[%d].imageUrl".formatted(i)).value(product.getImageUrl()))
                 .andExpect(jsonPath("$.data.items[%d].price".formatted(i)).value(product.getPrice()))
                 .andExpect(jsonPath("$.data.items[%d].stockQuantity".formatted(i)).value(product.getStockQuantity()));
         }
@@ -81,6 +81,12 @@ public class ApiV1ProductControllerTest {
             .andExpect(jsonPath("$.data.stockQuantity").value(product.getStockQuantity()));
     }
 
+    ResultActions itemRequest(long id) throws Exception {
+        return mvc
+                .perform(get("/api/v1/products/%d".formatted(id)))
+                .andDo(print());
+    }
+
     @Test
     @DisplayName("상품 상세정보 조회")
     void item() throws Exception {
@@ -89,9 +95,7 @@ public class ApiV1ProductControllerTest {
 //        Then 사용자는 상품명, 설명, 가격, 리뷰 등을 확인할 수 있다.
         long productId = 1;
 
-        ResultActions resultActions = mvc
-                .perform(get("/api/v1/products/%d".formatted(productId)))
-                .andDo(print());
+        ResultActions resultActions = itemRequest(productId);
 
         resultActions
                 .andExpect(status().isOk())
@@ -102,6 +106,20 @@ public class ApiV1ProductControllerTest {
 
         Product product = productService.getItem(productId).get();
         checkProduct(resultActions, product);
+    }
+
+    @Test
+    @DisplayName("상품 상세정보 조회 - 존재하지 않는 상품 조회")
+    void item2() throws Exception {
+       long productId = -1;
+        ResultActions resultActions = itemRequest(productId);
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(ApiV1ProductController.class))
+                .andExpect(handler().methodName("getItem"))
+                .andExpect(jsonPath("$.code").value("404-1"))
+                .andExpect(jsonPath("$.msg").value("Product not found."));
     }
 
 }
