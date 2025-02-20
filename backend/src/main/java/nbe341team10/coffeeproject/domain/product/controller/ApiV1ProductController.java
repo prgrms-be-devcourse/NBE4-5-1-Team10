@@ -1,8 +1,8 @@
 package nbe341team10.coffeeproject.domain.product.controller;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.product.dto.ProductDetailDto;
-import nbe341team10.coffeeproject.domain.product.dto.ProductListDto;
+import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
+import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemsDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ApiV1ProductController {
     private final ProductService productService;
 
-    public record ItemsResBody(List<ProductListDto> items) {}
+    public record ItemsResBody(List<ProductGetItemsDto> items) {}
 
     @GetMapping()
     @Transactional(readOnly = true)
@@ -34,14 +34,14 @@ public class ApiV1ProductController {
                 "200-1",
                 "Products list retrieved successfully.",
                 new ItemsResBody(products.stream()
-                        .map(ProductListDto::new)
+                        .map(ProductGetItemsDto::new)
                         .toList())
         );
     }
 
 
     @GetMapping("{productId}")
-    public RsData<ProductDetailDto> getItem(@PathVariable long productId) {
+    public RsData<ProductGetItemDto> getItem(@PathVariable long productId) {
         Product product = productService.getItem(productId).orElseThrow(
                 () -> new ServiceException("404-1", "Product not found.")
         );
@@ -49,7 +49,7 @@ public class ApiV1ProductController {
         return new RsData<>(
                 "200-1",
                 "Product retrieved successfully.",
-                new ProductDetailDto(product)
+                new ProductGetItemDto(product)
         );
     }
 }
