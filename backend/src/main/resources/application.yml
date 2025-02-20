@@ -9,9 +9,9 @@ spring:
       enabled: always
 
   datasource:
-    url: jdbc:mysql://localhost:3306/rest?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: sa
-    password: mysqlpassword
+    url: jdbc:mysql://localhost:3306/a2
+    username: root
+    password: lldj123414
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
