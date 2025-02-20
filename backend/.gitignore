@@ -38,6 +38,6 @@ out/
 
 ### Custom ###
 src/resources/application.yml
-build.gradle
-.gitignore
 src/main/resources/application.yml
+### 둘중하나만 걸려라
+

@@ -3,9 +3,9 @@ package nbe341team10.coffeeproject.domain.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.user.dto.JoinDTO;
+import nbe341team10.coffeeproject.domain.user.dto.UserJoinRequest;
 import nbe341team10.coffeeproject.domain.user.dto.UserResponse;
-import nbe341team10.coffeeproject.domain.user.entity.UserEntity;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.domain.user.service.LoginService;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/user")
 public class LoginController {
 
     private final UserRepository userRepository;
@@ -25,15 +25,15 @@ public class LoginController {
 
     // 회원가입
     @PostMapping("/join")
-    public ResponseEntity<UserResponse> Join(@Valid @RequestBody JoinDTO dto) {
+    public ResponseEntity<UserResponse> Join(@Valid @RequestBody UserJoinRequest dto) {
         // 중복 검사
-        if(userRepository.existsByUsername(dto.getUsername())){
+        if(userRepository.existsByUsername(dto.username())){
             throw new RuntimeException("Username is already in use");
-        } else if (userRepository.existsByEmail(dto.getEmail())) {
+        } else if (userRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email is already in use");
         }
 
-        UserEntity user = loginService.join(dto);
+        Users user = loginService.join(dto);
         UserResponse response=new UserResponse(user);
         return ResponseEntity.ok(response);
     }

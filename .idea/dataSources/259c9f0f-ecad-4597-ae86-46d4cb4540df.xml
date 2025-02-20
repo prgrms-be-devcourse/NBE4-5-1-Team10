@@ -1054,7 +1054,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </table>
     <column id="303" parent="302" name="id">
-      <AutoIncrement>2</AutoIncrement>
+      <AutoIncrement>27</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>bigint|0s</StoredType>
@@ -1071,13 +1071,13 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <Position>4</Position>
       <StoredType>varchar(255)|0s</StoredType>
     </column>
-    <column id="307" parent="302" name="role">
+    <column id="307" parent="302" name="username">
       <Position>5</Position>
-      <StoredType>enum(&apos;ROLE_ADMIN&apos;, &apos;ROLE_USER&apos;)|0e</StoredType>
-    </column>
-    <column id="308" parent="302" name="username">
-      <Position>6</Position>
       <StoredType>varchar(255)|0s</StoredType>
+    </column>
+    <column id="308" parent="302" name="role">
+      <Position>6</Position>
+      <StoredType>enum(&apos;ROLE_ADMIN&apos;, &apos;ROLE_USER&apos;)|0e</StoredType>
     </column>
     <index id="309" parent="302" name="PRIMARY">
       <ColNames>id</ColNames>
