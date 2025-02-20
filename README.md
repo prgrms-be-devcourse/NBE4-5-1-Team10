@@ -21,6 +21,6 @@
 
 ## 와이어프레임(Wireframe)
 
-와이어프레임은 `docs/wireframe.png` 에서 확인할 수 있습니다.
+와이어프레임은 [Creatie Link](https://creatie.ai/file/152751559819701?page_id=M&shareId=152751559819701) 에서 확인할 수 있습니다.
 
 ![Wireframe](docs/wireframe.png)
