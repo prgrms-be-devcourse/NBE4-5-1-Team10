@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.DTO.login;
+package nbe341team10.coffeeproject.domain.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

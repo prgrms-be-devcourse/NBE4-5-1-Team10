@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.controller;
+package nbe341team10.coffeeproject.domain.user.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

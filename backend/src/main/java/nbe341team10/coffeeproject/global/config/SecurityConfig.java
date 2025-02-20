@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.config;
+package nbe341team10.coffeeproject.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

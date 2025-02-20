@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.domain.user;
+package nbe341team10.coffeeproject.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

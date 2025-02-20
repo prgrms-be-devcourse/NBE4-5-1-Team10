@@ -1,10 +1,10 @@
-package nbe341team10.coffeeproject.service.login;
+package nbe341team10.coffeeproject.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.DTO.login.JoinDTO;
-import nbe341team10.coffeeproject.domain.user.Role;
-import nbe341team10.coffeeproject.domain.user.UserEntity;
-import nbe341team10.coffeeproject.repository.UserRepository;
+import nbe341team10.coffeeproject.domain.user.dto.JoinDTO;
+import nbe341team10.coffeeproject.domain.user.entity.Role;
+import nbe341team10.coffeeproject.domain.user.entity.UserEntity;
+import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ public class LoginService {
                 .address(address)
                 .role(Role.ROLE_USER)
                 .build();
-        
+
         userRepository.save(user);
         return user;
     }

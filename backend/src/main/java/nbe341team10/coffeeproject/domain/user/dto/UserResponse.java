@@ -1,8 +1,7 @@
-package nbe341team10.coffeeproject.DTO.login;
+package nbe341team10.coffeeproject.domain.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import nbe341team10.coffeeproject.domain.user.UserEntity;
+import nbe341team10.coffeeproject.domain.user.entity.UserEntity;
 
 @Data
 public class UserResponse {

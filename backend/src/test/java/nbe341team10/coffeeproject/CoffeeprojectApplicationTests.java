@@ -1,10 +1,9 @@
 package nbe341team10.coffeeproject;
 
-import nbe341team10.coffeeproject.DTO.login.JoinDTO;
-import nbe341team10.coffeeproject.domain.user.Role;
-import nbe341team10.coffeeproject.domain.user.UserEntity;
-import nbe341team10.coffeeproject.repository.UserRepository;
-import nbe341team10.coffeeproject.service.login.LoginService;
+import nbe341team10.coffeeproject.domain.user.dto.JoinDTO;
+import nbe341team10.coffeeproject.domain.user.entity.UserEntity;
+import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
+import nbe341team10.coffeeproject.domain.user.service.LoginService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
