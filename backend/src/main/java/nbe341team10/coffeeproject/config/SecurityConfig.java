@@ -32,7 +32,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()    // 접근 허용
+                        .requestMatchers("api/v1/login", "/", "api/v1/join","/swagger-ui/**","/v3/api-docs/**").permitAll()    // 접근 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자만
                         .anyRequest().authenticated());
 

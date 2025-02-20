@@ -13,7 +13,7 @@ public class home {
         return ResponseEntity.ok("homepage");
     }
 
-    @GetMapping("/")
+    @GetMapping("/admin")
     public ResponseEntity<String> admin() {
         return ResponseEntity.ok("admin");
     }

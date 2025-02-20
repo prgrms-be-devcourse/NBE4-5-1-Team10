@@ -1,9 +1,6 @@
-package nbe341team10.coffeeproject.domain;
+package nbe341team10.coffeeproject.domain.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +15,9 @@ public class UserEntity {
     private String password;
 
     private String username;
-    private String role;
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;    // 권한
 
 }
