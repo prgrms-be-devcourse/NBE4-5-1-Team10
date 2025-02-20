@@ -2,7 +2,10 @@
 4기 5회차 10팀 커피프린스 10호점 1차 프로젝트
 
 ## 구성원
-이화영 정준호 김형준 윤원석
+[윤원석](https://github.com/wonseokyoon)
+[이화영](https://github.com/2hwayoung)
+[김형준](https://github.com/Hyung-Junn)
+[정준호](https://github.com/junho1131)
 
 ## 컨벤션
 [컨벤션](https://github.com/prgrms-be-devcourse/NBE4-5-1-Team10/blob/main/docs/commit_convention.md)
