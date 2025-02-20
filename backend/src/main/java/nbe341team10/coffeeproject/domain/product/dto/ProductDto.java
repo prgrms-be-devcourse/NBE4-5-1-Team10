@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 
-import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -13,7 +12,7 @@ public class ProductDto {
     private String name;
     private String description;
     private int price;
-    private String image_url;
+    private String imageUrl;
     private int stockQuantity;
 
     public ProductDto(Product product) {
@@ -21,7 +20,7 @@ public class ProductDto {
         this.name = product.getName();
         this.description = product.getDescription();
         this.price = product.getPrice();
-        this.image_url = product.getImage_url();
+        this.imageUrl = product.getImageUrl();
         this.stockQuantity = product.getStockQuantity();
     }
 }
