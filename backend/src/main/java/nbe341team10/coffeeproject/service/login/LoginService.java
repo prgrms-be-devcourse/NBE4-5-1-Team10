@@ -24,14 +24,14 @@ public class LoginService {
         String password = joinDTO.getPassword();
         String address = joinDTO.getAddress();
 
-        UserEntity user = new UserEntity();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(bCryptPasswordEncoder.encode(password));
-        user.setRole(Role.ROLE_USER);
-        user.setAddress(address);
-
-
+        UserEntity user = UserEntity.builder()
+                .username(username)
+                .email(email)
+                .password(bCryptPasswordEncoder.encode(password))
+                .address(address)
+                .role(Role.ROLE_USER)
+                .build();
+        
         userRepository.save(user);
         return user;
     }
