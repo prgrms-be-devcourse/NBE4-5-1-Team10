@@ -3,16 +3,11 @@ package nbe341team10.coffeeproject.domain.order.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
-import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
-import nbe341team10.coffeeproject.domain.order.service.OrderService;
-import nbe341team10.coffeeproject.global.dto.RsData;
-import org.springframework.web.bind.annotation.GetMapping;
 import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
