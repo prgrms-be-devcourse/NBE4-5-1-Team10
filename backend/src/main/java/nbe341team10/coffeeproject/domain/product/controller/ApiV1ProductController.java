@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
+<<<<<<< HEAD
 import nbe341team10.coffeeproject.global.dto.RsData;
+=======
+import nbe341team10.coffeeproject.global.dto.ResponseData;
+>>>>>>> c4e42ab (feat: add getProducts service with database)
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
