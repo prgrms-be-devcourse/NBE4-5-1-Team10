@@ -5,6 +5,26 @@
 
 ---
 
+### 📌 Running MySQL with Docker Compose & Enabling Query Logs
+
+Start the container:
+
+```bash
+docker-compose up -d
+```
+
+Since logs are mapped to your local machine in `./mysql/conf`, you can monitor them directly:
+
+```bash
+tail -f ./mysql_logs/general.log
+```
+
+Stop the container:
+
+```bash
+docker-compose down
+```
+
 ## 와이어프레임(Wireframe)
 
 와이어프레임은 [Creatie Link](https://creatie.ai/file/152751559819701?page_id=M&shareId=152751559819701) 에서 확인할 수 있습니다.
