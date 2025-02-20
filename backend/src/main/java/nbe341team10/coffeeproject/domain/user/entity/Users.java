@@ -22,3 +22,4 @@ public class Users extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Role role;    // 권한
 }
+
