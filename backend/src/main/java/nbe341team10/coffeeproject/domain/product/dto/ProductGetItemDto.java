@@ -7,6 +7,7 @@ import nbe341team10.coffeeproject.domain.product.entity.Product;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductGetItemDto {
     private Long id;
     private String name;
