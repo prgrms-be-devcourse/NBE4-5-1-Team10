@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude()
 public class RsData<T> {
     private String code;
     private String msg;

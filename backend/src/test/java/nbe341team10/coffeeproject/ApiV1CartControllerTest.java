@@ -207,7 +207,7 @@ public class ApiV1CartControllerTest {
                 .andExpect(handler().handlerType(ApiV1CartController.class))
                 .andExpect(handler().methodName("getCart"))
                 .andExpect(jsonPath("$.code").value("200-1"))
-                .andExpect(jsonPath("$.msg").value("Cart retrieved successfully"))
+                .andExpect(jsonPath("$.msg").value("Cart retrieved successfully."))
                 .andExpect(jsonPath("$.data.id").value(cart.getId()))
                 .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
                 .andExpect(jsonPath("$.data.cartItems").isArray());
@@ -227,7 +227,7 @@ public class ApiV1CartControllerTest {
                 .andExpect(handler().handlerType(ApiV1CartController.class))
                 .andExpect(handler().methodName("getCart"))
                 .andExpect(jsonPath("$.code").value("200-2"))
-                .andExpect(jsonPath("$.msg").value("Cart is empty"))
+                .andExpect(jsonPath("$.msg").value("Cart is empty."))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
