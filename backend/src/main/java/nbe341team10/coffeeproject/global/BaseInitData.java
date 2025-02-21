@@ -2,6 +2,8 @@ package nbe341team10.coffeeproject.global;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
+import nbe341team10.coffeeproject.domain.user.dto.UserJoinRequest;
+import nbe341team10.coffeeproject.domain.user.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BaseInitData {
 
     private final ProductService productService;
+    private final LoginService loginService;
 
     @Autowired
     @Lazy
@@ -22,8 +25,22 @@ public class BaseInitData {
     @Bean
     public ApplicationRunner applicationRunner() {
         return args -> {
+            self.userInit();
             self.productInit();
         };
+    }
+
+    @Transactional
+    public void userInit() {
+        if(loginService.count() > 0) {
+            return;
+        }
+        UserJoinRequest user = new UserJoinRequest("tester1",
+                "tester1@example.com",
+                "password123",
+                "Test Address");
+
+        loginService.join(user);
     }
 
     @Transactional
