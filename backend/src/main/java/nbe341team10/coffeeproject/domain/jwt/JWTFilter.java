@@ -1,6 +1,7 @@
 package nbe341team10.coffeeproject.domain.jwt;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -33,39 +35,32 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-
-            System.out.println("token null");
+            // 다음 필터로
             filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
             return;
         }
 
-        System.out.println("authorization now");
         //Bearer 부분 제거 후 순수 토큰만 획득
-        String token = authorization.split(" ")[1];
+        String token = authorization.substring(7);
 
-        //토큰 소멸 시간 검증
-        if (jwtUtil.isExpired(token)) {
-
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
+        // 토큰 만료되면
+        try{
+            jwtUtil.isExpired(token);
+        }catch (ExpiredJwtException e){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            PrintWriter out = response.getWriter();
+            out.print("Expired JWT token");
             return;
         }
 
         //토큰에서 username과 role 획득
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
-        Role authority=Role.valueOf(role);      // 권한
 
         //userEntity를 생성하여 값 set
-        Users user = new Users();
-        user.builder()
+        Users user = Users.builder()
                 .email(email)
-                .password("temppassword")
-                .role(authority)
+                .role(Role.valueOf(role))
                 .build();
 
         //UserDetails에 회원 정보 객체 담기
@@ -77,7 +72,7 @@ public class JWTFilter extends OncePerRequestFilter {
         //세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // 다음 필터 ㄱㄱ
+        // 다음 필터로
         filterChain.doFilter(request, response);
     }
 

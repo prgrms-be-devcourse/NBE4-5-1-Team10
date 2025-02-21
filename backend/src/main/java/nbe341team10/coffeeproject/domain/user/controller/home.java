@@ -29,6 +29,9 @@ public class home {
     @GetMapping("/user")
     public ResponseEntity<Users> user(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Users user=userRepository.findByEmail(userDetails.getEmail());
+        if(user!=null){
+            System.out.println(user.getEmail());
+        }
         return ResponseEntity.ok(user);
     }
 
