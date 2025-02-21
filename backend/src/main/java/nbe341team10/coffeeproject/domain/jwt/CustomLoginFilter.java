@@ -29,11 +29,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
-    public CustomLoginFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+    public CustomLoginFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JWTUtil jwtUtil) {
         super.setFilterProcessesUrl("/api/v1/user/login");
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -64,7 +66,17 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (JWT 발급)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
-        String email = ((CustomUserDetails) authentication.getPrincipal()).getEmail();
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String email=userDetails.getEmail();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth=iterator.next();
+
+        String role=auth.getAuthority();
+        String token= jwtUtil.createJwt(email,role,24*60*60L);  // 하루
+        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
 
         RsData<String> userResponse=new RsData<>("200","login-success","email: "+email);
         response.setContentType("application/json");
