@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.global.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
@@ -13,6 +14,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -55,6 +60,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
+                        //.requestMatchers("api/**").permitAll()    // 접근 허용
+                        .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user").permitAll()    // 접근 허용
                         .requestMatchers(HttpMethod.GET, "/api/*/products/**").permitAll()
                         .requestMatchers("/api/*/cart/**").permitAll()
                         .requestMatchers("api/*/user/**").permitAll()    // 접근 허용
@@ -74,6 +81,23 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .cors((cors) ->cors.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration configuration = new CorsConfiguration();
+
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        configuration.setAllowedMethods(Collections.singletonList("*"));
+                        configuration.setAllowCredentials(true);
+                        configuration.setAllowedHeaders(Collections.singletonList("*"));
+                        configuration.setMaxAge(3600L);
+                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                        return configuration;
+                    }
+                }));
+
         http
                 .cors((cors) ->cors.configurationSource(new CorsConfigurationSource() {
                     @Override
