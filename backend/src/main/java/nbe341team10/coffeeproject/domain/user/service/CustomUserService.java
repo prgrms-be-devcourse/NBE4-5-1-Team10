@@ -20,6 +20,7 @@ public class CustomUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Users user=userRepository.findByEmail(email);
         if(user==null){
+            // 예외 던짐, 처리는 filter에서
             throw new UsernameNotFoundException("");
         }
         // UserDetails에 담아서 리턴 -> AuthenticatiomnManager가 검증

@@ -6,6 +6,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import nbe341team10.coffeeproject.domain.user.dto.CustomUserDetails;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.global.dto.RsData;
@@ -43,6 +44,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
             Users user = userRepository.findByEmail(email);
             if (user == null) {
                 // 존재하지 않는 사용자
+                // 예외만 던짐, 처리는 아래에서
                 throw new UsernameNotFoundException("");
             }
 
@@ -56,8 +58,15 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     //로그인 성공시 실행하는 메소드 (JWT 발급)
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
+        String email = ((CustomUserDetails) authentication.getPrincipal()).getEmail();
 
+        RsData<String> userResponse=new RsData<>("200","login-success","email: "+email);
+        response.setContentType("application/json");
+        response.setStatus(HttpStatus.OK.value());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString(userResponse));
     }
 
     //로그인 실패시 실행하는 메소드
