@@ -25,11 +25,16 @@ import java.io.IOException;
 import java.security.Provider;
 import java.util.*;
 
-@RequiredArgsConstructor
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+
+    public CustomLoginFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+        super.setFilterProcessesUrl("/api/v1/user/login");
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
