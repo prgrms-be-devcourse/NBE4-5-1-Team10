@@ -35,8 +35,8 @@ public class ApiV1CartController {
         Users actor = rq.getCurrentActor();
         Product product = productService.getItem(addProductRequest.productId).orElseThrow(
                 () -> new ServiceException(
-                        "400-1",
-                        "Product not found"
+                        "404-1",
+                        "Product with ID %d not found".formatted(addProductRequest.productId)
                 )
         );
         CartItem cartItem = cartService.addProduct(actor, product, addProductRequest.quantity);

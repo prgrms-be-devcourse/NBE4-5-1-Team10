@@ -164,7 +164,19 @@ public class ApiV1CartControllerTest {
 
     @Test
     @DisplayName("장바구니 상품 담기 - 존재하지 않는 상품 추가")
-    void add4() throws Exception {}
+    void add4() throws Exception {
+    long nonExistentProductId = 999L;
+    int quantity = 1;
+
+    ResultActions resultActions = addRequest(nonExistentProductId, quantity);
+
+    resultActions
+            .andExpect(status().isNotFound())
+            .andExpect(handler().handlerType(ApiV1CartController.class))
+            .andExpect(handler().methodName("addProduct"))
+            .andExpect(jsonPath("$.code").value("404-1"))
+            .andExpect(jsonPath("$.msg").value("Product with ID %d not found".formatted(nonExistentProductId)));
+    }
 
 
 }
