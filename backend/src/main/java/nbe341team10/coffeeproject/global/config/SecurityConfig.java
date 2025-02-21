@@ -3,6 +3,7 @@ package nbe341team10.coffeeproject.global.config;
 import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
+import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +62,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         //.requestMatchers("api/**").permitAll()    // 접근 허용
+                        .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user","api/v1/user/reissue").permitAll()    // 접근 허용
                         .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user").permitAll()    // 접근 허용
                         .requestMatchers(HttpMethod.GET, "/api/*/products/**").permitAll()
                         .requestMatchers("/api/*/cart/**").permitAll()
@@ -75,6 +77,7 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
         http
+                .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
                 .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
         http
                 .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);

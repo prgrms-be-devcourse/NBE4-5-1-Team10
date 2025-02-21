@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.user.dto.CustomUserDetails;
+import nbe341team10.coffeeproject.domain.user.entity.Refresh;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import nbe341team10.coffeeproject.global.exception.ServiceException;
@@ -30,8 +32,10 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public CustomLoginFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JWTUtil jwtUtil) {
+    public CustomLoginFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+        this.refreshRepository = refreshRepository;
         super.setFilterProcessesUrl("/api/v1/user/login");
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
@@ -87,6 +91,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 //
 //        new ObjectMapper().writeValue(response.getWriter(), tokens);
 
+        // DB에 저장
+        addRefreshToken(email,refresh,7 * 24 * 60 * 60 * 1000L);
 
         // json 형식
         Map<String,String> tokens=new HashMap<>();
@@ -95,11 +101,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         response.setContentType("application/json");
         RsData<Map<String,String>> userResponse=new RsData<>("200","login-success",tokens);
+        response.addCookie(createCookie("refresh",refresh));
         response.setStatus(HttpStatus.OK.value());
 
         ObjectMapper objectMapper = new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(userResponse));
     }
+
 
     //로그인 실패시 실행하는 메소드
     @Override
@@ -132,5 +140,24 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 //        }
     }
 
+    // 쿠키 생성
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(1 * 24 * 60 * 60); // 하루
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
+    // DB에 저장
+    private void addRefreshToken(String email, String refresh, Long expiredMs) {
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        Refresh refreshToken = new Refresh();
+        refreshToken.setEmail(email);
+        refreshToken.setRefresh(refresh);
+        refreshToken.setExpiration(date.toString());
+
+        refreshRepository.save(refreshToken);
+    }
 
 }

@@ -54,7 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 // 액세스 토큰 만료 검증
                 jwtUtil.isExpired(token);
             }else if(category.equals("refresh")){
-                if(request.getRequestURI().equals("api/**/user/reissue")){  // 아직 안만듬
+                if(request.getRequestURI().equals("/api/v1/user/reissue")){  // 아직 안만듬
                     // 재발급 처리
                     filterChain.doFilter(request, response);
                     return;
