@@ -1,7 +1,6 @@
 package nbe341team10.coffeeproject.domain.cart.service;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.cart.dto.CartAddProductResponse;
 import nbe341team10.coffeeproject.domain.cart.entity.Cart;
 import nbe341team10.coffeeproject.domain.cart.entity.CartItem;
 import nbe341team10.coffeeproject.domain.cart.repository.CartItemRepository;
@@ -47,6 +46,7 @@ public class CartService {
 
         cartItemRepository.save(cartItem);
         return cartItem;
+
     }
 
 }
