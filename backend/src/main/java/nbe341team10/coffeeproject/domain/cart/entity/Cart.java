@@ -38,7 +38,6 @@ public class Cart extends BaseTime {
                 .build();
 
         cartItems.add(cartItem);
-
         return cartItem;
     }
 

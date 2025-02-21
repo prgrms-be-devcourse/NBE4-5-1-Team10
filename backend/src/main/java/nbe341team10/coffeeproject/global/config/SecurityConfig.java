@@ -2,7 +2,10 @@ package nbe341team10.coffeeproject.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+<<<<<<< HEAD
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+=======
+>>>>>>> 1d10c55 (feat: implement addProductToCart POST API)
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
