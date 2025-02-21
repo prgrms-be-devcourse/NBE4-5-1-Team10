@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.hamcrest.Matchers.matchesPattern;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -68,7 +68,6 @@ public class ApiV1CartControllerTest {
                 )
                 .andDo(print());
     }
-
 
     private void checkCartItems(ResultActions resultActions, List<CartItem> cartItems) throws Exception {
         for(int i = 0; i < cartItems.size(); i++) {
@@ -178,5 +177,58 @@ public class ApiV1CartControllerTest {
             .andExpect(jsonPath("$.msg").value("Product with ID %d not found".formatted(nonExistentProductId)));
     }
 
+    ResultActions cartRequest() throws Exception {
+        return mvc
+                .perform(get("/api/v1/cart")
+                        .header("Authorization", "Bearer " + accessToken)
+                )
+                .andDo(print());
+    }
+
+
+    @Test
+    @DisplayName("장바구니 조회 - 장바구니가 존재할 경우")
+    void cart() throws Exception {
+        // Given
+        long productId1 = 1L;
+        long productId2 = 2L;
+        int quantity1 = 2;
+        int quantity2 = 3;
+
+        addRequest(productId1, quantity1);
+        addRequest(productId2, quantity2);
+
+        ResultActions resultActions = cartRequest();
+
+        Cart cart = cartService.getCart(loginedUser.getId()).get();
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("getCart"))
+                .andExpect(jsonPath("$.code").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("Cart retrieved successfully"))
+                .andExpect(jsonPath("$.data.id").value(cart.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.cartItems").isArray());
+
+        checkCartItems(resultActions, cart.getCartItems());
+    }
+
+    @Test
+    @DisplayName("장바구니 조회 - 장바구니가 존재하지 않을 경우 빈 응답 반환")
+    void cart2() throws Exception {
+        // When
+        ResultActions resultActions = cartRequest();
+
+        // Then
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("getCart"))
+                .andExpect(jsonPath("$.code").value("200-2"))
+                .andExpect(jsonPath("$.msg").value("Cart is empty"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
 
 }
