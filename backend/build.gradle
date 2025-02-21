@@ -29,6 +29,8 @@ dependencies {
 
 
 	compileOnly 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok' // Add this for tests!
+	testAnnotationProcessor 'org.projectlombok:lombok' // Add this for tests!
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'com.h2database:h2'
