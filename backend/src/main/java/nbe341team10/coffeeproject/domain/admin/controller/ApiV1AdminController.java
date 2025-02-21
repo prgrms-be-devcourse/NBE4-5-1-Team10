@@ -6,13 +6,14 @@ import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
 //import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-//@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class ApiV1AdminController {
 
     private final ProductService productService;
