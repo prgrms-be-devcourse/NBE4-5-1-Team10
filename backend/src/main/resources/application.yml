@@ -9,12 +9,18 @@ spring:
       enabled: always
 
   datasource:
-    url: jdbc:mysql://localhost:3306/a2
-    username: root
-    password: lldj123414
+    url: jdbc:mysql://localhost:3306/rest?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: sa
+    password: mysqlpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
+
+  # 시크릿 키
+  jwt:
+    secret: b075fb05b988c8e6e1065f35e6d6b992b68cc216d2265aac73e088d9a3ffdf7fecbd554c8ba0cd7c8e45a7e32b7aede0e72b6a2788bdc5518b8b313473f3b1a0
+
+
 
   jpa:
     hibernate:
