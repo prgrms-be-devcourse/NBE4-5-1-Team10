@@ -1,6 +1,7 @@
 package nbe341team10.coffeeproject.domain.jwt;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import nbe341team10.coffeeproject.domain.user.dto.CustomUserDetails;
 import nbe341team10.coffeeproject.domain.user.entity.Role;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,13 +45,36 @@ public class JWTFilter extends OncePerRequestFilter {
         //Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.substring(7);
 
-        // 토큰 만료되면
         try{
+            String category=jwtUtil.getCategory(token);
+            // 토큰 만료검증
             jwtUtil.isExpired(token);
+
+            if(category.equals("access")){
+                // 액세스 토큰 만료 검증
+                jwtUtil.isExpired(token);
+            }else if(category.equals("refresh")){
+                if(request.getRequestURI().equals("api/**/user/reissue")){  // 아직 안만듬
+                    // 재발급 처리
+                    filterChain.doFilter(request, response);
+                    return;
+                }else{
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    RsData<String> errorResponse=new RsData<>("401","unauthorized","refresh token cannot be used for access");
+                    response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                    return;
+                }
+            }
+
         }catch (ExpiredJwtException e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            PrintWriter out = response.getWriter();
-            out.print("Expired JWT token");
+            response.setContentType("application/json");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            RsData<String> errorResponse= new RsData<>("401","unauthorized","Token is expired");
+            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
             return;
         }
 
