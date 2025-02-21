@@ -46,7 +46,6 @@ public class CartService {
 
         cartItemRepository.save(cartItem);
         return cartItem;
-
     }
 
 }
