@@ -75,11 +75,26 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth=iterator.next();
 
         String role=auth.getAuthority();
-        String token= jwtUtil.createJwt(email,role,24*60*60L);  // 하루
-        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
 
-        RsData<String> userResponse=new RsData<>("200","login-success","email: "+email);
+        String access= jwtUtil.createJwt("access",email,role,1 * 60 * 60 * 1000L); // 한시간
+        String refresh= jwtUtil.createJwt("refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
+
+//        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
+//
+//        response.setContentType("application/json");
+//        RsData<String> userResponse=new RsData<>("200","login-success","access: "+ tokens.get("access") +" \nrefresh: "+ tokens.get("refresh"));
+//        response.setStatus(HttpStatus.OK.value());
+//
+//        new ObjectMapper().writeValue(response.getWriter(), tokens);
+
+
+        // json 형식
+        Map<String,String> tokens=new HashMap<>();
+        tokens.put("access",access);
+        tokens.put("refresh",refresh);
+
         response.setContentType("application/json");
+        RsData<Map<String,String>> userResponse=new RsData<>("200","login-success",tokens);
         response.setStatus(HttpStatus.OK.value());
 
         ObjectMapper objectMapper = new ObjectMapper();
