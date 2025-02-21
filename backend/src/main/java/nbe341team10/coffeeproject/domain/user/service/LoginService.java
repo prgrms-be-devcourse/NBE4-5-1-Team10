@@ -42,4 +42,8 @@ public class LoginService {
     public boolean checkEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public String getAccessToken(Users user) {
+        return "";
+    }
 }
