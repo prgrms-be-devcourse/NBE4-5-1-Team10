@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.admin.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
@@ -38,10 +39,20 @@ public class ApiV1AdminController {
 
 
 
-//    @DeleteMapping("product/{id}")
+    @DeleteMapping("/product/{id}")
+    public RsData<Void> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return new RsData<>("200", "상품 삭제 성공");
+        } catch (EntityNotFoundException e) {
+            return new RsData<>("404", e.getMessage());
+        } catch (Exception e) {
+            return new RsData<>("500", "상품 삭제 실패: " + e.getMessage());
+        }
+    }
 
 
-    //delete 메소드 생기면
+
 
 //    @GetMapping("products/orderlist")
 //    public RsData<List<OrderDto>> getOrderList() {

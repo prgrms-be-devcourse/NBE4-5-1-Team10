@@ -36,7 +36,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("api/**").permitAll()    // 접근 허용
-                        .requestMatchers("api/v1/admin//**").hasRole("ADMIN") // 관리자만
+                        .requestMatchers("api/v1/admin/**").hasRole("ADMIN") // 관리자만
                         .requestMatchers(HttpMethod.GET, "/api/*/products/**").permitAll()
                         .requestMatchers("/api/*/cart/**").permitAll()
                         .requestMatchers("api/*/user/**").permitAll()    // 접근 허용

@@ -15,10 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -72,4 +74,47 @@ class ProductAdminTest {
         assertEquals("test.jpg", product.getImageUrl());
         assertEquals(50, product.getStockQuantity());
     }
+
+    @Test
+    @DisplayName("상품 삭제 성공 확인")
+    @WithMockUser(roles = "ADMIN")
+    void deleteProductSuccess() throws Exception {
+        // 1. 기존 상품 조회 (이름으로 조회)
+        Product product = productService.getItems().stream()
+                .filter(p -> p.getName().equals("에티오피아 예가체프"))
+                .findFirst().orElseThrow(() -> new AssertionError("Product not found"));
+
+        Long productId = product.getId();
+
+        // 2. 상품 삭제 및 ResultActions 획득
+        ResultActions resultActions = mvc.perform(delete("/api/v1/admin/product/" + productId))
+                .andDo(print());
+
+        // 3. 삭제 성공 응답 확인
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("상품 삭제 성공"))
+                .andExpect(handler().handlerType(ApiV1AdminController.class));
+
+        // 4. 삭제된 상품 조회 (GET 요청)
+        mvc.perform(get("/api/v1/admin/product/" + productId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 상품 없음")
+    @WithMockUser(roles = "ADMIN")
+    void deleteProductNotFound() throws Exception {
+        Long nonExistentProductId = 99999L;
+
+        ResultActions resultActions = mvc.perform(delete("/api/v1/admin/product/" + nonExistentProductId))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.msg").value("Product not found with id: " + nonExistentProductId));
+    }
+
 }
