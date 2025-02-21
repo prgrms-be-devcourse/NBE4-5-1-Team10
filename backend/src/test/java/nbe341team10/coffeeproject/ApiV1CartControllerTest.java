@@ -136,8 +136,30 @@ public class ApiV1CartControllerTest {
     @Test
     @DisplayName("장바구니 상품 담기 - 이미 존재하는 상품 수량 추가")
     void add3() throws Exception {
+        long productId = 1L;
+        int initialQuantity = 2;
+        int additionalQuantity = 3;
+        int totalQuantity = initialQuantity + additionalQuantity;
 
+        // Add the product to the cart for the first time
+        addRequest(productId, initialQuantity);
 
+        // Add the same product again to increase quantity
+        ResultActions resultActions = addRequest(productId, additionalQuantity);
+
+        Cart cart = cartService.getCart(loginedUser.getId()).get();
+
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("addProduct"))
+                .andExpect(jsonPath("$.code").value("201-1"))
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, totalQuantity)))
+                .andExpect(jsonPath("$.data.id").value(cart.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.cartItems").isArray());
+
+        checkCartItems(resultActions, cart.getCartItems());
     }
 
     @Test

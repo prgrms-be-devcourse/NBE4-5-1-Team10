@@ -30,16 +30,20 @@ public class CartService {
     public CartItem addProduct(Users user, Product product, int quantity) {
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> cartRepository.save(
-                    Cart.builder()
-                            .user(user)
-                            .build()
-                        ));
+                        Cart.builder()
+                                .user(user)
+                                .build()
+                ));
 
-        CartItem cartItem = cart.addCartItem(product, quantity);
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId())
+                .map(item -> {
+                    item.increaseQuantity(quantity);
+                    return item;
+                })
+                .orElseGet(() -> cart.addCartItem(product, quantity));
 
         cartItemRepository.save(cartItem);
-
         return cartItem;
-
     }
+
 }
