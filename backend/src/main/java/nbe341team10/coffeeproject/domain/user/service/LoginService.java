@@ -46,4 +46,8 @@ public class LoginService {
     public String getAccessToken(Users user) {
         return "";
     }
+
+    public long count() {
+        return userRepository.count();
+    }
 }

@@ -12,7 +12,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Optional<Users> findByUsername(String user1) {
-        return null;
+    public Optional<Users> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

@@ -45,7 +45,7 @@ public class ApiV1CartControllerTest {
 
     @BeforeEach
     void login() {
-        loginedUser = userService.findByUsername("user1").get();
+        loginedUser = userService.findByEmail("tester1@example.com").get();
         accessToken = loginService.getAccessToken(loginedUser);
     }
 
@@ -59,8 +59,8 @@ public class ApiV1CartControllerTest {
                         .header("Authorization", "Bearer " + accessToken)
                         .content("""
                             {
-                                "productId": "%d"
-                                "quantity": "%d"
+                                "productId": %d,
+                                "quantity": %d
                             }
                             """.formatted(productId, quantity)
                             .stripIndent())
@@ -70,8 +70,6 @@ public class ApiV1CartControllerTest {
                 )
                 .andDo(print());
 
-        resultActions.andExpect(status().isOk());
-
         Cart cart = cartService.getLatestCart(loginedUser.getId()).get();
         CartItem cartItem = cartService.getCartItem(cart.getId(), productId).get();
 
@@ -80,7 +78,7 @@ public class ApiV1CartControllerTest {
                 .andExpect(handler().handlerType(ApiV1CartController.class))
                 .andExpect(handler().methodName("addProduct"))
                 .andExpect(jsonPath("$.code").value("201-1"))
-                .andExpect(jsonPath("$.msg").value("The quantity of item %d is a total of %d".formatted(productId, cartItem.getQuantity())));
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, cartItem.getQuantity())));
     }
 
     @Test
