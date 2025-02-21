@@ -40,6 +40,7 @@ public class ApiV1CartController {
                 )
         );
         CartItem cartItem = cartService.addProduct(actor, product, addProductRequest.quantity);
+        
         return new RsData<>(
                 "201-1",
                 "The quantity of product %d is a total of %d".formatted(product.getId(), cartItem.getQuantity()),

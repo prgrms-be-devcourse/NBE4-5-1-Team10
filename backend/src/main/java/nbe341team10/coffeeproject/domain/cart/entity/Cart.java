@@ -20,7 +20,7 @@ import java.util.List;
 public class Cart extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = false, unique = true)
     private Users user;
 
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)

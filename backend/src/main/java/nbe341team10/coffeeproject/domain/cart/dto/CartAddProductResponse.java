@@ -12,12 +12,12 @@ import java.util.List;
 
 @Getter
 public class CartAddProductResponse {
-    private long cartId;
+    private long id;
     private long userId;
     private List<CartAddProductCartItemDto> cartItems;
 
     public CartAddProductResponse(Cart cart) {
-        this.cartId = cart.getId();
+        this.id = cart.getId();
         this.userId = cart.getUser().getId();
         this.cartItems = cart.getCartItems().stream()
                 .map(CartAddProductCartItemDto::new)
