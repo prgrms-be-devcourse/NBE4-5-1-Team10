@@ -39,3 +39,4 @@ out/
 ### Custom ###
 src/resources/application.yml.idea/workspace.xml
 .idea/vcs.xml
+.idea
