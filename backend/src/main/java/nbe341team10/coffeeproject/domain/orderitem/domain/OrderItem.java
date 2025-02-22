@@ -21,6 +21,7 @@ public class OrderItem {
 
     private int quantity;
 
+    //한 종류의 Product의 개수에 따른 총 가격
     private int price;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

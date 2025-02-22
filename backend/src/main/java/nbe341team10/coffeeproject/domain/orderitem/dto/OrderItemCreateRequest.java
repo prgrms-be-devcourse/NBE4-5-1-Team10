@@ -9,11 +9,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class OrderItemCreateRequest {
+public class OrderItemCreateRequest{
 
     @NotBlank(message = "상품 ID를 입력해주세요.")
-    private Long itemId;
+    private Long productId;
 
+    //Product 1개 가격
     private int price;
 
     @Min(value = 1, message = "1개 이상 선택 후 주문해주세요.")
