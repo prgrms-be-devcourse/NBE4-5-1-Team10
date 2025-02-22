@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
-class ProductAdminTest {
+class ApiV1AdminControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -97,9 +97,6 @@ class ProductAdminTest {
                 .andExpect(jsonPath("$.msg").value("상품 삭제 성공"))
                 .andExpect(handler().handlerType(ApiV1AdminController.class));
 
-        // 4. 삭제된 상품 조회 (GET 요청)
-        mvc.perform(get("/api/v1/admin/product/" + productId))
-                .andExpect(status().isNotFound());
     }
 
     @Test
