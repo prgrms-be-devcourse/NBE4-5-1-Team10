@@ -1,14 +1,15 @@
 package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
-import nbe341team10.coffeeproject.domain.orderitem.entity.OrderItem;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
+import nbe341team10.coffeeproject.domain.orderitem.entity.OrderItem;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
+import nbe341team10.coffeeproject.global.exception.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
 
+
+    //Orders 등록
     public void createOrder(OrderCreateRequest orderDto) {
 
         // DB에서 주문된 Product 모두 가져오기
@@ -42,7 +45,10 @@ public class OrderService {
                     Product product = products.stream()
                             .filter(p -> p.getId().equals(item.getProductId()))
                             .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("주문한 상품ID에 맞는 상품을 찾을 수 없습니다.: " + item.getProductId()));
+                            .orElseThrow(() -> new ServiceException(
+                                    "404",
+                                    item.getProductId() + "번 상품은 존재하지 않는 상품입니다.")
+                            );
 
                     // OrderItem 생성 후 Order와 Product와 연결
                     return OrderItem.builder()
