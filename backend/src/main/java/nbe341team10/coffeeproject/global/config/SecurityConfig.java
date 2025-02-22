@@ -2,6 +2,7 @@ package nbe341team10.coffeeproject.global.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
+import nbe341team10.coffeeproject.domain.jwt.JWTFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
@@ -9,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -61,9 +64,6 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        //.requestMatchers("api/**").permitAll()    // 접근 허용
-                        .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user","api/v1/user/reissue").permitAll()    // 접근 허용
-                        .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user").permitAll()    // 접근 허용
                         .requestMatchers(HttpMethod.GET, "/api/*/products/**").permitAll()
                         .requestMatchers("/api/*/cart/**").permitAll()
                         .requestMatchers("api/*/user/**").permitAll()    // 접근 허용
@@ -78,29 +78,9 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
         http
                 .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
-                .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
-        http
-                .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http
-                .cors((cors) ->cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration;
-                    }
-                }));
-
         http
                 .cors((cors) ->cors.configurationSource(new CorsConfigurationSource() {
                     @Override

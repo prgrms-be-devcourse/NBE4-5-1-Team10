@@ -52,8 +52,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
             String password=loginData.get("password");
             System.out.println("사용자: "+email);
 
-            Users user = userRepository.findByEmail(email);
-            if (user == null) {
+            Optional<Users> user = userRepository.findByEmail(email);
+            if (user.isEmpty()) {
                 // 존재하지 않는 사용자
                 // 예외만 던짐, 처리는 아래에서
                 throw new UsernameNotFoundException("");
@@ -80,7 +80,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role=auth.getAuthority();
 
-        String access= jwtUtil.createJwt("access",email,role,1 * 1 * 10 * 1000L); // 한시간
+        String access= jwtUtil.createJwt("access",email,role,1 * 60 * 60 * 1000L); // 한시간
         String refresh= jwtUtil.createJwt("refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
 
 //        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
