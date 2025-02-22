@@ -1,6 +1,7 @@
 package nbe341team10.coffeeproject.domain.user.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,7 +34,6 @@ public class LoginController {
 
     private final LoginService loginService;
     private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
 
     // 회원가입
     @PostMapping("/join")
@@ -59,76 +60,57 @@ public class LoginController {
     // 토큰 재발급
     // refresh 토큰으로 access 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String refreshToken=null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies!=null){
-            for(Cookie cookie : cookies){
-                if(cookie.getName().equals("refresh")){
-                    refreshToken = cookie.getValue();
-                }
-            }
+        String refreshToken=loginService.extractRefreshToken(request);
+
+        // null 체크
+        if(refreshToken==null){
+            RsData<String> error=new RsData<>("400","Refresh token is Null");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
         // 만료 체크
         try {
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+            RsData<String> error=new RsData<>("400","Refresh token expired");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
         // 토큰이 refresh인지 확인
         String category = jwtUtil.getCategory(refreshToken);
         if (!category.equals("refresh")) {
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            RsData<String> error=new RsData<>("400","Refresh token is required");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
         // DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refreshToken);
+        boolean isExist = loginService.existRefresh(refreshToken);
         if (!isExist) {  // 없으면
-            return new ResponseEntity<>("Invalid refresh token", HttpStatus.BAD_REQUEST);
+            RsData<String> error=new RsData<>("400","Unsaved refresh token");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
-        String username = jwtUtil.getEmail(refreshToken);
-        String role = jwtUtil.getRole(refreshToken);
 
-        // 새로운 JWT를 생성
-        // 액세스 토큰 생성
-        String newAccess = jwtUtil.createJwt("access",username, role, 30 * 60 * 1000L); // 30분
-        // 리프레시 토큰 생성
-        String newRefresh = jwtUtil.createJwt("refresh",username, role, 7 * 24 * 60 * 60 * 1000L); // 1주일
-
-
-        // 응답
-        Map<String, String> responseBody = new LinkedHashMap<>();
-        responseBody.put("new_Access", newAccess);
-        responseBody.put("new_Refresh", newRefresh);
-        // 쿠키에 리프레시 저장
-        response.addCookie(createCookie("refresh", newRefresh));
+        // 새로운 토큰 생성
+        Map<String,String> token=loginService.createJwt(refreshToken);
+        String newRefresh=token.get("refresh");
+        String email= loginService.getEmail(newRefresh);
 
         // 기존 refresh 삭제 후 새 refresh 생성 후 엔티티에 저장
-        refreshRepository.deleteByRefresh(refreshToken);
-        addRefreshEntity(username, newRefresh, 86400000L);
+        loginService.deleteRefresh(refreshToken);
+        loginService.addRefreshEntity(email, newRefresh, 86400000L);
 
-        return new ResponseEntity<>(responseBody, HttpStatus.OK);
-    }
+        // 쿠키에 리프레시 저장
+        response.addCookie(loginService.createCookie("refresh", token.get("refresh")));
 
-    // 쿠키 생성
-    private Cookie createCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        cookie.setHttpOnly(true);
-        return cookie;
-    }
-
-    private void addRefreshEntity(String email, String refresh, Long expiredMs) {
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-        Refresh refreshToken = new Refresh();
-        refreshToken.setEmail(email);
-        refreshToken.setRefresh(refresh);
-        refreshToken.setExpiration(date.toString());
-        refreshRepository.save(refreshToken);
+        RsData<Map<String,String>> success=new RsData<>("200","success",token);
+        return ResponseEntity.ok(success);
     }
 
 
