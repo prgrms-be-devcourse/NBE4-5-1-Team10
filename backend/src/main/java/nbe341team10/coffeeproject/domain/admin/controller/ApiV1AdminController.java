@@ -6,7 +6,7 @@ import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,22 +35,13 @@ public class ApiV1AdminController {
     }
 
 //    @PutMapping("product/{id}")
-//추후 메소드 생기면
-
 
 
     @DeleteMapping("/product/{id}")
-    public RsData<Void> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteProduct(id);
-            return new RsData<>("200", "상품 삭제 성공");
-        } catch (EntityNotFoundException e) {
-            return new RsData<>("404", e.getMessage());
-        } catch (Exception e) {
-            return new RsData<>("500", "상품 삭제 실패: " + e.getMessage());
-        }
+    public ResponseEntity<RsData<Void>> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.ok(new RsData<>("200", "상품 삭제 성공"));
     }
-
 
 
 
