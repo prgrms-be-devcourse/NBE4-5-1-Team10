@@ -30,6 +30,7 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    //모든 Product 가격의 합
     @Column(nullable = false, name = "total_price")
     private int totalPrice;
 

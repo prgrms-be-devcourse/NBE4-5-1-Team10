@@ -13,7 +13,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    //주문 등록
+    //Orders 등록
     @PostMapping("/order")
     public void createOrder(@RequestBody OrderCreateRequest orderDto) {
         orderService.createOrder(orderDto);
