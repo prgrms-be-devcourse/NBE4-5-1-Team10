@@ -35,37 +35,23 @@ public class ApiV1AdminController {
 
     @PutMapping("/product/{id}")
     public RsData<ProductGetItemDto> modifyProduct(@PathVariable Long id, @RequestBody ProductGetItemDto productGetItemDto) {
-        try {
-            Product modifiedProduct = productService.modify(
-                    id,
-                    productGetItemDto.getName(),
-                    productGetItemDto.getDescription(),
-                    productGetItemDto.getPrice(),
-                    productGetItemDto.getImageUrl(),
-                    productGetItemDto.getStockQuantity()
-            );
-            ProductGetItemDto modifiedProductGetItemDto = new ProductGetItemDto(modifiedProduct);
-            return new RsData<>("200", "상품 수정 성공", modifiedProductGetItemDto);
-        } catch (EntityNotFoundException e) {
-            return new RsData<>("404", e.getMessage());
-        } catch (Exception e) {
-            return new RsData<>("500", "상품 수정 실패: " + e.getMessage());
-        }
+        Product modifiedProduct = productService.modify(
+                id,
+                productGetItemDto.getName(),
+                productGetItemDto.getDescription(),
+                productGetItemDto.getPrice(),
+                productGetItemDto.getImageUrl(),
+                productGetItemDto.getStockQuantity()
+        );
+        ProductGetItemDto modifiedProductGetItemDto = new ProductGetItemDto(modifiedProduct);
+        return new RsData<>("200", "상품 수정 성공", modifiedProductGetItemDto);
     }
-
-
 
 
     @DeleteMapping("/product/{id}")
     public RsData<Void> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteProduct(id);
-            return new RsData<>("200", "상품 삭제 성공");
-        } catch (EntityNotFoundException e) {
-            return new RsData<>("404", e.getMessage());
-        } catch (Exception e) {
-            return new RsData<>("500", "상품 삭제 실패: " + e.getMessage());
-        }
+        productService.deleteProduct(id);
+        return new RsData<>("200", "상품 삭제 성공");
     }
 
 
