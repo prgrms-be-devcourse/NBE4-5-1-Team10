@@ -1,10 +1,10 @@
 package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.order.domain.Orders;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
-import nbe341team10.coffeeproject.domain.orderitem.domain.OrderItem;
+import nbe341team10.coffeeproject.domain.orderitem.entity.OrderItem;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.entity.Product;

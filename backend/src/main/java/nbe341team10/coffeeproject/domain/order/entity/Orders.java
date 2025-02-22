@@ -1,22 +1,23 @@
-package nbe341team10.coffeeproject.domain.order.domain;
+package nbe341team10.coffeeproject.domain.order.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.experimental.SuperBuilder;
+import nbe341team10.coffeeproject.global.entity.BaseTime;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
-public class Orders {
-
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@SuperBuilder
+public class Orders extends BaseTime {
 
     //@Column(nullable = false)
     private String email;
@@ -33,12 +34,6 @@ public class Orders {
     //모든 Product 가격의 합
     @Column(nullable = false, name = "total_price")
     private int totalPrice;
-
-    //@Column(nullable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    //@Column(nullable = false, name = "updated_at")
-    private LocalDateTime updatedAt;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Member orderMember;
