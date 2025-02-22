@@ -15,6 +15,5 @@ public class DeliveryDTO {
     private String deliveryAddress;
     private LocalDateTime deliveryStartDate;
     private LocalDateTime deliveryArriveDate;
-
 }
 
