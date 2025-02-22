@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.domain.order.domain;
+package nbe341team10.coffeeproject.domain.order.entity;
 
 public enum OrderStatus {
 

@@ -1,11 +1,11 @@
-package nbe341team10.coffeeproject.domain.orderitem.domain;
+package nbe341team10.coffeeproject.domain.orderitem.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import nbe341team10.coffeeproject.domain.order.domain.Orders;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 
 @Entity
