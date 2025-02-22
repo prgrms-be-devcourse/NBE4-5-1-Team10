@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import nbe341team10.coffeeproject.domain.order.domain.OrderStatus;
-import nbe341team10.coffeeproject.domain.order.domain.Orders;
+import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 
