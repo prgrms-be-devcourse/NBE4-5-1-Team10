@@ -10,4 +10,6 @@ public interface RefreshRepository extends JpaRepository<Refresh, Long> {
     // 삭제
     @Transactional
     void deleteByRefresh(String refresh);
+
+    String findByEmail(String email);
 }

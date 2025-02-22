@@ -121,8 +121,20 @@ public class LoginService {
     }
 
 
+    /**
+     * 테스트 통과를 위한 야매 코드
+     * 로그인 절차: 로그인 후 발급받은 access 토큰을 bearer 헤더에 입력
+     */
     public String getAccessToken(Users user) {
-        return "";
+        String email = user.getEmail();
+        String refresh=refreshRepository.findByEmail(email);
+
+        if(refresh==null || jwtUtil.isExpired(refresh)) {
+            RsData<String> error=new RsData<>("400","Refresh token expired or dose not exist");
+            return error.getData();
+        }
+        Map<String,String> token=createJwt(refresh);
+        return token.get("access");
     }
 
     public long count() {
