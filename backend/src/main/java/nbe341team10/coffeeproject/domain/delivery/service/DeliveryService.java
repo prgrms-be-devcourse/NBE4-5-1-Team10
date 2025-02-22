@@ -1,9 +1,13 @@
 package nbe341team10.coffeeproject.domain.delivery.service;
 
+
+
+
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.delivery.dto.DeliveryDTO;
 import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
+
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 
@@ -15,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
+
     private final OrderRepository orderRepository; // 주문 리포지토리 추가
 
     // 매일 오후 2시에 배송 준비 상태로 변경
@@ -87,7 +93,9 @@ public class DeliveryService {
         deliveryRepository.deleteById(id);
     }
 
+
     public DeliveryDTO getDeliveryById(Long id) {
+        return null;
     }
 
 
@@ -96,6 +104,11 @@ public class DeliveryService {
 
 
     public List<DeliveryDTO> getAllDeliveries() {
+        return List.of();
     }
 
+    public DeliveryDTO saveDelivery(DeliveryDTO deliveryDTO) {
+        return deliveryDTO;
+    }
 }
+
