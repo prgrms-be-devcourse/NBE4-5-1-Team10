@@ -21,14 +21,14 @@ public class Orders extends BaseTime {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, name = "postal_code")
+    @Column(nullable = false)
     private String postalCode;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     //모든 Product 가격의 합
-    @Column(nullable = false, name = "total_price")
+    @Column(nullable = false)
     private int totalPrice;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
