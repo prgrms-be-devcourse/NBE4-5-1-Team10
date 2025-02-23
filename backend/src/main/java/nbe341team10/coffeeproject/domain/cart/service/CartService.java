@@ -24,19 +24,17 @@ public class CartService {
         return cartRepository.findByUserId(userId);
     }
 
-    public Optional<CartItem> getCartItem(Long cartId, long productId) {
-        return cartItemRepository.findByCartIdAndProductId(cartId, productId);
-    }
-
-    @Transactional
-    public CartItem addProduct(Users user, Product product, int quantity) {
-        Cart cart = cartRepository.findByUserId(user.getId())
+    public Cart getOrCreateCart(Users user) {
+        return cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> cartRepository.save(
                         Cart.builder()
                                 .user(user)
                                 .build()
                 ));
+    }
 
+    @Transactional
+    public CartItem addProduct(Cart cart, Product product, int quantity) {
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId())
                 .map(item -> {
                     item.increaseQuantity(quantity);

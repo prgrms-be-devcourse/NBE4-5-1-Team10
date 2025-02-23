@@ -13,7 +13,7 @@ import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.Rq;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import nbe341team10.coffeeproject.global.exception.ServiceException;
-import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -29,6 +29,7 @@ public class ApiV1CartController {
     public record CartAddProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
     @PostMapping()
+    @Transactional
     public RsData<CartDetailResponse> addProduct(@Valid @RequestBody CartAddProductRequest addProductRequest) {
         Users actor = rq.getCurrentActor();
         Product product = productService.getItem(addProductRequest.productId).orElseThrow(
@@ -37,16 +38,18 @@ public class ApiV1CartController {
                         "Product with ID %d not found".formatted(addProductRequest.productId)
                 )
         );
-        CartItem cartItem = cartService.addProduct(actor, product, addProductRequest.quantity);
+        Cart cart = cartService.getOrCreateCart(actor);
+        CartItem cartItem = cartService.addProduct(cart, product, addProductRequest.quantity);
 
         return new RsData<>(
                 "201-1",
                 "The quantity of product %d is a total of %d".formatted(product.getId(), cartItem.getQuantity()),
-                new CartDetailResponse(cartItem.getCart())
+                new CartDetailResponse(cart)
         );
     }
 
     @GetMapping()
+    @Transactional(readOnly = true)
     public RsData<CartDetailResponse> getCart() {
         Users actor = rq.getCurrentActor();
 

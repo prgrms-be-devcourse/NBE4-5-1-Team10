@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject;
+package nbe341team10.coffeeproject.product;
 
 import nbe341team10.coffeeproject.domain.product.controller.ApiV1ProductController;
 import nbe341team10.coffeeproject.domain.product.entity.Product;

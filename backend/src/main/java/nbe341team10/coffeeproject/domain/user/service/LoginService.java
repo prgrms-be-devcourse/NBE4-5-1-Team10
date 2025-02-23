@@ -102,12 +102,13 @@ public class LoginService {
 
     // 생성
     public Map<String,String> createJwt(String refreshToken) {
+        Long userId = jwtUtil.getId(refreshToken);
         String email = jwtUtil.getEmail(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 유지 시간
-        String newAccess=jwtUtil.createJwt("access",email, role, 60 * 60 * 1000L);   // 1시간
-        String newRefresh=jwtUtil.createJwt("refresh",email, role, 7 * 24 * 60 * 60 * 1000L);    // 1주일
+        String newAccess=jwtUtil.createJwt(userId, "access",email, role, 60 * 60 * 1000L);   // 1시간
+        String newRefresh=jwtUtil.createJwt(userId, "refresh",email, role, 7 * 24 * 60 * 60 * 1000L);    // 1주일
 
         Map<String, String> newToken = new LinkedHashMap<>();
         newToken.put("access", newAccess);
@@ -119,23 +120,6 @@ public class LoginService {
     // 이메일 반환
     public String getEmail(String refreshToken) {
         return jwtUtil.getEmail(refreshToken);
-    }
-
-
-    /**
-     * 테스트 통과를 위한 야매 코드
-     * 로그인 절차: 로그인 후 발급받은 access 토큰을 bearer 헤더에 입력
-     */
-    public String getAccessToken(Users user) {
-        String email = user.getEmail();
-        String refresh=refreshRepository.findByEmail(email);
-
-        if(refresh==null || jwtUtil.isExpired(refresh)) {
-            RsData<String> error=new RsData<>("400","Refresh token expired or dose not exist");
-            return error.getData();
-        }
-        Map<String,String> token=createJwt(refresh);
-        return token.get("access");
     }
 
     public long count() {
