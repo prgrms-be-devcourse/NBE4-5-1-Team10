@@ -4,24 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
+import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemDetailResponse;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @Builder
-public class OrderListResponse {
+public class OrderDetailResponse {
 
-    private Long orderId;
-
-    private LocalDateTime orderDate;
+    private List<OrderItemDetailResponse> orderItems;
 
     private OrderStatus orderStatus;
 
-    private String firstProductName;
+    private String email;
 
-    private int productCategoryCount;
-
-    private int totalPrice;
-
+    private String address;
 }

@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.order;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
@@ -15,16 +16,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.Collections;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 /**
  * TODO 회원 관련 로직 추가 하기(전부)
  */
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -52,6 +56,7 @@ public class OrderControllerTest {
         orderItemRepository.deleteAll();
         orderRepository.deleteAll();
     }
+
 
     @Test
     @DisplayName("주문 등록")
@@ -146,7 +151,7 @@ public class OrderControllerTest {
                 .andExpect(status().isOk());
 
         // 3. 주문 목록 조회 요청
-        mockMvc.perform(get("/orders")
+        mockMvc.perform(get("/order")
                         .contentType("application/json"))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
@@ -157,5 +162,65 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.data.items[1].firstProductName").value("콜롬비아 수프리모"))  // 두 번째 주문 상품명 확인
                 .andExpect(jsonPath("$.data.items[0].totalPrice").value(2000))  // 첫 번째 주문 가격 확인
                 .andExpect(jsonPath("$.data.items[1].totalPrice").value(2000));  // 두 번째 주문 가격 확인
+    }
+
+    @Test
+    @DisplayName("주문 상세 정보 조회")
+    @Transactional
+    public void testGetOrderDetail() throws Exception {
+        // 1. 주문 생성
+        OrderItemCreateRequest orderItem1 = OrderItemCreateRequest.builder()
+                .productId(1L)
+                .price(30000)
+                .quantity(2)
+                .build();
+
+        OrderItemCreateRequest orderItem2 = OrderItemCreateRequest.builder()
+                .productId(2L)
+                .price(13000)
+                .quantity(1)
+                .build();
+
+        OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+                .address("서울시 강남구")
+                .postalCode("12345")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .build();
+
+        // 주문 생성 요청
+        mockMvc.perform(post("/order")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(orderCreateRequest)))
+                .andExpect(status().isOk());
+
+        // 2. 주문 목록 조회 요청 후 JSON 응답 파싱
+        String orderListResponse = mockMvc.perform(get("/order")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode ordersNode = objectMapper.readTree(orderListResponse).get("data").get("items");
+
+        // ✅ 생성한 주문의 ID 찾기 (여기선 첫 번째 주문 사용)
+        Long orderId = ordersNode.get(0).get("orderId").asLong();
+
+        // 3. 주문 상세 조회 요청
+        mockMvc.perform(get("/order/{orderId}", orderId)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())  // HTTP 200 응답 확인
+                .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
+                .andExpect(jsonPath("$.msg").value("주문 상세 정보 조회가 완료되었습니다."))  // 응답 메시지 확인
+                .andExpect(jsonPath("$.data.address").value("서울시 강남구"))  // 주소 확인
+                .andExpect(jsonPath("$.data.orderStatus").value("ORDERED"))  // 주문 상태 확인
+                .andExpect(jsonPath("$.data.orderItems").isArray())  // 주문 상품 리스트 확인
+                .andExpect(jsonPath("$.data.orderItems.length()").value(2))  // 주문 상품 개수 확인
+                .andExpect(jsonPath("$.data.orderItems[0].productName").value("에티오피아 예가체프"))  // 첫 번째 상품명 확인
+                .andExpect(jsonPath("$.data.orderItems[0].quantity").value(2))  // 첫 번째 상품 수량 확인
+                .andExpect(jsonPath("$.data.orderItems[0].price").value(30000))  // 첫 번째 상품 가격 확인
+                .andExpect(jsonPath("$.data.orderItems[1].productName").value("콜롬비아 수프리모"))  // 두 번째 상품명 확인
+                .andExpect(jsonPath("$.data.orderItems[1].quantity").value(1))  // 두 번째 상품 수량 확인
+                .andExpect(jsonPath("$.data.orderItems[1].price").value(13000));  // 두 번째 상품 가격 확인
     }
 }
