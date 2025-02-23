@@ -45,4 +45,17 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
         productRepository.delete(product);
     }
+
+    public Product modify(Long id, String name, String description, int price, String imageUrl, int stockQuantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setImageUrl(imageUrl);
+        product.setStockQuantity(stockQuantity);
+
+        return productRepository.save(product);
+    }
 }
