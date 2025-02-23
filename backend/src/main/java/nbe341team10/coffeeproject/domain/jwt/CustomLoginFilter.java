@@ -50,7 +50,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
             // 이메일,비밀번호 추출
             String email=loginData.get("email");
             String password=loginData.get("password");
-            System.out.println("사용자: "+email);
 
             Optional<Users> user = userRepository.findByEmail(email);
             if (user.isEmpty()) {
@@ -73,6 +72,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        Long userId = userDetails.getId();
         String email=userDetails.getEmail();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -81,8 +81,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         String role=auth.getAuthority();
 
         // 토큰 유지 시간
-        String access= jwtUtil.createJwt("access",email,role,1 * 1 * 15 * 1000L); // 1시간
-        String refresh= jwtUtil.createJwt("refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
+        String access= jwtUtil.createJwt(userId, "access",email,role,1 * 1 * 15 * 1000L); // 1시간
+        String refresh= jwtUtil.createJwt(userId, "refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
 
 //        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
 //
