@@ -20,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
 
     //Orders 등록
-    //*로그인 및 회원 정보 등록 로직 필요*
+    //TODO 로그인 및 회원 정보 등록 로직 필요
     @PostMapping("/order")
     public RsData<Void> createOrder(@Valid @RequestBody OrderCreateRequest orderDto) {
         orderService.createOrder(orderDto);
@@ -33,7 +33,7 @@ public class OrderController {
     public record OrdersResponseBody(List<OrderListResponse> items) {}
 
     //Orders 목록 조회
-    //*특정 회원에 대하여 구하기 로직 추가 필요*
+    //TODO 특정 회원에 대하여 구하기 로직 추가 필요
     @GetMapping("/order")
     public RsData<OrdersResponseBody> getOrders() {
         List<OrderListResponse> orders = orderService.getOrders();

@@ -7,7 +7,6 @@ import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +14,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.Collections;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 /**
  * TODO 회원 관련 로직 추가 하기(전부)
  */
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -45,13 +46,6 @@ public class OrderControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
-    @BeforeEach
-    @Transactional  // 트랜잭션 범위 내에서 DB 초기화
-    public void setUp() {
-        // 기존 데이터를 삭제
-        orderItemRepository.deleteAll();
-        orderRepository.deleteAll();
-    }
 
     @Test
     @DisplayName("주문 등록")
@@ -146,7 +140,7 @@ public class OrderControllerTest {
                 .andExpect(status().isOk());
 
         // 3. 주문 목록 조회 요청
-        mockMvc.perform(get("/orders")
+        mockMvc.perform(get("/order")
                         .contentType("application/json"))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
