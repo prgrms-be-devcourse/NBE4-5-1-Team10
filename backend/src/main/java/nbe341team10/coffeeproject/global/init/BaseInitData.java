@@ -1,4 +1,4 @@
-package nbe341team10.coffeeproject.global;
+package nbe341team10.coffeeproject.global.init;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
