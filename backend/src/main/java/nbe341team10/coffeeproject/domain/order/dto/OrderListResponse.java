@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Builder
 public class OrderListResponse {
 
+    private Long orderId;
+
     private LocalDateTime orderDate;
 
     private OrderStatus orderStatus;

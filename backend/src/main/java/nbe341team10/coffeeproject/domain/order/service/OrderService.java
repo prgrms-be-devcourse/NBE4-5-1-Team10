@@ -86,6 +86,7 @@ public class OrderService {
 
                     // OrderListResponse 객체 생성
                     return OrderListResponse.builder()
+                            .orderId(order.getId())
                             .orderDate(order.getCreatedAt())
                             .orderStatus(order.getStatus())
                             .firstProductName(firstProductName)
