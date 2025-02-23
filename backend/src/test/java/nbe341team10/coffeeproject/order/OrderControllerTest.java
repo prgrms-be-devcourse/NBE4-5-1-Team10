@@ -146,7 +146,7 @@ public class OrderControllerTest {
                 .andExpect(status().isOk());
 
         // 3. 주문 목록 조회 요청
-        mockMvc.perform(get("/order")
+        mockMvc.perform(get("/orders")
                         .contentType("application/json"))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
