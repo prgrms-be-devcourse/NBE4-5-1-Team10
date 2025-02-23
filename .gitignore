@@ -4,3 +4,5 @@ mysql_logs/
 .idea/
 .env*
 apiV1.json
+backend/src/main/resources/application.yml
+backend/src/main/resources/application-test.yml
