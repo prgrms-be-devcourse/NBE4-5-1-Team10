@@ -2,10 +2,18 @@
 package nbe341team10.coffeeproject.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import nbe341team10.coffeeproject.domain.admin.controller.ApiV1AdminController; // Import your controller
+import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
+import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
+import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
+import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
+import nbe341team10.coffeeproject.domain.user.dto.UserJoinRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +48,38 @@ class ApiV1AdminControllerTest {
     private ProductService productService;
 
     @Autowired
+    private OrderService orderService;
+
+    @Autowired
     private ObjectMapper objectMapper;
+    private String accessToken;
+    private String refreshToken;
+
+//    @BeforeEach
+//    void setUp() throws Exception {
+//        // 회원가입
+//        UserJoinRequest userJoinRequest = new UserJoinRequest("testuser", "testuser@example.com", "1234", "Test Address");
+//        String joinRequestBody = objectMapper.writeValueAsString(userJoinRequest);
+//
+//        mvc.perform(post("/api/v1/user/join")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(joinRequestBody))
+//                .andExpect(status().isCreated()); // 회원가입 성공 시 201 상태 코드
+//
+//        // 로그인
+//        String loginRequestBody = "{ \"email\": \"testuser@example.com\", \"password\": \"1234\" }";
+//        String loginResponse = mvc.perform(post("/api/v1/user/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(loginRequestBody))
+//                .andExpect(status().isOk())
+//                .andReturn()
+//                .getResponse()
+//                .getContentAsString();
+//
+//        // JSON 응답에서 리프레시 토큰과 액세스 토큰 추출
+//        refreshToken = JsonPath.read(loginResponse, "$.data.refresh");
+//        accessToken = JsonPath.read(loginResponse, "$.data.access");
+//    }
 
     @Test
     @DisplayName("상품 추가 성공 확인")
@@ -126,14 +168,14 @@ class ApiV1AdminControllerTest {
 
         // 2. JSON 문자열 직접 작성
         String json = """
-        {
-            "name": "수정된 이름",
-            "description": "수정된 설명",
-            "price": 20000,
-            "imageUrl": "수정된.jpg",
-            "stockQuantity": 60
-        }
-        """;
+                {
+                    "name": "수정된 이름",
+                    "description": "수정된 설명",
+                    "price": 20000,
+                    "imageUrl": "수정된.jpg",
+                    "stockQuantity": 60
+                }
+                """;
 
         // 3. 수정 요청
         ResultActions resultActions = mvc.perform(put("/api/v1/admin/product/" + productId)
@@ -163,4 +205,6 @@ class ApiV1AdminControllerTest {
         assertEquals("수정된.jpg", modifiedProduct.getImageUrl());
         assertEquals(60, modifiedProduct.getStockQuantity());
     }
+
+
 }
