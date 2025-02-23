@@ -2,6 +2,7 @@ package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
+import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
@@ -62,5 +63,33 @@ public class OrderService {
 
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItemList);
+    }
+    //Orders 목록 조회
+    public List<OrderListResponse> getOrders() {
+        List<Orders> allOrders = orderRepository.findAll();  // 모든 주문 가져오기
+        return allOrders.stream()
+                .map(order -> {
+                    // 해당 주문에 대한 OrderItem 리스트 가져오기
+                    List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
+
+                    // 상품 개수 구하기
+                    int orderItemCount = orderItems.size();
+
+                    // 첫 번째 상품명 구하기 (첫 번째 상품이 있을 경우)
+                    String firstProductName = orderItems.get(0).getProduct().getName();
+
+                    // 해당 주문의 총 가격 구하기
+                    int totalPrice = order.getTotalPrice();
+
+                    // OrderListResponse 객체 생성
+                    return OrderListResponse.builder()
+                            .orderDate(order.getCreatedAt())
+                            .orderStatus(order.getStatus())
+                            .firstProductName(firstProductName)
+                            .productCategoryCount(orderItemCount)
+                            .totalPrice(totalPrice)
+                            .build();
+                })
+                .collect(Collectors.toList());  // 결과를 List로 변환
     }
 }
