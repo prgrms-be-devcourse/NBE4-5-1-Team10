@@ -2,6 +2,7 @@ package nbe341team10.coffeeproject.global.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
+import nbe341team10.coffeeproject.domain.jwt.CustomLogoutFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
@@ -18,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -79,6 +81,8 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
         http
                 .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
