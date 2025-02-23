@@ -80,7 +80,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role=auth.getAuthority();
 
-        String access= jwtUtil.createJwt("access",email,role,1 * 60 * 60 * 1000L); // 한시간
+        // 토큰 유지 시간
+        String access= jwtUtil.createJwt("access",email,role,1 * 1 * 15 * 1000L); // 1시간
         String refresh= jwtUtil.createJwt("refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
 
 //        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환

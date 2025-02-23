@@ -105,7 +105,8 @@ public class LoginService {
         String email = jwtUtil.getEmail(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        String newAccess=jwtUtil.createJwt("access",email, role, 30 * 60 * 1000L);   // 30분
+        // 토큰 유지 시간
+        String newAccess=jwtUtil.createJwt("access",email, role, 60 * 60 * 1000L);   // 1시간
         String newRefresh=jwtUtil.createJwt("refresh",email, role, 7 * 24 * 60 * 60 * 1000L);    // 1주일
 
         Map<String, String> newToken = new LinkedHashMap<>();

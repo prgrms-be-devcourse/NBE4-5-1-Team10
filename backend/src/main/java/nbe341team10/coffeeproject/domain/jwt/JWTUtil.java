@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,24 +19,32 @@ public class JWTUtil {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
+    public Claims getPayload(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
+    }
+
     // 이메일 반환
     public String getEmail(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+        Claims payload = getPayload(token);
+        return payload.get("email", String.class);
     }
 
     // role 반환
     public String getRole(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        Claims payload = getPayload(token);
+        return payload.get("role", String.class);
     }
 
     // category: access/refresh
     public String getCategory(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+        Claims payload = getPayload(token);
+        return payload.get("category", String.class);
     }
 
     // 만료검증
     public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        Claims payload = getPayload(token);
+        return payload.getExpiration().before(new Date());
     }
     // jwt 생성
     public String createJwt(String category,String email, String role, Long expiredMs) {

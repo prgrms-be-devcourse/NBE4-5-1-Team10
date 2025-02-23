@@ -45,36 +45,10 @@ public class JWTFilter extends OncePerRequestFilter {
         //Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.substring(7);
 
-        try{
-            String category=jwtUtil.getCategory(token);
-            // 토큰 만료검증
-            jwtUtil.isExpired(token);
-
-            if(category.equals("access")){
-                // 액세스 토큰 만료 검증
-                jwtUtil.isExpired(token);
-            }else if(category.equals("refresh")){
-                if(request.getRequestURI().equals("/api/v1/user/reissue")){
-                    // 재발급 처리
-                    filterChain.doFilter(request, response);
-                    return;
-                }else{
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    RsData<String> errorResponse=new RsData<>("401","unauthorized","refresh token cannot be used for access");
-                    response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-                    return;
-                }
-            }
-
-        }catch (ExpiredJwtException e){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            RsData<String> errorResponse= new RsData<>("401","unauthorized","Token is expired");
-            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        RsData<String> validateData = validateToken(token,request,response,filterChain);
+        // 예외 발생
+        if(validateData!=null){
+            JsonResponseUnauthorized(response,validateData);
             return;
         }
 
@@ -100,5 +74,40 @@ public class JWTFilter extends OncePerRequestFilter {
         // 다음 필터로
         filterChain.doFilter(request, response);
     }
+
+    // 토큰 유효성 체크
+    private RsData<String> validateToken(String token,HttpServletRequest request,HttpServletResponse response,FilterChain filterChain) throws ServletException, IOException {
+        try{
+            String category=jwtUtil.getCategory(token);
+            // 토큰 만료검증
+            jwtUtil.isExpired(token);
+
+            if(category.equals("access")){
+                // 액세스 토큰 만료 검증
+                jwtUtil.isExpired(token);
+            }else if(category.equals("refresh")){
+                if(request.getRequestURI().equals("/api/v1/user/reissue")){
+                    // 재발급 처리
+                    filterChain.doFilter(request, response);
+                    return null;
+                }else{
+                    return new RsData<>("401","unauthorized","refresh token cannot be used for access");
+                }
+            }
+
+        }catch (ExpiredJwtException e){
+            return new RsData<>("401","unauthorized","Token is expired");
+        }
+        return null;
+    }
+
+    // 응답
+    private void JsonResponseUnauthorized(HttpServletResponse response,RsData<String> error) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString(error));
+    }
+
 
 }

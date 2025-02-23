@@ -71,7 +71,7 @@ public class SecurityConfig {
 
 
                         // 건들지마세요
-                        .requestMatchers("api/v1/user/login", "/", "api/v1/user/join","/swagger-ui/**","/v3/api-docs/**","login","user","api/v1/user/reissue").permitAll()    // 접근 허용
+                        .requestMatchers("api/*/user/login", "/", "api/*/user/join","/swagger-ui/**","/v3/api-docs/**","api/*/user/reissue").permitAll()    // 접근 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자만
                         .anyRequest().authenticated());
         http

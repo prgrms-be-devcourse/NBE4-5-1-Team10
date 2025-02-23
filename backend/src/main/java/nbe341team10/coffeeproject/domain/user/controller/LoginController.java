@@ -60,15 +60,16 @@ public class LoginController {
     // 토큰 재발급
     // refresh 토큰으로 access 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public RsData<?> reissue(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String refreshToken=loginService.extractRefreshToken(request);
 
         // null 체크
         if(refreshToken==null){
             RsData<String> error=new RsData<>("400","Refresh token is Null");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+//            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            return error;
         }
 
         // 만료 체크
@@ -76,24 +77,28 @@ public class LoginController {
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
             RsData<String> error=new RsData<>("400","Refresh token expired");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+//            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            return error;
         }
 
         // 토큰이 refresh인지 확인
         String category = jwtUtil.getCategory(refreshToken);
         if (!category.equals("refresh")) {
             RsData<String> error=new RsData<>("400","Refresh token is required");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+//            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            return error;
         }
 
         // DB에 저장되어 있는지 확인
         boolean isExist = loginService.existRefresh(refreshToken);
         if (!isExist) {  // 없으면
             RsData<String> error=new RsData<>("400","Unsaved refresh token");
-            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+//            response.getWriter().write(new ObjectMapper().writeValueAsString(error));
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            return error;
+
         }
 
 
@@ -110,7 +115,8 @@ public class LoginController {
         response.addCookie(loginService.createCookie("refresh", token.get("refresh")));
 
         RsData<Map<String,String>> success=new RsData<>("200","success",token);
-        return ResponseEntity.ok(success);
+//        return ResponseEntity.ok(success);
+        return success;
     }
 
 
