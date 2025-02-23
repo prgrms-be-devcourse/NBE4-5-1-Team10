@@ -3,3 +3,5 @@
 mysql_logs/
 .idea/
 .env*
+backend/src/main/resources/application.yml
+backend/src/main/resources/application-test.yml
