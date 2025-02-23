@@ -12,6 +12,8 @@ import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
@@ -103,17 +105,6 @@ public class ApiV1AdminController {
         }
     }
 
-    // 배송 상태 수동 업데이트
-    @PutMapping("/delivery/{id}/status")
-    public RsData<String> updateDeliveryStatus(@PathVariable Long id, @RequestParam String status) {
-        DeliveryDTO deliveryDTO = deliveryService.getDeliveryById(id);
-        if (deliveryDTO != null) {
-            deliveryDTO.setStatus(status);
-            deliveryService.updateDelivery(deliveryDTO); // DTO를 사용하여 업데이트
-            return new RsData<>("200-00", "배송 상태가 업데이트되었습니다.", null);
-        }
-        return new RsData<>("404-00", "배송을 찾을 수 없습니다.");
-    }
 
     // 배송 삭제
     @DeleteMapping("/delivery/{id}")
