@@ -64,7 +64,6 @@ public class OrderService {
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItemList);
     }
-
     //Orders 목록 조회
     public List<OrderListResponse> getOrders() {
         List<Orders> allOrders = orderRepository.findAll();  // 모든 주문 가져오기

@@ -113,4 +113,54 @@ class ApiV1AdminControllerTest {
                 .andExpect(jsonPath("$.msg").value("Product not found with id: " + nonExistentProductId));
     }
 
+    @Test
+    @DisplayName("상품 수정 성공 확인")
+    @WithMockUser(roles = "ADMIN")
+    void modifyProductSuccess_JsonString() throws Exception {
+        // 1. 수정할 상품 조회
+        Product product = productService.getItems().stream()
+                .filter(p -> p.getName().equals("에티오피아 예가체프"))
+                .findFirst().orElseThrow(() -> new AssertionError("Product not found"));
+
+        Long productId = product.getId();
+
+        // 2. JSON 문자열 직접 작성
+        String json = """
+        {
+            "name": "수정된 이름",
+            "description": "수정된 설명",
+            "price": 20000,
+            "imageUrl": "수정된.jpg",
+            "stockQuantity": 60
+        }
+        """;
+
+        // 3. 수정 요청
+        ResultActions resultActions = mvc.perform(put("/api/v1/admin/product/" + productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andDo(print());
+
+        // 4. 응답 확인
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1AdminController.class))
+                .andExpect(handler().methodName("modifyProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("상품 수정 성공"))
+                .andExpect(jsonPath("$.data.name").value("수정된 이름"))
+                .andExpect(jsonPath("$.data.description").value("수정된 설명"))
+                .andExpect(jsonPath("$.data.price").value(20000))
+                .andExpect(jsonPath("$.data.imageUrl").value("수정된.jpg"))
+                .andExpect(jsonPath("$.data.stockQuantity").value(60));
+
+
+        Product modifiedProduct = productService.getItem(productId).orElseThrow(() -> new AssertionError("Product not found"));
+
+        assertEquals("수정된 이름", modifiedProduct.getName());
+        assertEquals("수정된 설명", modifiedProduct.getDescription());
+        assertEquals(20000, modifiedProduct.getPrice());
+        assertEquals("수정된.jpg", modifiedProduct.getImageUrl());
+        assertEquals(60, modifiedProduct.getStockQuantity());
+    }
 }

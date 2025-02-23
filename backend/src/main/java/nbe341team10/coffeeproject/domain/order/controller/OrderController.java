@@ -7,10 +7,11 @@ import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.web.bind.annotation.GetMapping;
+import nbe341team10.coffeeproject.domain.order.service.OrderService;
+import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
@@ -29,7 +30,6 @@ public class OrderController {
                 "주문이 완료되었습니다."
         );
     }
-
     public record OrdersResponseBody(List<OrderListResponse> items) {}
 
     //Orders 목록 조회
