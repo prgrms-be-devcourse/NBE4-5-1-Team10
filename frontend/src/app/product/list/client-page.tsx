@@ -57,9 +57,8 @@ export default function ClientPage({
                   <Image
                     src={product.imageUrl || ""}
                     alt={product.name || ""}
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-md"
+                    fill
+                    className="object-cover rounded-md"
                   />
                 </div>
                 <div className="mt-4 space-y-1">
