@@ -1,16 +1,11 @@
 package nbe341team10.coffeeproject.domain.delivery.service;
 
-
-
-
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.delivery.dto.DeliveryDTO;
 import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
-
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
-
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -37,14 +32,22 @@ public class DeliveryService {
         LocalDateTime endTime = now.withHour(14).withMinute(0).withSecond(0);
 
 
-        List<Orders> ordersToPrepare = orderRepository.findAllByOrderTimeBetween(startTime, endTime);
+        List<Orders> ordersToPrepare = orderRepository.findAllByCreatedAtBetween(startTime, endTime);
 
         for (Orders order : ordersToPrepare) {
             Delivery delivery = new Delivery();
             delivery.setOrder(order);
-            delivery.setDeliveryAddress(order.getAddress());
+            delivery.getOrder().setAddress(order.getAddress());
+            delivery.getOrder().setPostalCode(order.getPostalCode());
 
             delivery.setDeliveryStartDate(now);
+
+            // 배송 상태를 준비 상태로 변경
+            delivery.setStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
+
+            // 배송 저장
+            deliveryRepository.save(delivery);
+
 
             // 현재 시간이 오후 2시 이전인지 확인
             if (now.getHour() < 14) {
@@ -69,13 +72,13 @@ public class DeliveryService {
     @Scheduled(cron = "0 0 14 * * *") // 매일 오후 2시
     public void startDelivery() {
 
-        List<Delivery> deliveries = deliveryRepository.findAllByStatus("READY_DELIVERY_SAME_DAY");
+        List<Delivery> deliveries = deliveryRepository.findAllByStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
 
         for (Delivery delivery : deliveries) {
-            // 이메일 전송 로직
-            sendEmail(delivery);
             // 배송 상태 업데이트
             delivery.setStatus(OrderStatus.InDelivery);
+            // 이메일 전송 로직
+            sendEmail(delivery);
 
             deliveryRepository.save(delivery);
         }
