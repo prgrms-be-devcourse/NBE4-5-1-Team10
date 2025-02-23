@@ -1,7 +1,9 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080} # 만약 환경변수가 없으면 기본 8080 사용
 
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   application:
     name: coffeeproject
   output:
@@ -9,9 +11,9 @@ spring:
       enabled: always
 
   datasource:
-    url: jdbc:mysql://localhost:3306/prod
-    username: root
-    password: 1234
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
