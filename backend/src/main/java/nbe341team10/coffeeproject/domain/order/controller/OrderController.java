@@ -34,7 +34,7 @@ public class OrderController {
 
     //Orders 목록 조회
     //TODO 특정 회원에 대하여 구하기 로직 추가 필요
-    @GetMapping("/order")
+    @GetMapping("/orders")
     public RsData<OrdersResponseBody> getOrders() {
         List<OrderListResponse> orders = orderService.getOrders();
 
