@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.delivery.dto.DeliveryDTO;
 import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
-import nbe341team10.coffeeproject.domain.order.entity.Order;
+import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,21 +29,21 @@ public class DeliveryService {
         LocalDateTime startTime = now.minusDays(1).withHour(14).withMinute(0).withSecond(0);
         LocalDateTime endTime = now.withHour(14).withMinute(0).withSecond(0);
 
-        List<Order> ordersToPrepare = orderRepository.findAllByOrderTimeBetween(startTime, endTime);
+        List<Orders> ordersToPrepare = orderRepository.findAllByOrderTimeBetween(startTime, endTime);
 
-        for (Order order : ordersToPrepare) {
+        for (Orders order : ordersToPrepare) {
             Delivery delivery = new Delivery();
             delivery.setOrder(order);
-            delivery.setDeliveryAddress(order.getDeliveryAddress());
+            delivery.setDeliveryAddress(order.getAddress());
             delivery.setDeliveryStartDate(now);
 
             // 현재 시간이 오후 2시 이전인지 확인
             if (now.getHour() < 14) {
                 // 오후 2시 이전: 당일 배송
-                delivery.setStatus("Ready for Delivery (Same Day)");
+                delivery.setStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
             } else {
                 // 오후 2시 이후: 다음날 배송
-                delivery.setStatus("Ready for Delivery (Next Day)");
+                delivery.setStatus(OrderStatus.READY_DELIVERY_NEXT_DAY);
             }
 
             // 주문 상태를 SHIPPED로 업데이트
@@ -56,18 +57,18 @@ public class DeliveryService {
     // 매일 오후 2시에 배송 시작 및 이메일 전송
     @Scheduled(cron = "0 0 14 * * *") // 매일 오후 2시
     public void startDelivery() {
-        List<Delivery> deliveries = deliveryRepository.findAllByStatus("Ready for Delivery (Same Day)");
+        List<Delivery> deliveries = deliveryRepository.findAllByStatus("READY_DELIVERY_SAME_DAY");
 
         for (Delivery delivery : deliveries) {
-            // 이메일 전송 로직 (예시)
+            // 이메일 전송 로직
             sendEmail(delivery);
             // 배송 상태 업데이트
-            delivery.setStatus("In Delivery");
+            delivery.setStatus(OrderStatus.InDelivery);
             deliveryRepository.save(delivery);
         }
     }
 
-    // 이메일 전송 메서드 (예시)
+    // 이메일 전송 메서드
     private void sendEmail(Delivery delivery) {
         // 이메일 전송 로직 구현
         System.out.println("이메일 전송: 주문 " + delivery.getOrder().getId() + "의 배송 진행 상태가 업데이트되었습니다.");
@@ -78,5 +79,12 @@ public class DeliveryService {
     }
 
     public DeliveryDTO getDeliveryById(Long id) {
+    }
+
+    public void updateDelivery(DeliveryDTO deliveryDTO) {
+    }
+
+
+    public List<DeliveryDTO> getAllDeliveries() {
     }
 }
