@@ -29,6 +29,7 @@ public class ApiV1CartController {
     public record CartUpdateProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
     @PatchMapping()
+    @Transactional()
     public RsData<CartDetailResponse> updateProduct(@Valid @RequestBody CartUpdateProductRequest request) {
         Users actor = rq.getCurrentActor();
         Cart cart = cartService.updateProduct(actor, request.productId, request.quantity);
