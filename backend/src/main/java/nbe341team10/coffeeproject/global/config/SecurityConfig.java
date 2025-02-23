@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("api/*/user/**").permitAll()    // 접근 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자만
                         .requestMatchers("/order/**").permitAll()
+                        .requestMatchers("/orders/**").permitAll()
                         .anyRequest().authenticated());
 
         http
