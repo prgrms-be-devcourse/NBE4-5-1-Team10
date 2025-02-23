@@ -7,6 +7,7 @@ import { components } from "@/lib/backend/generated/schema";
 import { ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ClientPage({
   data,
@@ -53,38 +54,43 @@ export default function ClientPage({
                 key={product.id}
                 className="p-4 shadow-md border border-gray-200"
               >
-                <div className="relative w-full h-40 overflow-hidden rounded-md">
-                  <Image
-                    src={product.imageUrl || ""}
-                    alt={product.name || ""}
-                    fill
-                    className="object-cover rounded-md"
-                  />
-                </div>
-                <div className="mt-4 space-y-1">
-                  <p className="text-lg font-medium">{product.name}</p>
-                  <p className="text-xl font-bold">{product.price}</p>
-                  <p
-                    className={`text-sm ${
-                      product.stockQuantity ? "text-green-600" : "text-red-600"
+                <Link href={`/product/${product.id}`}>
+                  <div className="relative w-full h-40 overflow-hidden rounded-md">
+                    <Image
+                      src={product.imageUrl || ""}
+                      alt={product.name || ""}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                  <div className="mt-4 space-y-1">
+                    <p className="text-lg font-medium">{product.name}</p>
+                    <p className="text-xl font-bold">{product.price}</p>
+                    <p
+                      className={`text-sm ${
+                        product.stockQuantity
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {product.stockQuantity ? "재고 있음" : "재고 없음"}
+                    </p>
+                  </div>
+                  <Button
+                    className={`w-full mt-4 flex items-center gap-2 ${
+                      product.stockQuantity
+                        ? "bg-black text-white"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
+                    disabled={!product.stockQuantity}
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
                   >
-                    {product.stockQuantity ? "재고 있음" : "재고 없음"}
-                  </p>
-                </div>
-
-                {/* 장바구니 버튼 */}
-                <Button
-                  className={`w-full mt-4 flex items-center gap-2 ${
-                    product.stockQuantity
-                      ? "bg-black text-white"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                  disabled={!product.stockQuantity}
-                >
-                  <ShoppingCart size={16} />
-                  장바구니 담기
-                </Button>
+                    <ShoppingCart size={16} />
+                    장바구니 담기
+                  </Button>
+                </Link>
               </Card>
             ))}
           </div>
