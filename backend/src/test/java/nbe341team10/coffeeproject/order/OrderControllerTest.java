@@ -7,6 +7,7 @@ import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,14 @@ public class OrderControllerTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @BeforeEach
+    @Transactional  // 트랜잭션 범위 내에서 DB 초기화
+    public void setUp() {
+        // 기존 데이터를 삭제
+        orderItemRepository.deleteAll();
+        orderRepository.deleteAll();
+    }
 
 
     @Test
