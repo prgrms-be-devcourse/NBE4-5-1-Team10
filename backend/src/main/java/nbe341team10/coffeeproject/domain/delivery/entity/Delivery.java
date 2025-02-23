@@ -17,12 +17,16 @@ import java.time.LocalDateTime;
 public class Delivery extends BaseTime {
 
     @ManyToOne
+
+    @JoinColumn(nullable = false)
+
     private Orders order;
 
     private String deliveryAddress;
 
     private LocalDateTime deliveryStartDate;
     private LocalDateTime deliveryArriveDate;
+
 
     // 배송 상태를 나타내는 필드 추가
     @Enumerated(EnumType.STRING) // 열거형으로 저장
