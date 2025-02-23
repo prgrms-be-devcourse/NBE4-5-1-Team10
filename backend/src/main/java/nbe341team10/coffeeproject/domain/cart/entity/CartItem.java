@@ -14,7 +14,6 @@ import nbe341team10.coffeeproject.global.entity.BaseTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @SuperBuilder
 public class CartItem extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,6 +24,7 @@ public class CartItem extends BaseTime {
     @JoinColumn(nullable = false)
     private Product product;
 
+    @Setter
     private int quantity;
 
     public void increaseQuantity(int quantity) {

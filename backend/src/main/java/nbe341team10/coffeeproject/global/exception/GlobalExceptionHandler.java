@@ -56,5 +56,11 @@ public class GlobalExceptionHandler {
                 .body(new RsData<>("404", e.getMessage()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<RsData<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new RsData<>("400", e.getMessage()));
+    }
 
 }
