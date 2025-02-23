@@ -21,7 +21,7 @@ public class ApiV1CartController {
     private final CartService cartService;
     private final Rq rq;
 
-    public record CartAddProductRequest(@NotNull long productId, @NotNull int quantity) {}
+    public record CartUpdateProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
     @PostMapping()
     @Transactional()
