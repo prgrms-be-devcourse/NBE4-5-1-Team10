@@ -1,7 +1,5 @@
 package nbe341team10.coffeeproject.domain.user.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +11,11 @@ import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.global.dto.RsData;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
