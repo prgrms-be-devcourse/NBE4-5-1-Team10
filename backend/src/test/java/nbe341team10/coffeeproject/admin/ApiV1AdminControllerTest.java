@@ -96,7 +96,6 @@ class ApiV1AdminControllerTest {
                 .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.msg").value("상품 삭제 성공"))
                 .andExpect(handler().handlerType(ApiV1AdminController.class));
-
     }
 
     @Test
