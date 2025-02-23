@@ -78,7 +78,7 @@ public class ApiV1CartControllerTest {
 
     ResultActions addRequest(long productId, int quantity) throws Exception {
         return mvc
-                .perform(patch("/api/v1/cart")
+                .perform(post("/api/v1/cart")
                         .header("Authorization", "Bearer " + accessToken)
                         .content("""
                             {
@@ -99,7 +99,7 @@ public class ApiV1CartControllerTest {
     void add() throws Exception {
         long productId = 1L;
         int quantity = 1;
-        ResultActions resultActions = updateRequest(productId, quantity);
+        ResultActions resultActions = addRequest(productId, quantity);
 
         Cart cart = cartService.getCart(loginUser.getId()).get();
 
@@ -123,12 +123,12 @@ public class ApiV1CartControllerTest {
         int anotherQuantity = 1;
 
         // Add another product to the cart
-        updateRequest(anotherProductId, anotherQuantity);
+        addRequest(anotherProductId, anotherQuantity);
 
         long productId = 2L;
         int quantity = 2;
 
-        ResultActions resultActions = updateRequest(productId, quantity);
+        ResultActions resultActions = addRequest(productId, quantity);
 
         Cart cart = cartService.getCart(loginUser.getId()).get();
 
@@ -150,13 +150,14 @@ public class ApiV1CartControllerTest {
     void add3() throws Exception {
         long productId = 1L;
         int initialQuantity = 2;
-        int updatedQuantity = 3;
+        int additionalQuantity = 3;
+        int totalQuantity = initialQuantity + additionalQuantity;
 
         // Add the product to the cart for the first time
-        updateRequest(productId, initialQuantity);
+        addRequest(productId, initialQuantity);
 
-        // Add the same product again to update quantity
-        ResultActions resultActions = updateRequest(productId, updatedQuantity);
+        // Add the same product again to increase quantity
+        ResultActions resultActions = addRequest(productId, additionalQuantity);
 
         Cart cart = cartService.getCart(loginUser.getId()).get();
 
