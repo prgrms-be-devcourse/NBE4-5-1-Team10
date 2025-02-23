@@ -29,9 +29,9 @@ public class Cart extends BaseTime {
     @Builder.Default
     private List<CartItem> cartItems = new ArrayList<>();
 
-    public CartItem getCartItemById(long cartItemId) {
+    public CartItem getCartItemByProductId(long productId) {
         return cartItems.stream()
-                .filter(cartItem -> cartItem.getId() == cartItemId)
+                .filter(cartItem -> cartItem.getProduct().getId() == productId)
                 .findFirst()
                 .orElseThrow(
                         () -> new ServiceException("404-2", "CartItem not found")

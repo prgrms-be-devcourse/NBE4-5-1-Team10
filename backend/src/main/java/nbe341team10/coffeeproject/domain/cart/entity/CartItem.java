@@ -26,4 +26,8 @@ public class CartItem extends BaseTime {
 
     @Setter
     private int quantity;
+
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
+    }
 }

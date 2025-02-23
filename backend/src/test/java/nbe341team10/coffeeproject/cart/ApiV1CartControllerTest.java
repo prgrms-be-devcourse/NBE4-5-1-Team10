@@ -65,6 +65,131 @@ public class ApiV1CartControllerTest {
         accessToken = JsonPath.read(loginResponse, "$.data.access");
     }
 
+    private void checkCartItems(ResultActions resultActions, List<CartItem> cartItems) throws Exception {
+        for(int i = 0; i < cartItems.size(); i++) {
+            CartItem cartItem = cartItems.get(i);
+            resultActions
+                .andExpect(jsonPath("$.data.cartItems[%d]".formatted(i)).exists())
+                .andExpect(jsonPath("$.data.cartItems[%d].id".formatted(i)).value(cartItem.getId()))
+                .andExpect(jsonPath("$.data.cartItems[%d].productId".formatted(i)).value(cartItem.getProduct().getId()))
+                .andExpect(jsonPath("$.data.cartItems[%d].quantity".formatted(i)).value(cartItem.getQuantity()));
+        }
+    }
+
+    ResultActions addRequest(long productId, int quantity) throws Exception {
+        return mvc
+                .perform(post("/api/v1/cart")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .content("""
+                            {
+                                "productId": %d,
+                                "quantity": %d
+                            }
+                            """.formatted(productId, quantity)
+                            .stripIndent())
+                    .contentType(
+                            new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                    )
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 - 장바구니가 없다면 새로 생성")
+    void add() throws Exception {
+        long productId = 1L;
+        int quantity = 1;
+        ResultActions resultActions = addRequest(productId, quantity);
+
+        Cart cart = cartService.getCart(loginUser.getId()).get();
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("addProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, quantity)))
+                .andExpect(jsonPath("$.data.id").value(cart.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
+                .andExpect(jsonPath("$.data.cartItems").isArray());
+
+        checkCartItems(resultActions, cart.getCartItems());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 - 장바구니가 있을 때 새로운 상품 추가")
+    void add2() throws Exception {
+        long anotherProductId = 1L;
+        int anotherQuantity = 1;
+
+        // Add another product to the cart
+        addRequest(anotherProductId, anotherQuantity);
+
+        long productId = 2L;
+        int quantity = 2;
+
+        ResultActions resultActions = addRequest(productId, quantity);
+
+        Cart cart = cartService.getCart(loginUser.getId()).get();
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("addProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, quantity)))
+                .andExpect(jsonPath("$.data.id").value(cart.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
+                .andExpect(jsonPath("$.data.cartItems").isArray());
+
+        checkCartItems(resultActions, cart.getCartItems());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 - 이미 존재하는 상품 수량 증가")
+    void add3() throws Exception {
+        long productId = 1L;
+        int initialQuantity = 2;
+        int additionalQuantity = 3;
+        int totalQuantity = initialQuantity + additionalQuantity;
+
+        // Add the product to the cart for the first time
+        addRequest(productId, initialQuantity);
+
+        // Add the same product again to increase quantity
+        ResultActions resultActions = addRequest(productId, additionalQuantity);
+
+        Cart cart = cartService.getCart(loginUser.getId()).get();
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("addProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, totalQuantity)))
+                .andExpect(jsonPath("$.data.id").value(cart.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
+                .andExpect(jsonPath("$.data.cartItems").isArray());
+
+        checkCartItems(resultActions, cart.getCartItems());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 추가 - 존재하지 않는 상품 추가")
+    void add4() throws Exception {
+        long nonExistentProductId = 999L;
+        int quantity = 1;
+
+        ResultActions resultActions = addRequest(nonExistentProductId, quantity);
+
+        resultActions
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(ApiV1CartController.class))
+                .andExpect(handler().methodName("addProduct"))
+                .andExpect(jsonPath("$.code").value("404"))
+                .andExpect(jsonPath("$.msg").value("Product with ID %d not found".formatted(nonExistentProductId)));
+    }
+
     ResultActions updateRequest(long productId, int quantity) throws Exception {
         return mvc
                 .perform(patch("/api/v1/cart")
@@ -83,20 +208,9 @@ public class ApiV1CartControllerTest {
                 .andDo(print());
     }
 
-    private void checkCartItems(ResultActions resultActions, List<CartItem> cartItems) throws Exception {
-        for(int i = 0; i < cartItems.size(); i++) {
-            CartItem cartItem = cartItems.get(i);
-            resultActions
-                .andExpect(jsonPath("$.data.cartItems[%d]".formatted(i)).exists())
-                .andExpect(jsonPath("$.data.cartItems[%d].id".formatted(i)).value(cartItem.getId()))
-                .andExpect(jsonPath("$.data.cartItems[%d].productId".formatted(i)).value(cartItem.getProduct().getId()))
-                .andExpect(jsonPath("$.data.cartItems[%d].quantity".formatted(i)).value(cartItem.getQuantity()));
-        }
-    }
-
     @Test
     @DisplayName("장바구니 상품 담기 - 장바구니가 없다면 새로 생성")
-    void add() throws Exception {
+    void update() throws Exception {
         long productId = 1L;
         int quantity = 1;
         ResultActions resultActions = updateRequest(productId, quantity);
@@ -118,7 +232,7 @@ public class ApiV1CartControllerTest {
 
     @Test
     @DisplayName("장바구니 상품 담기 - 장바구니가 있을 때 새로운 상품 추가")
-    void add2() throws Exception {
+    void update2() throws Exception {
         long anotherProductId = 1L;
         int anotherQuantity = 1;
 
@@ -147,7 +261,7 @@ public class ApiV1CartControllerTest {
 
     @Test
     @DisplayName("장바구니 상품 담기 - 이미 존재하는 상품 수량 변경")
-    void update() throws Exception {
+    void update3() throws Exception {
         long productId = 1L;
         int initialQuantity = 2;
         int updatedQuantity = 3;
@@ -175,7 +289,7 @@ public class ApiV1CartControllerTest {
 
     @Test
     @DisplayName("장바구니 상품 담기 - 존재하지 않는 상품 추가")
-    void add3() throws Exception {
+    void update4() throws Exception {
     long nonExistentProductId = 999L;
     int quantity = 1;
 
