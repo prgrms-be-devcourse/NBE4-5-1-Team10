@@ -7,7 +7,6 @@ import nbe341team10.coffeeproject.global.entity.BaseTime;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "delivery")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,12 +15,15 @@ import java.time.LocalDateTime;
 public class Delivery extends BaseTime {
 
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Orders order;
 
     private String deliveryAddress;
 
     private LocalDateTime deliveryStartDate;
     private LocalDateTime deliveryArriveDate;
+
+    public void setStatus(String s) {
+    }
 }
 
