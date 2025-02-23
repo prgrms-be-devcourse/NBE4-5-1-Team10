@@ -15,10 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,14 +44,14 @@ public class ApiV1CartControllerTest {
     @Autowired
     private LoginService loginService;
 
-    private Users loginedUser;
+    private Users loginUser;
     private String accessToken;
 
     @BeforeEach
     void login() throws Exception {
         String email = "tester1@example.com";
         String password = "password123";
-        loginedUser = userService.findByEmail(email).get();
+        loginUser = userService.findByEmail(email).get();
         String loginResponse = mvc.perform(post("/api/v1/user/login")
                         .content("""
                                 {
@@ -66,9 +65,9 @@ public class ApiV1CartControllerTest {
         accessToken = JsonPath.read(loginResponse, "$.data.access");
     }
 
-    ResultActions addRequest(long productId, int quantity) throws Exception {
+    ResultActions updateRequest(long productId, int quantity) throws Exception {
         return mvc
-                .perform(post("/api/v1/cart")
+                .perform(patch("/api/v1/cart")
                         .header("Authorization", "Bearer " + accessToken)
                         .content("""
                             {
@@ -100,18 +99,18 @@ public class ApiV1CartControllerTest {
     void add() throws Exception {
         long productId = 1L;
         int quantity = 1;
-        ResultActions resultActions = addRequest(productId, quantity);
+        ResultActions resultActions = updateRequest(productId, quantity);
 
-        Cart cart = cartService.getCart(loginedUser.getId()).get();
+        Cart cart = cartService.getCart(loginUser.getId()).get();
 
         resultActions
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1CartController.class))
-                .andExpect(handler().methodName("addProduct"))
-                .andExpect(jsonPath("$.code").value("201-1"))
+                .andExpect(handler().methodName("updateProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, quantity)))
                 .andExpect(jsonPath("$.data.id").value(cart.getId()))
-                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.data.cartItems").isArray());
 
         checkCartItems(resultActions, cart.getCartItems());
@@ -124,53 +123,51 @@ public class ApiV1CartControllerTest {
         int anotherQuantity = 1;
 
         // Add another product to the cart
-        addRequest(anotherProductId, anotherQuantity);
+        updateRequest(anotherProductId, anotherQuantity);
 
         long productId = 2L;
         int quantity = 2;
 
-        ResultActions resultActions = addRequest(productId, quantity);
+        ResultActions resultActions = updateRequest(productId, quantity);
 
-        Cart cart = cartService.getCart(loginedUser.getId()).get();
+        Cart cart = cartService.getCart(loginUser.getId()).get();
 
         resultActions
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1CartController.class))
-                .andExpect(handler().methodName("addProduct"))
-                .andExpect(jsonPath("$.code").value("201-1"))
+                .andExpect(handler().methodName("updateProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
                 .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, quantity)))
                 .andExpect(jsonPath("$.data.id").value(cart.getId()))
-                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.data.cartItems").isArray());
 
         checkCartItems(resultActions, cart.getCartItems());
-
     }
 
     @Test
-    @DisplayName("장바구니 상품 담기 - 이미 존재하는 상품 수량 추가")
-    void add3() throws Exception {
+    @DisplayName("장바구니 상품 담기 - 이미 존재하는 상품 수량 변경")
+    void update() throws Exception {
         long productId = 1L;
         int initialQuantity = 2;
-        int additionalQuantity = 3;
-        int totalQuantity = initialQuantity + additionalQuantity;
+        int updatedQuantity = 3;
 
         // Add the product to the cart for the first time
-        addRequest(productId, initialQuantity);
+        updateRequest(productId, initialQuantity);
 
-        // Add the same product again to increase quantity
-        ResultActions resultActions = addRequest(productId, additionalQuantity);
+        // Add the same product again to update quantity
+        ResultActions resultActions = updateRequest(productId, updatedQuantity);
 
-        Cart cart = cartService.getCart(loginedUser.getId()).get();
+        Cart cart = cartService.getCart(loginUser.getId()).get();
 
         resultActions
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(handler().handlerType(ApiV1CartController.class))
-                .andExpect(handler().methodName("addProduct"))
-                .andExpect(jsonPath("$.code").value("201-1"))
-                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, totalQuantity)))
+                .andExpect(handler().methodName("updateProduct"))
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("The quantity of product %d is a total of %d".formatted(productId, updatedQuantity)))
                 .andExpect(jsonPath("$.data.id").value(cart.getId()))
-                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.data.cartItems").isArray());
 
         checkCartItems(resultActions, cart.getCartItems());
@@ -178,17 +175,17 @@ public class ApiV1CartControllerTest {
 
     @Test
     @DisplayName("장바구니 상품 담기 - 존재하지 않는 상품 추가")
-    void add4() throws Exception {
+    void add3() throws Exception {
     long nonExistentProductId = 999L;
     int quantity = 1;
 
-    ResultActions resultActions = addRequest(nonExistentProductId, quantity);
+    ResultActions resultActions = updateRequest(nonExistentProductId, quantity);
 
     resultActions
             .andExpect(status().isNotFound())
             .andExpect(handler().handlerType(ApiV1CartController.class))
-            .andExpect(handler().methodName("addProduct"))
-            .andExpect(jsonPath("$.code").value("404-1"))
+            .andExpect(handler().methodName("updateProduct"))
+            .andExpect(jsonPath("$.code").value("404"))
             .andExpect(jsonPath("$.msg").value("Product with ID %d not found".formatted(nonExistentProductId)));
     }
 
@@ -210,12 +207,12 @@ public class ApiV1CartControllerTest {
         int quantity1 = 2;
         int quantity2 = 3;
 
-        addRequest(productId1, quantity1);
-        addRequest(productId2, quantity2);
+        updateRequest(productId1, quantity1);
+        updateRequest(productId2, quantity2);
 
         ResultActions resultActions = cartRequest();
 
-        Cart cart = cartService.getCart(loginedUser.getId()).get();
+        Cart cart = cartService.getCart(loginUser.getId()).get();
 
         resultActions
                 .andExpect(status().isOk())
@@ -224,7 +221,7 @@ public class ApiV1CartControllerTest {
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("Cart retrieved successfully."))
                 .andExpect(jsonPath("$.data.id").value(cart.getId()))
-                .andExpect(jsonPath("$.data.userId").value(loginedUser.getId()))
+                .andExpect(jsonPath("$.data.userId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.data.cartItems").isArray());
 
         checkCartItems(resultActions, cart.getCartItems());

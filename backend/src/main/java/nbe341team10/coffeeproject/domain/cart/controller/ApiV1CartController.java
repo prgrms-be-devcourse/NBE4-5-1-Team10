@@ -13,6 +13,7 @@ import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.Rq;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import nbe341team10.coffeeproject.global.exception.ServiceException;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,27 +24,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ApiV1CartController {
     private final CartService cartService;
-    private final ProductService productService;
     private final Rq rq;
 
-    public record CartAddProductRequest(@NotNull long productId, @NotNull int quantity) {}
+    public record CartUpdateProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
-    @PostMapping()
-    @Transactional
-    public RsData<CartDetailResponse> addProduct(@Valid @RequestBody CartAddProductRequest addProductRequest) {
+    @PatchMapping()
+    public RsData<CartDetailResponse> updateProduct(@Valid @RequestBody CartUpdateProductRequest request) {
         Users actor = rq.getCurrentActor();
-        Product product = productService.getItem(addProductRequest.productId).orElseThrow(
-                () -> new ServiceException(
-                        "404-1",
-                        "Product with ID %d not found".formatted(addProductRequest.productId)
-                )
-        );
-        Cart cart = cartService.getOrCreateCart(actor);
-        CartItem cartItem = cartService.addProduct(cart, product, addProductRequest.quantity);
+        Cart cart = cartService.updateProduct(actor, request.productId, request.quantity);
 
         return new RsData<>(
-                "201-1",
-                "The quantity of product %d is a total of %d".formatted(product.getId(), cartItem.getQuantity()),
+                "200",
+                "The quantity of product %d is a total of %d".formatted(request.productId, request.quantity),
                 new CartDetailResponse(cart)
         );
     }

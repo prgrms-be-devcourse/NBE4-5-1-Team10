@@ -8,8 +8,7 @@ import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.entity.BaseTime;
 import nbe341team10.coffeeproject.global.exception.ServiceException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,15 @@ public class Cart extends BaseTime {
     @Builder.Default
     private List<CartItem> cartItems = new ArrayList<>();
 
+    public CartItem getCartItemById(long cartItemId) {
+        return cartItems.stream()
+                .filter(cartItem -> cartItem.getId() == cartItemId)
+                .findFirst()
+                .orElseThrow(
+                        () -> new ServiceException("404-2", "CartItem not found")
+                );
+    }
+
     public CartItem addCartItem(Product product, int quantity) {
         CartItem cartItem = CartItem.builder()
                 .cart(this)
@@ -38,16 +46,10 @@ public class Cart extends BaseTime {
                 .build();
 
         cartItems.add(cartItem);
-
         return cartItem;
     }
 
-    public CartItem getCartItemById(long cartItemId) {
-        return cartItems.stream()
-                .filter(cartItem -> cartItem.getId() == cartItemId)
-                .findFirst()
-                .orElseThrow(
-                        () -> new ServiceException("404-2", "CartItem not found")
-                );
+    public void removeCartItem(Product product) {
+        cartItems.removeIf(item -> item.getProduct().equals(product));
     }
 }
