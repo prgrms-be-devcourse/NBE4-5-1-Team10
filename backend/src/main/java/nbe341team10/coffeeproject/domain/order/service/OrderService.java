@@ -2,10 +2,12 @@ package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
+import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
+import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemDetailResponse;
 import nbe341team10.coffeeproject.domain.orderitem.entity.OrderItem;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
@@ -64,6 +66,7 @@ public class OrderService {
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItemList);
     }
+
     //Orders 목록 조회
     public List<OrderListResponse> getOrders() {
         List<Orders> allOrders = orderRepository.findAll();  // 모든 주문 가져오기
@@ -83,6 +86,7 @@ public class OrderService {
 
                     // OrderListResponse 객체 생성
                     return OrderListResponse.builder()
+                            .orderId(order.getId())
                             .orderDate(order.getCreatedAt())
                             .orderStatus(order.getStatus())
                             .firstProductName(firstProductName)
@@ -91,5 +95,33 @@ public class OrderService {
                             .build();
                 })
                 .collect(Collectors.toList());  // 결과를 List로 변환
+    }
+
+    //Orders 상세 정보 조회
+    public OrderDetailResponse getOrderDetail(Long id) {
+
+        //Order 조회
+        Orders order = orderRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(
+                        "404",
+                        id + "번 주문을 찾을 수 없습니다.")
+                );
+
+        //Order에 맞는 OrderItem 조회
+        List<OrderItemDetailResponse> orderItems = orderItemRepository.findByOrder(order).stream()
+                .map(orderItem -> OrderItemDetailResponse.builder()
+                        .productName(orderItem.getProduct().getName())
+                        .quantity(orderItem.getQuantity())
+                        .price(orderItem.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+
+        //DTO 생성
+        return OrderDetailResponse.builder()
+                .orderItems(orderItems)
+                .orderStatus(order.getStatus())
+                .email(order.getEmail())
+                .address(order.getAddress())
+                .build();
     }
 }

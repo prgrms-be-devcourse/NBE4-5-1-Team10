@@ -36,7 +36,7 @@ public class OrderCreateRequest {
         return Orders.builder()
                 .address(address)
                 .postalCode(postalCode)
-                .status(OrderStatus.ORDERD)
+                .status(OrderStatus.ORDERED)
                 .totalPrice(totalPrice)
                 .build();
     }
