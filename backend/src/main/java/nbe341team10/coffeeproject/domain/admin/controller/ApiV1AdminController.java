@@ -1,10 +1,12 @@
 package nbe341team10.coffeeproject.domain.admin.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,14 +38,15 @@ public class ApiV1AdminController {
     }
 
 //    @PutMapping("product/{id}")
-//추후 메소드 생기면
 
 
+    @DeleteMapping("/product/{id}")
+    public ResponseEntity<RsData<Void>> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.ok(new RsData<>("200", "상품 삭제 성공"));
+    }
 
-//    @DeleteMapping("product/{id}")
 
-
-    //delete 메소드 생기면
 
 //    @GetMapping("products/orderlist")
 //    public RsData<List<OrderDto>> getOrderList() {

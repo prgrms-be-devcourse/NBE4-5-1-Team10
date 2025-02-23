@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.product.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
@@ -37,5 +38,11 @@ public class ProductService {
 
     public Optional<Product> getItem(long productId) {
         return productRepository.findById(productId);
+    }
+
+    public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
+        productRepository.delete(product);
     }
 }

@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.global.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import nbe341team10.coffeeproject.global.app.AppConfig;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.http.HttpStatus;
@@ -47,5 +48,13 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<RsData<Void>> handleEntityNotFoundException(EntityNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new RsData<>("404", e.getMessage()));
+    }
+
 
 }
