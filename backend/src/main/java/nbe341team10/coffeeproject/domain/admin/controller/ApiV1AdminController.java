@@ -6,10 +6,8 @@ import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -34,14 +32,27 @@ public class ApiV1AdminController {
         return new RsData<>("200", "상품 등록 성공", addedProductGetItemDto);
     }
 
-//    @PutMapping("product/{id}")
+    @PutMapping("/product/{id}")
+    public RsData<ProductGetItemDto> modifyProduct(@PathVariable Long id, @RequestBody ProductGetItemDto productGetItemDto) {
+        Product modifiedProduct = productService.modify(
+                id,
+                productGetItemDto.getName(),
+                productGetItemDto.getDescription(),
+                productGetItemDto.getPrice(),
+                productGetItemDto.getImageUrl(),
+                productGetItemDto.getStockQuantity()
+        );
+        ProductGetItemDto modifiedProductGetItemDto = new ProductGetItemDto(modifiedProduct);
+        return new RsData<>("200", "상품 수정 성공", modifiedProductGetItemDto);
+    }
 
 
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<RsData<Void>> deleteProduct(@PathVariable Long id) {
+    public RsData<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok(new RsData<>("200", "상품 삭제 성공"));
+        return new RsData<>("200", "상품 삭제 성공");
     }
+
 
 
 
