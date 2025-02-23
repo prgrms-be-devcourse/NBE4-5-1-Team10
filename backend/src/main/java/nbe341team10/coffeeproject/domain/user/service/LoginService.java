@@ -124,13 +124,14 @@ public class LoginService {
      */
     public String getAccessToken(Users user) {
         String email = user.getEmail();
-        String refresh=refreshRepository.findByEmail(email);
+        Refresh refresh=refreshRepository.findByEmail(email);
 
-        if(refresh==null || jwtUtil.isExpired(refresh)) {
+        String refresh1=refresh.getRefresh();
+        if(refresh==null || jwtUtil.isExpired(refresh1)) {
             RsData<String> error=new RsData<>("400","Refresh token expired or dose not exist");
             return error.getData();
         }
-        Map<String,String> token=createJwt(refresh);
+        Map<String,String> token=createJwt(refresh1);
         return token.get("access");
     }
 
