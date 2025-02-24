@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import nbe341team10.coffeeproject.domain.user.dto.CustomUserDetails;
 import nbe341team10.coffeeproject.domain.user.entity.Role;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,15 +18,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final BlacklistRepository blacklistRepository;
 
-    public JWTFilter(JWTUtil jwtUtil) {
-
+    public JWTFilter(JWTUtil jwtUtil, BlacklistRepository blacklistRepository) {
         this.jwtUtil = jwtUtil;
+        this.blacklistRepository = blacklistRepository;
     }
 
 
@@ -87,6 +88,12 @@ public class JWTFilter extends OncePerRequestFilter {
             if(category.equals("access")){
                 // 액세스 토큰 만료 검증
                 jwtUtil.isExpired(token);
+
+                // 블랙리스트 확인
+                if(blacklistRepository.existsByToken(token)){
+                    return new RsData<>("401","unauthorized","this token is blacklisted");
+                }
+
             }else if(category.equals("refresh")){
                 if(request.getRequestURI().equals("/api/v1/user/reissue")){
                     // 재발급 처리

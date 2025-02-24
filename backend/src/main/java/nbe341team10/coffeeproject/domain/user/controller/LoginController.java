@@ -101,7 +101,6 @@ public class LoginController {
 
         }
 
-
         // 새로운 토큰 생성
         Map<String,String> token=loginService.createJwt(refreshToken);
         String newRefresh=token.get("refresh");
