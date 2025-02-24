@@ -29,45 +29,28 @@ export default function ClientPage() {
       return;
     }
 
-    // const loginResponse = await client.POST("/api/v1/user/login", {
-    //   body: {
-    //     email,
-    //     password,
-    //   },
-    // });
-    const loginResponse = await fetch(
-      "http://localhost:8080/api/v1/user/login",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      }
-    );
-
-    if (!loginResponse.ok) {
-      alert("로그인에 실패했습니다.");
-      return;
-    }
-
-    const loginData = (await loginResponse.json()).data || { access: "" };
-    const accessToken = loginData["access"];
-
-    const userResponse = await client.GET("/api/v1/user", {
+    const loginRes = await fetch("/api/user/login", {
+      method: "POST",
       headers: {
-        Authorization: "Bearer " + accessToken,
+        "Content-Type": "application/json",
       },
-      credentials: "include",
+      body: JSON.stringify({ email, password }),
     });
 
-    if (userResponse.error) {
-      alert(userResponse["error"]["msg"]);
+    if (!loginRes.ok) {
+      alert("로그인 실패");
       return;
     }
 
-    setLoginUser(userResponse.data.data!!);
-    localStorage.setItem("accessToken", accessToken);
+    const res = await fetch("/api/user", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    setLoginUser(data.data!!);
     router.replace("/");
   }
 

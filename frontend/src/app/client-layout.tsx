@@ -46,18 +46,8 @@ export default function ClientLayout({
   };
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    console.log(accessToken);
-    if (!accessToken) {
-      setAnonymousUser();
-      return;
-    }
-
     client
       .GET("/api/v1/user", {
-        headers: {
-          Authorization: "Bearer " + "accessToken",
-        },
         credentials: "include",
       })
       .then((userResponse) => {

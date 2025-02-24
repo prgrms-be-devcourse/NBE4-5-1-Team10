@@ -5,6 +5,7 @@ import { createContext, useState } from "react";
 type User = {
   id: number;
   username: string;
+  email: string;
 };
 
 export const LoginUserContext = createContext<{
@@ -27,6 +28,7 @@ function createEmptyUser(): User {
   return {
     id: 0,
     username: "",
+    email: "",
   };
 }
 

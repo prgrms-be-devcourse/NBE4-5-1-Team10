@@ -4,32 +4,39 @@ import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export async function middleware(request: NextRequest) {
-  const myCookies = await cookies();
-  const accessToken = myCookies.get("accessToken");
+  // 클라이언트가 보낸 HttpOnly 쿠키
+  const accessToken = request.cookies.get("accessToken");
+
   const { isLogin, isExpired } = parseAccessToken(accessToken);
 
+  // 만료된 토큰 => 자동 재발급
   if (isLogin && isExpired) {
-    return refreshAccessToken();
+    return refreshAccessToken(request);
   }
 
+  // 보호 라우트 접근 시 로그인 안 되어 있으면 401
   if (!isLogin && isProtectedRoute(request.nextUrl.pathname)) {
     return createUnauthorizedResponse();
   }
+
+  return NextResponse.next();
 }
 
-async function refreshAccessToken() {
+async function refreshAccessToken(request: NextRequest) {
   const nextResponse = NextResponse.next();
 
+  // refresh token으로 재발급
   const response = await client.POST("/api/v1/user/reissue", {
     headers: {
-      cookie: (await cookies()).toString(),
+      cookie: request.headers.get("cookie") ?? "",
     },
   });
 
-  const cookie = response.response.headers.getSetCookie();
-
-  nextResponse.headers.set("set-cookie", String(cookie));
-
+  // set-cookie 헤더를 가져와 응답에 설정
+  const setCookieHeader = response.response.headers.getSetCookie();
+  if (setCookieHeader) {
+    nextResponse.headers.set("set-cookie", String(setCookieHeader));
+  }
   return nextResponse;
 }
 
@@ -49,13 +56,12 @@ function parseAccessToken(accessToken: RequestCookie | undefined) {
   }
 
   let isLogin = payload !== null;
-
   return { isLogin, isExpired, payload };
 }
+
 function isProtectedRoute(pathname: string): boolean {
-  return (
-    pathname.startsWith("/post/write") || pathname.startsWith("/post/edit")
-  );
+  // 보호해야 할 라우트 설정
+  return pathname.startsWith("/cart");
 }
 
 function createUnauthorizedResponse(): NextResponse {

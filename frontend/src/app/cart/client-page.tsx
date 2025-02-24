@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
-import { debounce } from "lodash";
-import { getCartAPI, updateCartAPI } from "./page";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import debounce from "lodash/debounce";
 import {
   TableHeader,
   TableRow,
@@ -18,61 +17,109 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 
-export default function ClientPage() {
-  const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
-  const [cart, setCart] = useState<components["schemas"]["CartDto"] | null>(
-    null
-  );
-  const [cartItems, setCartItems] = useState(
-    cart?.cartItems?.map((item) => ({
-      selected: true,
-      ...item,
-    })) || []
-  );
+type CartDto = {
+  id: number;
+  userId: number;
+  cartItems: components["schemas"]["CartItemDto"][];
+};
 
-  const debouncedUpdateCart = useCallback(
-    debounce((productId: number, quantity: number) => {
-      if (quantity < 0) return;
-      updateCartAPI(token, productId, quantity);
-    }, 500),
+type CartItemDto = components["schemas"]["CartItemDto"] & {
+  selected: boolean;
+};
+
+export default function ClientPage() {
+  const [cart, setCart] = useState<CartDto | null>(null);
+  const [cartItems, setCartItems] = useState<CartItemDto[]>([]);
+
+  async function fetchCart() {
+    try {
+      const res = await fetch("/api/cart", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        console.error("Fetch cart failed:", res.status);
+        return;
+      }
+      const data = await res.json();
+      setCart(data.data as CartDto);
+    } catch (err) {
+      console.error("Fetch cart error:", err);
+    }
+  }
+
+  // 화면 초기화
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  //cart 변경 감지 시, cartItems에 복사 (selected 기본값 true)
+  useEffect(() => {
+    if (cart?.cartItems) {
+      setCartItems(
+        cart.cartItems.map((item) => ({
+          ...item,
+          selected: true,
+        }))
+      );
+    }
+  }, [cart]);
+
+  // productId와 quantity만 넘기면 500ms 후 updateCartAPI 호출
+  const debouncedUpdateCart = useMemo(
+    () =>
+      debounce(async (productId: number, quantity: number) => {
+        if (quantity < 0) return;
+        try {
+          const res = await fetch("/api/cart", {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, quantity }),
+          });
+          if (!res.ok) {
+            console.error("Patch cart failed:", res.status);
+            return;
+          }
+          const updatedCart = await res.json();
+          setCart(updatedCart.data as CartDto);
+        } catch (error) {
+          console.error("장바구니 업데이트 중 오류가 발생했습니다.", error);
+        }
+      }, 500),
     []
   );
 
-  useEffect(() => {
-    setToken(localStorage.getItem("accessToken") || "");
-    if (!token) {
-      console.error("토큰이 없습니다.");
-      return;
-    }
-    getCartAPI(token).then((data) => {
-      if (data) setCart(data);
-    });
-  }, []);
+  // 수량 변경 시 상태 업데이트 + 디바운스 API 호출
+  const updateProductQuantity = useCallback(
+    (productId: number, quantity: number) => {
+      setCartItems((prev) =>
+        prev.map((item) =>
+          item.productId === productId
+            ? { ...item, quantity: Math.max(quantity, 0) }
+            : item
+        )
+      );
+      debouncedUpdateCart(productId, Math.max(quantity, 0));
+    },
+    [debouncedUpdateCart]
+  );
 
-  if (!cart) return <div>장바구니 데이터를 불러오는 중입니다...</div>;
-
-  const updateProductQuantity = (productId: number, quantity: number) => {
-    setCartItems((prev) =>
-      prev?.map((item) =>
-        item.productId == productId
-          ? { ...item, quantity: Math.max(quantity, 0) }
-          : item
-      )
-    );
-    debouncedUpdateCart(productId, quantity);
-  };
-
-  const toggleSelect = (cartItemId: number) => {
+  const toggleSelect = useCallback((cartItemId: number) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item.id === cartItemId ? { ...item, selected: !item.selected } : item
       )
     );
-  };
+  }, []);
+
+  if (!cart) {
+    return <div>장바구니 데이터를 불러오는 중입니다...</div>;
+  }
 
   const selectedItems = cartItems.filter((item) => item.selected);
   const selectedTotal = selectedItems.reduce(
-    (acc, item) => acc + item.totalPrice,
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
   const shippingFee = selectedTotal > 0 ? 3000 : 0;
@@ -125,7 +172,7 @@ export default function ClientPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={!(item.quantity > 0)}
+                      disabled={item.quantity <= 0}
                       onClick={() =>
                         updateProductQuantity(item.productId, item.quantity - 1)
                       }
@@ -167,6 +214,7 @@ export default function ClientPage() {
           </TableBody>
         </Table>
 
+        {/* 결제 요약 정보 */}
         <Card className="mt-8 p-4 bg-gray-100 rounded-md">
           <div className="flex justify-between py-2">
             <span>선택상품 금액</span>
