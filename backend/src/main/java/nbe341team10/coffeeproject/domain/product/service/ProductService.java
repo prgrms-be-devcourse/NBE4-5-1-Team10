@@ -2,8 +2,13 @@ package nbe341team10.coffeeproject.domain.product.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import nbe341team10.coffeeproject.domain.cart.controller.ApiV1CartController;
+import nbe341team10.coffeeproject.domain.cart.entity.Cart;
+import nbe341team10.coffeeproject.domain.cart.entity.CartItem;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.global.exception.ServiceException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
