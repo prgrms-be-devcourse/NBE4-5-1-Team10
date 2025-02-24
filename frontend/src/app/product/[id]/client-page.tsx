@@ -26,6 +26,7 @@ export default function ClientPage({
               width={500}
               height={400}
               className="w-full h-auto rounded-md object-cover"
+              style={{ width: 500, height: 400 }}
             />
           </div>
 

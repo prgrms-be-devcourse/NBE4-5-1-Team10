@@ -53,3 +53,27 @@ export async function PATCH(req: NextRequest) {
   const updatedCart = response.data as CartResponse;
   return NextResponse.json(updatedCart);
 }
+
+export async function POST(req: NextRequest) {
+  const token = (await cookies()).get("accessToken");
+  if (!token) {
+    return NextResponse.json({ error: "No token" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { productId, quantity } = body as {
+    productId: number;
+    quantity: number;
+  };
+
+  const response = await client.POST("/api/v1/cart", {
+    headers: { Authorization: `Bearer ${token.value}` },
+    body: { productId, quantity },
+    credentials: "include",
+  });
+  if (response.error) {
+    return NextResponse.json({ error: response["error"] }, { status: 400 });
+  }
+  const addedToCart = response.data as CartResponse;
+  return NextResponse.json(addedToCart);
+}
