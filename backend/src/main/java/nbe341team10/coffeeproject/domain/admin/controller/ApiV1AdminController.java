@@ -61,25 +61,25 @@ public class ApiV1AdminController {
     }
 
     // 모든 배송 조회
-    @GetMapping("/deliveries")
-    public RsData<List<DeliveryDTO>> getAllDeliveries() {
-        List<DeliveryDTO> deliveries = deliveryService.getAllDeliveries();
-        return new RsData<>("200-00", "Deliveries retrieved successfully.", deliveries);
-    }
+//    @GetMapping("/deliveries")
+//    public RsData<List<DeliveryDTO>> getAllDeliveries() {
+//        List<DeliveryDTO> deliveries = deliveryService.getAllDeliveries();
+//        return new RsData<>("200-00", "Deliveries retrieved successfully.", deliveries);
+//    }
 
-    // 특정 배송 조회
-    @GetMapping("/delivery/{id}")
-    public RsData<DeliveryDTO> getDeliveryById(@PathVariable Long id) {
-        DeliveryDTO deliveryDTO = deliveryService.getDeliveryById(id);
-        if (deliveryDTO != null) {
-            return new RsData<>("200-00", "Delivery retrieved successfully.", deliveryDTO);
-        } else {
-            return new RsData<>("404-00", "Delivery not found.");
-        }
-    }
-
-
-
+//    // 특정 배송 조회
+//    @GetMapping("/delivery/{id}")
+//    public RsData<DeliveryDTO> getDeliveryById(@PathVariable Long id) {
+//        DeliveryDTO deliveryDTO = deliveryService.getDeliveryById(id);
+//        if (deliveryDTO != null) {
+//            return new RsData<>("200-00", "Delivery retrieved successfully.", deliveryDTO);
+//        } else {
+//            return new RsData<>("404-00", "Delivery not found.");
+//        }
+//    }
+//
+//
+//
     // 배송 삭제
     @DeleteMapping("/delivery/{id}")
     public RsData<Void> deleteDelivery(@PathVariable Long id) {

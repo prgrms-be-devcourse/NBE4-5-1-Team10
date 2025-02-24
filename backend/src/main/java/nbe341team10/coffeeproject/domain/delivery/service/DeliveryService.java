@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -89,7 +90,7 @@ public class DeliveryService {
 
     private void sendEmail(Delivery delivery) {
         // 이메일 전송 로직 구현
-        System.out.println("이메일 전송: 주문 " + delivery.getOrder().getId() + "의 배송 진행 상태가 업데이트되었습니다.");
+        System.out.println("이메일 전송: 주문 " + delivery.getOrder().getEmail() + "의 배송 진행 상태가 업데이트되었습니다.");
     }
 
     public void deleteDelivery(Long id) {
@@ -97,21 +98,6 @@ public class DeliveryService {
     }
 
 
-    public DeliveryDTO getDeliveryById(Long id) {
-        return null;
-    }
 
-
-    public void updateDelivery(DeliveryDTO deliveryDTO) {
-    }
-
-
-    public List<DeliveryDTO> getAllDeliveries() {
-        return List.of();
-    }
-
-    public DeliveryDTO saveDelivery(DeliveryDTO deliveryDTO) {
-        return deliveryDTO;
-    }
 }
 

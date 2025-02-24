@@ -25,4 +25,5 @@ public class DeliveryDTO {
                 .deliveryStartDate(LocalDateTime.now()) // 예시로 현재 시간 설정
                 .build();
     }
+
 }

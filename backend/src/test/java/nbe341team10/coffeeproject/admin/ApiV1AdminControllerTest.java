@@ -4,10 +4,13 @@ package nbe341team10.coffeeproject.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import nbe341team10.coffeeproject.domain.admin.controller.ApiV1AdminController; // Import your controller
+import nbe341team10.coffeeproject.domain.delivery.service.DeliveryService;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
+import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
+import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
 import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
@@ -29,10 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 
 @ActiveProfiles("test")
@@ -50,6 +56,11 @@ class ApiV1AdminControllerTest {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private DeliveryService deliveryService;
+
+    @Autowired
+    DeliveryRepository deliveryRepository;
     @Autowired
     private ObjectMapper objectMapper;
     private String accessToken;
@@ -206,5 +217,30 @@ class ApiV1AdminControllerTest {
         assertEquals(60, modifiedProduct.getStockQuantity());
     }
 
+    @Test
+    @DisplayName("배송 삭제 성공 확인")
+    @WithMockUser(roles = "ADMIN")
+    void deleteDeliverySuccess() throws Exception {
+        // 1. 테스트용 배송 데이터 생성
+        Delivery delivery = new Delivery();
+        delivery.setStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
 
+
+        // 2. 배송 데이터 저장 (ID가 자동으로 생성됨)
+        delivery = deliveryRepository.save(delivery); // 실제 데이터베이스에 저장하여 ID 생성
+
+        // 3. Perform DELETE request and verify response
+        mvc.perform(delete("/api/v1/admin/delivery/{id}", delivery.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andExpect(handler().handlerType(ApiV1AdminController.class));
+
+        // 4. 배송이 삭제되었는지 확인
+        verify(deliveryService, times(5)).deleteDelivery(delivery.getId());
+
+        // 5. 삭제된 배송 데이터가 실제로 삭제되었는지 확인
+        assertThat(deliveryRepository.findById(delivery.getId())).isEmpty(); // 배송 데이터가 삭제되었는지 확인
+    }
 }
+
+
