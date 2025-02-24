@@ -27,10 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * TODO 회원 관련 로직 추가 하기(전부)
- */
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
