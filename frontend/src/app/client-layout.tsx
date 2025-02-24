@@ -121,6 +121,9 @@ export default function ClientLayout({
                   <DropdownMenuItem asChild>
                     <Link href="/cart">장바구니</Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/order/list">주문 내역</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/user/logout">로그아웃</Link>

@@ -24,4 +24,6 @@ public class OrderListResponse {
 
     private int totalPrice;
 
+    private String firstProductImageUrl;
+
 }
