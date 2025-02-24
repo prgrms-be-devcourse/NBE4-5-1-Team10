@@ -15,7 +15,7 @@ import nbe341team10.coffeeproject.global.entity.BaseTime;
 @SuperBuilder
 public class Orders extends BaseTime {
 
-    //@Column(nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -32,5 +32,6 @@ public class Orders extends BaseTime {
     private int totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private Users user;
 }

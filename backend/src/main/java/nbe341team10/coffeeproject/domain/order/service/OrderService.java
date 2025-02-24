@@ -107,8 +107,6 @@ public class OrderService {
                         id + "번 주문을 찾을 수 없습니다.")
                 );
 
-        System.out.println("오더: " + order.getAddress());
-
         if(!order.getUser().equals(actor)){
             throw new ServiceException(
                     "401",
@@ -125,10 +123,6 @@ public class OrderService {
                         .price(orderItem.getPrice())
                         .build())
                 .collect(Collectors.toList());
-
-        for(OrderItemDetailResponse orderItemDetailResponse : orderItems){
-            System.out.println("오더 아이템: " + orderItemDetailResponse.getProductName());
-        }
 
         //DTO 생성
         return OrderDetailResponse.builder()

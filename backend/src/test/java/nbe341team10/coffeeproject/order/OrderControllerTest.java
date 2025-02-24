@@ -114,6 +114,20 @@ public class OrderControllerTest {
     @Test
     @DisplayName("주문 등록 시 주소 값 누락")
     public void testCreateOrder_MissingRequiredField() throws Exception {
+
+        // 로그인 요청
+        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .contentType("application/json")
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // 로그인 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
         // 요청을 보낼 데이터 준비 (주소가 빠짐)
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -129,7 +143,8 @@ public class OrderControllerTest {
         // HTTP POST 요청 보내기 (필수 값 누락 시 400 Bad Request)
         mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(orderCreateRequest)))
+                        .content(objectMapper.writeValueAsString(orderCreateRequest))
+                        .header("Authorization", "Bearer " + accessToken))  // Authorization 헤더에 액세스 토큰 추가
                 .andExpect(status().isBadRequest())  // HTTP 400 응답 확인
                 .andExpect(jsonPath("$.code").value("400-1"))  // 응답 body에서 status 확인
                 .andExpect(jsonPath("$.msg").value("address : NotBlank : 주소를 입력해주세요."));  // 응답 body에서 필수 값 누락 메시지 확인
