@@ -43,7 +43,9 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	testImplementation 'org.mockito:mockito-core:5.0.0' // 최신 버전으로 변경 가능
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0' // Use the latest version available
+	testImplementation 'org.mockito:mockito-core:5.0.0' // Use the latest version available
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.0.0' // Use the latest version available
 
 }
 

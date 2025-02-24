@@ -21,6 +21,7 @@ public class Delivery extends BaseTime {
     private LocalDateTime deliveryArriveDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
     public void setStatus(OrderStatus status) {

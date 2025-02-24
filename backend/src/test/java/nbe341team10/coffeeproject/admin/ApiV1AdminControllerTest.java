@@ -15,6 +15,7 @@ import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
 
+import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
@@ -67,6 +68,9 @@ class ApiV1AdminControllerTest {
 
     @Autowired
     DeliveryRepository deliveryRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
     @Autowired
     private ObjectMapper objectMapper;
     private String accessToken;
@@ -223,32 +227,56 @@ class ApiV1AdminControllerTest {
         assertEquals(60, modifiedProduct.getStockQuantity());
     }
 
+//    @Test
+//    @DisplayName("배송 삭제 성공 확인")
+//    @WithMockUser(roles = "ADMIN")
+//    void deleteDeliverySuccess() throws Exception {
+//        // 1. 테스트용 배송 데이터 생성
+//        Delivery delivery = new Delivery();
+//        delivery.setStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
+//
+//        // 2. 배송 데이터 저장 (ID가 자동으로 생성됨)
+//        delivery = deliveryRepository.save(delivery); // 실제 데이터베이스에 저장하여 ID 생성
+//
+//        // 3. Perform DELETE request and verify response
+//        mvc.perform(delete("/api/v1/admin/delivery/{id}", delivery.getId())
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isNoContent())
+//                .andExpect(handler().handlerType(ApiV1AdminController.class));
+//
+//
+//        // 5. 삭제된 배송 데이터가 실제로 삭제되었는지 확인
+//        assertThat(deliveryRepository.findById(delivery.getId())).isEmpty(); // 배송 데이터가 삭제되었는지 확인
+//    }
+//}
+
 
     @Test
     @DisplayName("배송 삭제 성공 확인")
     @WithMockUser(roles = "ADMIN")
     void deleteDeliverySuccess() throws Exception {
-        // 1. 테스트용 배송 데이터 생성
+        // 1. 테스트용 주문 데이터 생성
+        Orders order = new Orders();
+        order.setAddress("Test Address");
+        order.setPostalCode("12345");
+        order.setStatus(OrderStatus.ORDERED); // Set initial status
+        order = orderRepository.save(order); // Save the order to generate an ID
+
+        // 2. 테스트용 배송 데이터 생성
         Delivery delivery = new Delivery();
-        delivery.setStatus(OrderStatus.READY_DELIVERY_SAME_DAY);
+        delivery.setOrder(order); // Associate the delivery with the order
+        delivery.setStatus(OrderStatus.READY_DELIVERY_NEXT_DAY);
 
-
-        // 2. 배송 데이터 저장 (ID가 자동으로 생성됨)
+        // 3. 배송 데이터 저장 (ID가 자동으로 생성됨)
         delivery = deliveryRepository.save(delivery); // 실제 데이터베이스에 저장하여 ID 생성
 
-        // 3. Perform DELETE request and verify response
+        // 4. Perform DELETE request and verify response
         mvc.perform(delete("/api/v1/admin/delivery/{id}", delivery.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(handler().handlerType(ApiV1AdminController.class));
 
-        // 4. 배송이 삭제되었는지 확인
-        verify(deliveryService, times(5)).deleteDelivery(delivery.getId());
-
         // 5. 삭제된 배송 데이터가 실제로 삭제되었는지 확인
         assertThat(deliveryRepository.findById(delivery.getId())).isEmpty(); // 배송 데이터가 삭제되었는지 확인
     }
 }
-
-
-
