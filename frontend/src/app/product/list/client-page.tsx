@@ -36,7 +36,7 @@ export default function ClientPage({
 
   const handleAddToCart = async (productId: number) => {
     try {
-      await addToCartAPI(productId, 1);
+      await addToCartAPI(localStorage.getItem("accessToken"), productId, 1);
       setCartModalOpen(true);
     } catch (error) {
       console.error(error);

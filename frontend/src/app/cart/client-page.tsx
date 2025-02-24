@@ -18,14 +18,13 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 
-export default function ClientPage({
-  data,
-}: {
-  data: components["schemas"]["CartDto"];
-}) {
-  const [cart, setCart] = useState(data);
+export default function ClientPage() {
+  const [token, setToken] = useState(localStorage.getItem("accessToken") || "");
+  const [cart, setCart] = useState<components["schemas"]["CartDto"] | null>(
+    null
+  );
   const [cartItems, setCartItems] = useState(
-    data.cartItems?.map((item) => ({
+    cart?.cartItems?.map((item) => ({
       selected: true,
       ...item,
     })) || []
@@ -34,16 +33,23 @@ export default function ClientPage({
   const debouncedUpdateCart = useCallback(
     debounce((productId: number, quantity: number) => {
       if (quantity < 0) return;
-      updateCartAPI(productId, quantity);
+      updateCartAPI(token, productId, quantity);
     }, 500),
     []
   );
 
   useEffect(() => {
-    getCartAPI().then((data) => {
+    setToken(localStorage.getItem("accessToken") || "");
+    if (!token) {
+      console.error("토큰이 없습니다.");
+      return;
+    }
+    getCartAPI(token).then((data) => {
       if (data) setCart(data);
     });
-  }, [cart]);
+  }, []);
+
+  if (!cart) return <div>장바구니 데이터를 불러오는 중입니다...</div>;
 
   const updateProductQuantity = (productId: number, quantity: number) => {
     setCartItems((prev) =>
