@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.user.dto;
 
+import nbe341team10.coffeeproject.domain.user.entity.Role;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,9 +30,8 @@ public class CustomUserDetails implements UserDetails {
     }
 
     // 임시
-    public String getRole(){
-
-        return user.getRole().name();
+    public Role getRole(){
+        return user.getRole();
     }
 
     @Override

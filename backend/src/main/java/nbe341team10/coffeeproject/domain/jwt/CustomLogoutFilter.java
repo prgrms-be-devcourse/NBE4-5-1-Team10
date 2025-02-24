@@ -9,20 +9,24 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import nbe341team10.coffeeproject.domain.user.entity.Blacklist;
+import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+
 
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-    public CustomLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    private final BlacklistRepository blacklistRepository;
+    public CustomLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository, BlacklistRepository blacklistRepository) {
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.blacklistRepository = blacklistRepository;
     }
 
     @Override
@@ -55,6 +59,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
+        String access=extractAccess(request);  // access 추출
+        System.out.println("ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ\naccess:\n\n\n\n\\n"+access);
+        addToAccessTokenBlacklist(access);  // 블랙리스트 추가
+
         //로그아웃 진행
         Customlogout(refresh,response);
     }
@@ -69,7 +77,25 @@ public class CustomLogoutFilter extends GenericFilterBean {
         cookie.setPath("/");
 
         response.addCookie(cookie);
+
         response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private String extractAccess(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if(header!=null && header.startsWith("Bearer ")){
+            return header.substring(7);
+        }
+        return null;
+    }
+
+    private void addToAccessTokenBlacklist(String access) {
+
+        if(access!=null){
+            Blacklist entry=new Blacklist();
+            entry.setToken(access);
+            blacklistRepository.save(entry);
+        }
     }
 
     private RsData<String> validateRefresh(String refresh) {
@@ -119,7 +145,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
         }
         return true;
     }
-
 
     private void JsonResponseUnauthorized(HttpServletResponse response,RsData<String> error) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
