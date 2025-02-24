@@ -25,14 +25,14 @@ public class ApiV1CartController {
 
     @PostMapping()
     @Transactional()
-    public RsData<CartDetailResponse> addProduct(@Valid @RequestBody CartAddProductRequest request) {
+    public RsData<CartDto> addProduct(@Valid @RequestBody CartAddProductRequest request) {
         Users actor = rq.getCurrentActor();
         Cart cart = cartService.addProduct(actor, request.productId, request.quantity);
 
         return new RsData<>(
                 "200",
                 "The quantity of product %d is a total of %d".formatted(request.productId, cart.getCartItemByProductId(request.productId).getQuantity()),
-                new CartDetailResponse(cart)
+                new CartDto(cart)
         );
     }
 

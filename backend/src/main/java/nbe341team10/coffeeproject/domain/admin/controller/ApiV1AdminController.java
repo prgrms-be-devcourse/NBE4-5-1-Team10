@@ -6,6 +6,7 @@ import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +18,17 @@ public class ApiV1AdminController {
 
     private final ProductService productService;
     //    private final OrderService orderService;
+
+    public record ProductAddRequest(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
+
     @PostMapping("/product")
-    public RsData<ProductGetItemDto> addProduct(@RequestBody ProductGetItemDto ProductGetItemDto) {
+    public RsData<ProductGetItemDto> addProduct(@RequestBody ProductAddRequest request) {
         Product addedProduct = productService.register(
-                ProductGetItemDto.getName(),
-                ProductGetItemDto.getDescription(),
-                ProductGetItemDto.getPrice(),
-                ProductGetItemDto.getImageUrl(),
-                ProductGetItemDto.getStockQuantity()
+                request.name(),
+                request.description(),
+                request.price(),
+                request.imageUrl(),
+                request.stockQuantity()
         );
 
         ProductGetItemDto addedProductGetItemDto = new ProductGetItemDto(addedProduct);
@@ -32,15 +36,17 @@ public class ApiV1AdminController {
         return new RsData<>("200", "상품 등록 성공", addedProductGetItemDto);
     }
 
+    public record ProductModifyProduct(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
+
     @PutMapping("/product/{id}")
-    public RsData<ProductGetItemDto> modifyProduct(@PathVariable Long id, @RequestBody ProductGetItemDto productGetItemDto) {
+    public RsData<ProductGetItemDto> modifyProduct(@PathVariable Long id, @RequestBody ProductModifyProduct request) {
         Product modifiedProduct = productService.modify(
                 id,
-                productGetItemDto.getName(),
-                productGetItemDto.getDescription(),
-                productGetItemDto.getPrice(),
-                productGetItemDto.getImageUrl(),
-                productGetItemDto.getStockQuantity()
+                request.name(),
+                request.description(),
+                request.price(),
+                request.imageUrl(),
+                request.stockQuantity()
         );
         ProductGetItemDto modifiedProductGetItemDto = new ProductGetItemDto(modifiedProduct);
         return new RsData<>("200", "상품 수정 성공", modifiedProductGetItemDto);
