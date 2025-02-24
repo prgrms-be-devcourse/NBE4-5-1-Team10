@@ -60,7 +60,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         }
 
         String access=extractAccess(request);  // access 추출
-        System.out.println("ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ\naccess:\n\n\n\n\\n"+access);
+        System.out.println("access:q\n"+access);
         addToAccessTokenBlacklist(access);  // 블랙리스트 추가
 
         //로그아웃 진행
