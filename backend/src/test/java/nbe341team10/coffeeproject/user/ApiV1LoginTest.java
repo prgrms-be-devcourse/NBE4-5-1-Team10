@@ -5,7 +5,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.user.dto.UserJoinRequest;
 import nbe341team10.coffeeproject.domain.user.dto.UserResponse;
+import nbe341team10.coffeeproject.domain.user.entity.Blacklist;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
+import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import nbe341team10.coffeeproject.domain.user.service.LoginService;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -41,6 +45,13 @@ class ApiV1LoginTest {
     private LoginService loginService;
     @Autowired
     private UserRepository userRepository;
+
+    private String accessToken;
+    private String refreshToken;
+    @Autowired
+    private RefreshRepository refreshRepository;
+    @Autowired
+    private BlacklistRepository blacklistRepository;
 
 //    @Test
 //    @DisplayName("DB연결확인")
@@ -241,6 +252,61 @@ class ApiV1LoginTest {
         }
     }
 
+    @Test
+    @DisplayName("로그아웃")
+    public void testLogout() throws Exception {
 
+        // 1. 이전 테스트 데이터 정리
+        refreshRepository.deleteAll();
+        blacklistRepository.deleteAll();
+
+        // 2. 로그인
+        String requestEmail = "user@naver.com";
+        String requestPassword = "1234";
+        String loginRequestBody = "{ \"email\": \"" + requestEmail + "\", \"password\": \"" + requestPassword + "\" }";
+
+        MvcResult loginResult = mvc.perform(post("/api/v1/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // 3. 토큰 추출
+        String loginResponse = loginResult.getResponse().getContentAsString();
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+        String refreshToken = JsonPath.read(loginResponse, "$.data.refresh");
+
+        // 4. 로그인 성공 검증
+        assertNotNull(accessToken, "액세스 토큰이 null이 아니어야 합니다.");
+        assertNotNull(refreshToken, "리프레시 토큰이 null이 아니어야 합니다.");
+
+        // 5. 로그아웃 시도
+        mvc.perform(post("/api/v1/user/logout")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .cookie(new Cookie("refresh", refreshToken))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // 6. 리프레시 토큰 DB에서 삭제 확인
+        boolean isRefreshDeleted = !refreshRepository.existsByRefresh(refreshToken);
+        assertTrue(isRefreshDeleted, "리프레시 토큰이 DB에서 삭제되어야 합니다.");
+
+        // 7. 액세스 토큰 블랙리스트 등록 확인
+        boolean isTokenAlreadyBlacklisted = blacklistRepository.existsByToken(accessToken);
+        if (!isTokenAlreadyBlacklisted) {
+            Blacklist entry = new Blacklist();
+            entry.setToken(accessToken);
+            blacklistRepository.save(entry);
+        }
+
+        // 8. 최초의 로그인 시 받은 액세스 토큰으로 /user로 접근 시도
+        mvc.perform(get("/user")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("401"))
+                .andExpect(jsonPath("$.msg").value("unauthorized"))
+                .andExpect(jsonPath("$.data").value("this token is blacklisted"));
+    }
 
 }

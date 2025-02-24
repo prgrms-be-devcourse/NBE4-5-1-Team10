@@ -5,6 +5,7 @@ import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
 import nbe341team10.coffeeproject.domain.jwt.CustomLogoutFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
+import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -33,11 +34,13 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final BlacklistRepository blacklistRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository, BlacklistRepository blacklistRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.blacklistRepository = blacklistRepository;
     }
 
     // Bean 등록
@@ -75,11 +78,11 @@ public class SecurityConfig {
                         .requestMatchers("/orders/**").permitAll()
                         .anyRequest().authenticated());
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil,blacklistRepository), CustomLoginFilter.class);
         http
                 .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
         http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository,blacklistRepository), LogoutFilter.class);
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
