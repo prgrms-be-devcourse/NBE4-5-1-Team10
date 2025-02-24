@@ -13,8 +13,7 @@ import nbe341team10.coffeeproject.domain.user.entity.Users;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -68,7 +67,7 @@ public class CartService {
                 if (quantity < 0) {
                     throw new IllegalArgumentException("Quantity must be 0 or greater");
                 } else if (quantity == 0) {
-                    existingCartItem.ifPresent( item -> cart.removeCartItem(product));
+                    existingCartItem.ifPresent( item -> cart.removeCartItem(product.getId()));
                 } else {
                     existingCartItem.ifPresentOrElse(
                             item -> item.setQuantity(quantity),

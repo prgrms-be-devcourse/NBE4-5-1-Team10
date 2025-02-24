@@ -4,24 +4,33 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.transaction.Transactional;
+import nbe341team10.coffeeproject.domain.cart.entity.Cart;
+import nbe341team10.coffeeproject.domain.cart.entity.CartItem;
+import nbe341team10.coffeeproject.domain.cart.service.CartService;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
+import nbe341team10.coffeeproject.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,6 +60,14 @@ public class OrderControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private UserService userService;
+
+    private Users loginUser;
+    private String accessToken;
+
     @BeforeEach
     @Transactional  // 트랜잭션 범위 내에서 DB 초기화
     public void setUp() throws Exception {
@@ -59,35 +76,77 @@ public class OrderControllerTest {
         orderRepository.deleteAll();
         userRepository.deleteAll();
 
+
         // 회원가입 요청
         String userJoinRequestBody = "{ \"username\": \"testUser\", \"email\": \"testUser@example.com\", \"password\": \"1234\", \"address\": \"Test Address\" }";
         mockMvc.perform(post("/api/v1/user/join")  // 회원가입 API 경로
                         .contentType("application/json")
                         .content(userJoinRequestBody))
                 .andExpect(status().isOk());  // 회원가입 성공 여부 확인
+
+        loginUser = userService.findByEmail("testUser@example.com").get();
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .content("""
+                                {
+                                    "email": "%s",
+                                    "password": "%s"
+                                }
+                                """.formatted("testUser@example.com", "1234")
+                                .stripIndent())
+                        .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)))
+                .andReturn().getResponse().getContentAsString();
+        accessToken = JsonPath.read(loginResponse, "$.data.access");
     }
 
+    private void checkCartItems(ResultActions resultActions, List<CartItem> cartItems) throws Exception {
+        for(int i = 0; i < cartItems.size(); i++) {
+            CartItem cartItem = cartItems.get(i);
+            resultActions
+                .andExpect(jsonPath("$.data.cartItems[%d]".formatted(i)).exists())
+                .andExpect(jsonPath("$.data.cartItems[%d].id".formatted(i)).value(cartItem.getId()))
+                .andExpect(jsonPath("$.data.cartItems[%d].productId".formatted(i)).value(cartItem.getProduct().getId()))
+                .andExpect(jsonPath("$.data.cartItems[%d].quantity".formatted(i)).value(cartItem.getQuantity()));
+        }
+    }
+
+    @Test
+    @DisplayName("장바구니에서 주문하기")
+    public void testCreateOrder_withCart() throws Exception {
+        // 장바구니에 상품 담기
+        long productId = 1L;
+        int quantity = 2;
+        Cart cart = cartService.addProduct(loginUser, productId, quantity);
+        System.out.println("carsrsr");
+        cart.getCartItems().forEach(item -> System.out.println(item.getId()));
+        // 주문 요청
+        OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
+                .productId(1L)
+                .price(1000)
+                .quantity(2)
+                .build();
+
+        OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+                .address("서울시 강남구")
+                .postalCode("12345")
+                .orderItems(Collections.singletonList(orderItem))
+                .build();
+
+        mockMvc.perform(post("/api/v1/order")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(orderCreateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("주문이 완료되었습니다."));
+
+        // 장바구니 검증
+        Cart afterCart = cartService.getCart(loginUser.getId()).get();
+        assertEquals(0, afterCart.getCartItems().size());
+    }
 
     @Test
     @DisplayName("주문 등록")
     public void testCreateOrder_ValidRequest() throws Exception {
-
-        // 로그인 요청
-        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
-        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
-                        .contentType("application/json")
-                        .content(loginRequestBody))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // 로그인 응답에서 액세스 토큰 추출
-        String accessToken = JsonPath.read(loginResponse, "$.data.access");
-
-        // 액세스 토큰이 정상적으로 추출되었는지 확인
-        System.out.println("Access Token: " + accessToken); // 디버깅을 위해 출력
-
         // 주문 요청할 데이터 준비
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -116,19 +175,6 @@ public class OrderControllerTest {
     @DisplayName("주문 등록 시 주소 값 누락")
     public void testCreateOrder_MissingRequiredField() throws Exception {
 
-        // 로그인 요청
-        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
-        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
-                        .contentType("application/json")
-                        .content(loginRequestBody))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // 로그인 응답에서 액세스 토큰 추출
-        String accessToken = JsonPath.read(loginResponse, "$.data.access");
-
         // 요청을 보낼 데이터 준비 (주소가 빠짐)
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -155,19 +201,6 @@ public class OrderControllerTest {
     @DisplayName("주문 목록 조회")
     @Transactional
     public void testGetOrders() throws Exception {
-        // 로그인 요청
-        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
-        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
-                        .contentType("application/json")
-                        .content(loginRequestBody))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // 로그인 응답에서 액세스 토큰 추출
-        String accessToken = JsonPath.read(loginResponse, "$.data.access");
-
         // 2. 첫 번째 주문 추가
         OrderItemCreateRequest orderItem1 = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -226,19 +259,6 @@ public class OrderControllerTest {
     @DisplayName("주문 상세 정보 조회")
     @Transactional
     public void testGetOrderDetail() throws Exception {
-        // 로그인 요청
-        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
-        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
-                        .contentType("application/json")
-                        .content(loginRequestBody))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // 로그인 응답에서 액세스 토큰 추출
-        String accessToken = JsonPath.read(loginResponse, "$.data.access");
-
         // 1. 주문 생성
         OrderItemCreateRequest orderItem1 = OrderItemCreateRequest.builder()
                 .productId(1L)
