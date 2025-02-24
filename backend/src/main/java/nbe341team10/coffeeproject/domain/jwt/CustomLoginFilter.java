@@ -78,6 +78,12 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth=iterator.next();
 
+        // 리프레시 토큰은 계정당 한개만 할당
+        Refresh existingRefresh = refreshRepository.findByEmail(email);
+        if (existingRefresh != null) {
+            refreshRepository.deleteByRefresh(existingRefresh.getRefresh());
+        }
+
         String role=auth.getAuthority();
 
         // 토큰 유지 시간
