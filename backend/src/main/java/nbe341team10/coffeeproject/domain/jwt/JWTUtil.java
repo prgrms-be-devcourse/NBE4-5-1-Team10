@@ -28,6 +28,11 @@ public class JWTUtil {
         return payload.get("id", Long.class);
     }
 
+    public String getUsername(String token) {
+        Claims payload = getPayload(token);
+        return payload.get("username", String.class);
+    }
+
     // 이메일 반환
     public String getEmail(String token) {
         Claims payload = getPayload(token);
@@ -52,9 +57,10 @@ public class JWTUtil {
         return payload.getExpiration().before(new Date());
     }
     // jwt 생성
-    public String createJwt(Long userId, String category,String email, String role, Long expiredMs) {
+    public String createJwt(Long userId, String username, String category,String email, String role, Long expiredMs) {
         return Jwts.builder()
                 .claim("id", userId)
+                .claim("username", username)
                 .claim("category", category)
                 .claim("email", email)
                 .claim("role", role)

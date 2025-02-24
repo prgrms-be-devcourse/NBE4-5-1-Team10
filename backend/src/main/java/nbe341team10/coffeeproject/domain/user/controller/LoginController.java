@@ -29,7 +29,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/user")
 public class LoginController {
 
     private final LoginService loginService;
@@ -100,7 +100,6 @@ public class LoginController {
             return error;
 
         }
-
 
         // 새로운 토큰 생성
         Map<String,String> token=loginService.createJwt(refreshToken);

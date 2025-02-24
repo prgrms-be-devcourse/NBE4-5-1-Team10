@@ -1,6 +1,24 @@
 import ClientPage from "./client-page";
 import client from "@/lib/backend/client";
 
+export const addToCartAPI = async (
+  accessToken: string | null,
+  productId: number,
+  quantity: number
+) => {
+  if (!accessToken) return;
+  const response = await client.POST("/api/v1/cart", {
+    headers: {
+      Authorization: "Bearer " + accessToken,
+    },
+    body: {
+      productId,
+      quantity,
+    },
+  });
+  if (response.error) return;
+};
+
 export default async function Page({
   searchParams,
 }: {

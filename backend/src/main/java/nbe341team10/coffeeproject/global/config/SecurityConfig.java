@@ -2,8 +2,10 @@ package nbe341team10.coffeeproject.global.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.jwt.CustomLoginFilter;
+import nbe341team10.coffeeproject.domain.jwt.CustomLogoutFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTFilter;
 import nbe341team10.coffeeproject.domain.jwt.JWTUtil;
+import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
 import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -31,11 +34,13 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final BlacklistRepository blacklistRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository, BlacklistRepository blacklistRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
+        this.blacklistRepository = blacklistRepository;
     }
 
     // Bean 등록
@@ -69,13 +74,13 @@ public class SecurityConfig {
                         // 건들지마세요
                         .requestMatchers("api/*/user/login", "/", "api/*/user/join","/swagger-ui/**","/v3/api-docs/**","api/*/user/reissue").permitAll()    // 접근 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자만
-                        .requestMatchers("/order/**").permitAll()
-                        .requestMatchers("/orders/**").permitAll()
                         .anyRequest().authenticated());
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil,blacklistRepository), CustomLoginFilter.class);
         http
                 .addFilterAt(new CustomLoginFilter(authenticationManager(authenticationConfiguration),userRepository,jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository,blacklistRepository), LogoutFilter.class);
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
