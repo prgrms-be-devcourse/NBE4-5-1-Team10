@@ -71,7 +71,9 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId=userDetails.getId();
+
+        Long userId = userDetails.getId();
+        String username = userDetails.getUsername();
         String email=userDetails.getEmail();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -86,8 +88,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         String role=auth.getAuthority();
 
         // 토큰 유지 시간
-        String access= jwtUtil.createJwt(userId, "access",email,role,1 * 60 * 60 * 1000L); // 1시간
-        String refresh= jwtUtil.createJwt(userId, "refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
+        String access= jwtUtil.createJwt(userId, username, "access",email,role,1 * 1 * 15 * 1000L); // 1시간
+        String refresh= jwtUtil.createJwt(userId, username, "refresh",email,role,7 * 24 * 60 * 60 * 1000L);  // 1주일
 
 //        response.addHeader("Authorization","Bearer "+token);    // Bearer 헤더로 반환
 //
