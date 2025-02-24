@@ -67,7 +67,7 @@ public class ApiV1AdminController {
 //        return new RsData<>("200-00", "Deliveries retrieved successfully.", deliveries);
 //    }
 
-//    // 특정 배송 조회
+    //    // 특정 배송 조회
 //    @GetMapping("/delivery/{id}")
 //    public RsData<DeliveryDTO> getDeliveryById(@PathVariable Long id) {
 //        DeliveryDTO deliveryDTO = deliveryService.getDeliveryById(id);
