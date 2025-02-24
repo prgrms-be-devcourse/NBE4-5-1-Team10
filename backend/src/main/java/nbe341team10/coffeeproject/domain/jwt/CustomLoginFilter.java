@@ -50,7 +50,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
             // 이메일,비밀번호 추출
             String email=loginData.get("email");
             String password=loginData.get("password");
-            System.out.println("사용자: "+email);
 
             Optional<Users> user = userRepository.findByEmail(email);
             if (user.isEmpty()) {
