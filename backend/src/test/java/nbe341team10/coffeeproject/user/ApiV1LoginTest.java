@@ -2,10 +2,10 @@ package nbe341team10.coffeeproject.user;
 
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import nbe341team10.coffeeproject.domain.user.dto.UserJoinRequest;
 import nbe341team10.coffeeproject.domain.user.dto.UserResponse;
 import nbe341team10.coffeeproject.domain.user.entity.Blacklist;
+import nbe341team10.coffeeproject.domain.user.entity.Role;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.domain.user.repository.BlacklistRepository;
 import nbe341team10.coffeeproject.domain.user.repository.RefreshRepository;
@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,8 +44,6 @@ class ApiV1LoginTest {
     @Autowired
     private UserRepository userRepository;
 
-    private String accessToken;
-    private String refreshToken;
     @Autowired
     private RefreshRepository refreshRepository;
     @Autowired
@@ -301,27 +297,125 @@ class ApiV1LoginTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        // // 6. 리프레시 토큰 DB에서 삭제 확인
-        // boolean isRefreshDeleted = !refreshRepository.existsByRefresh(refreshToken);
-        // assertTrue(isRefreshDeleted, "리프레시 토큰이 DB에서 삭제되어야 합니다.");
+         // 6. 리프레시 토큰 DB에서 삭제 확인
+         boolean isRefreshDeleted = !refreshRepository.existsByRefresh(refreshToken);
+         assertTrue(isRefreshDeleted, "리프레시 토큰이 DB에서 삭제되어야 합니다.");
 
-        // // 7. 액세스 토큰 블랙리스트 등록 확인
-        // boolean isTokenAlreadyBlacklisted = blacklistRepository.existsByToken(accessToken);
-        // if (!isTokenAlreadyBlacklisted) {
-        //     Blacklist entry = new Blacklist();
-        //     entry.setToken(accessToken);
-        //     blacklistRepository.save(entry);
-        // }
+         // 7. 액세스 토큰 블랙리스트 등록 확인
+         boolean isTokenAlreadyBlacklisted = blacklistRepository.existsByToken(accessToken);
+         if (!isTokenAlreadyBlacklisted) {
+             Blacklist entry = new Blacklist();
+             entry.setToken(accessToken);
+             blacklistRepository.save(entry);
+         }
 
-        // // 8. 최초의 로그인 시 받은 액세스 토큰으로 /user로 접근 시도
-        // mvc.perform(get("/user")
-        //                 .header("Authorization", "Bearer " + accessToken)
-        //                 .contentType(MediaType.APPLICATION_JSON))
-        //         .andExpect(status().isUnauthorized())
-        //         .andExpect(jsonPath("$.code").value("401"))
-        //         .andExpect(jsonPath("$.msg").value("unauthorized"))
-        //         .andExpect(jsonPath("$.data").value("this token is blacklisted"));
+         // 8. 최초의 로그인 시 받은 액세스 토큰으로 /user로 접근 시도
+         mvc.perform(get("/user")
+                         .header("Authorization", "Bearer " + accessToken)
+                         .contentType(MediaType.APPLICATION_JSON))
+                 .andExpect(status().isUnauthorized())
+                 .andExpect(jsonPath("$.code").value("401"))
+                 .andExpect(jsonPath("$.msg").value("unauthorized"))
+                 .andExpect(jsonPath("$.data").value("this token is blacklisted"));
 
     }
+
+    @Test
+    @DisplayName("ADMIN 유저 /admin 페이지 접근 확인")
+    public void testAdminAccess() throws Exception {
+        // 1. ADMIN 유저 생성
+        UserJoinRequest adminUserJoinRequest = new UserJoinRequest("adminUser",
+                "admin@naver.com",
+                "adminPassword",
+                "Admin Address");
+
+        // ADMIN 사용자 가입
+        Users adminUser = loginService.join(adminUserJoinRequest);
+        adminUser = Users.builder()
+                .id(adminUser.getId())
+                .email(adminUser.getEmail())
+                .password(adminUser.getPassword())
+                .username(adminUser.getUsername())
+                .address(adminUser.getAddress())
+                .role(Role.ROLE_ADMIN) // ADMIN 역할 설정
+                .build();
+
+        // 업데이트된 ADMIN 사용자 저장
+        userRepository.save(adminUser); // DB에 ADMIN 유저 저장
+
+        // 2. ADMIN 유저로 로그인
+        String requestEmail = "admin@naver.com";
+        String requestPassword = "adminPassword"; // 로그인 비밀번호
+        String loginRequestBody = "{ \"email\": \"" + requestEmail + "\", \"password\": \"" + requestPassword + "\" }";
+
+        MvcResult loginResult = mvc.perform(post("/api/v1/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // 3. 토큰 추출
+        String loginResponse = loginResult.getResponse().getContentAsString();
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
+        // 4. ADMIN 페이지 접근 시도
+        mvc.perform(get("/admin") // ADMIN URL 경로
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // 접근 가능 시 HTTP 200 응답 검증
+                .andExpect(content().string("admin")); // /admin의 응답이 문자열 "admin"인지 검증
+    }
+
+    @Test
+    @DisplayName("일반 유저 /admin 페이지 접근 차단 확인")
+    public void testAdminAccess2() throws Exception {
+        // 회원가입하는 사용자 데이터 설정
+        UserJoinRequest userJoinRequest = new UserJoinRequest("testUser",
+                "testUser@naver.com",
+                "1234",
+                "Test Address");
+
+        // 사용자 가입
+        loginService.join(userJoinRequest);
+
+        // 로그인 요청할 JSON 데이터
+        String requestBody = "{ \"email\": \"testUser@naver.com\", \"password\": \"1234\" }";
+
+        Optional<Users> user = userRepository.findByEmail("testUser@naver.com");
+        assertTrue(user.isPresent(), "User should exist in the database");
+
+        // 로그인 수행
+        String loginResponse = mvc.perform(post("/api/v1/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // JSON 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
+        // 액세스 토큰 확인
+        assertNotNull(accessToken); // 액세스 토큰이 null이 아님을 확인
+        assertFalse(accessToken.isEmpty()); // 액세스 토큰이 비어있지 않음을 확인
+
+        // Bearer 토큰으로 /user 엔드포인트에 접근 -> 성공
+        mvc.perform(get("/user")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.msg").value("welcome"))
+                .andExpect(jsonPath("$.data").value("testUser@naver.com"));
+
+        // 8. 일반 유저의 ADMIN 페이지 접근 시도 -> 실패
+        mvc.perform(get("/admin") // ADMIN URL 경로
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden()); // 일반 유저는 403 Forbidden 응답 검증
+    }
+
+
 
 }
