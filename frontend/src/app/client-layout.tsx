@@ -45,16 +45,29 @@ export default function ClientLayout({
     setAnonymousUser,
   };
 
+  async function fetchUser() {
+    try {
+      const res = await fetch("/api/user", {
+        method: "GET",
+      });
+      if (!res.ok) {
+        console.error("Fetch user failed:", res.status);
+        return;
+      }
+      const data = await res.json();
+      return data.data!!;
+    } catch (err) {
+      return null;
+    }
+  }
+
   useEffect(() => {
-    client
-      .GET("/api/v1/user", {
-        credentials: "include",
-      })
+    fetchUser()
       .then((userResponse) => {
-        if (userResponse.error) {
+        if (!userResponse) {
           removeLoginUser();
         } else {
-          setLoginUser(userResponse.data.data!!);
+          setLoginUser(userResponse!!);
         }
       })
       .catch(() => removeLoginUser())

@@ -7,6 +7,7 @@ import { use } from "react";
 
 export default function Page() {
   const { isLogin, loginUser } = use(LoginUserContext);
+
   return (
     <>
       {!isLogin && (

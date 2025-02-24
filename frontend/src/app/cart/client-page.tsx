@@ -162,6 +162,7 @@ export default function ClientPage() {
                       width={50}
                       height={50}
                       className="rounded-md"
+                      style={{ width: 50, height: 50 }}
                     />
                     <p>{item.productName}</p>
                   </div>
