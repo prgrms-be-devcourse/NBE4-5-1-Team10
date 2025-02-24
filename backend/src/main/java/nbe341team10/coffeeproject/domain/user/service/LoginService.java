@@ -99,12 +99,13 @@ public class LoginService {
     // 생성
     public Map<String,String> createJwt(String refreshToken) {
         Long userId = jwtUtil.getId(refreshToken);
+        String username = jwtUtil.getUsername(refreshToken);
         String email = jwtUtil.getEmail(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
         // 토큰 유지 시간
-        String newAccess=jwtUtil.createJwt(userId, "access",email, role, 60 * 60 * 1000L);   // 1시간
-        String newRefresh=jwtUtil.createJwt(userId, "refresh",email, role, 7 * 24 * 60 * 60 * 1000L);    // 1주일
+        String newAccess=jwtUtil.createJwt(userId, username, "access",email, role, 60 * 60 * 1000L);   // 1시간
+        String newRefresh=jwtUtil.createJwt(userId, username, "refresh",email, role, 7 * 24 * 60 * 60 * 1000L);    // 1주일
 
         Map<String, String> newToken = new LinkedHashMap<>();
         newToken.put("access", newAccess);

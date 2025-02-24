@@ -3,7 +3,7 @@ package nbe341team10.coffeeproject.domain.cart.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.cart.dto.CartDetailResponse;
+import nbe341team10.coffeeproject.domain.cart.dto.CartDto;
 import nbe341team10.coffeeproject.domain.cart.entity.Cart;
 import nbe341team10.coffeeproject.domain.cart.service.CartService;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
@@ -25,14 +25,14 @@ public class ApiV1CartController {
 
     @PostMapping()
     @Transactional()
-    public RsData<CartDetailResponse> addProduct(@Valid @RequestBody CartAddProductRequest request) {
+    public RsData<CartDto> addProduct(@Valid @RequestBody CartAddProductRequest request) {
         Users actor = rq.getCurrentActor();
         Cart cart = cartService.addProduct(actor, request.productId, request.quantity);
 
         return new RsData<>(
                 "200",
                 "The quantity of product %d is a total of %d".formatted(request.productId, cart.getCartItemByProductId(request.productId).getQuantity()),
-                new CartDetailResponse(cart)
+                new CartDto(cart)
         );
     }
 
@@ -40,20 +40,20 @@ public class ApiV1CartController {
 
     @PatchMapping()
     @Transactional()
-    public RsData<CartDetailResponse> updateProduct(@Valid @RequestBody CartUpdateProductRequest request) {
+    public RsData<CartDto> updateProduct(@Valid @RequestBody CartUpdateProductRequest request) {
         Users actor = rq.getCurrentActor();
         Cart cart = cartService.updateProduct(actor, request.productId, request.quantity);
 
         return new RsData<>(
                 "200",
                 "The quantity of product %d is a total of %d".formatted(request.productId, request.quantity),
-                new CartDetailResponse(cart)
+                new CartDto(cart)
         );
     }
 
     @GetMapping()
     @Transactional(readOnly = true)
-    public RsData<CartDetailResponse> getCart() {
+    public RsData<CartDto> getCart() {
         Users actor = rq.getCurrentActor();
 
         Optional<Cart> optionalCart = cartService.getCart(actor.getId());
@@ -62,7 +62,7 @@ public class ApiV1CartController {
                 new RsData<>(
                         "200-1",
                         "Cart retrieved successfully.",
-                        new CartDetailResponse(cart)
+                        new CartDto(cart)
                 )
         )
                 .orElseGet(() ->

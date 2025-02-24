@@ -52,4 +52,5 @@ public class Cart extends BaseTime {
     public void removeCartItem(Product product) {
         cartItems.removeIf(item -> item.getProduct().equals(product));
     }
+
 }

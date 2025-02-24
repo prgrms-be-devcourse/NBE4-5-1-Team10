@@ -25,6 +25,7 @@ public class CartItem extends BaseTime {
     private Product product;
 
     @Setter
+    @Column(nullable = false)
     private int quantity;
 
     public void increaseQuantity(int quantity) {

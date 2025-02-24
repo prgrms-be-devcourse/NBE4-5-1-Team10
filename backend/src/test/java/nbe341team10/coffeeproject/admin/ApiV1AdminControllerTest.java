@@ -3,7 +3,7 @@ package nbe341team10.coffeeproject.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nbe341team10.coffeeproject.domain.admin.controller.ApiV1AdminController; // Import your controller
-import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
+import nbe341team10.coffeeproject.domain.admin.controller.ApiV1AdminController.ProductAddRequest;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
@@ -44,10 +44,10 @@ class ApiV1AdminControllerTest {
     @WithMockUser(roles = "ADMIN")
     void addProductSuccess() throws Exception {
         // 1. Create ProductGetItemDto for request body
-        ProductGetItemDto ProductGetItemDto = new ProductGetItemDto(null, "Test Product", "Test Description", 1000, "test.jpg", 50);
+        ProductAddRequest request = new ProductAddRequest("Test Product", "Test Description", 1000, "test.jpg", 50);
 
         // 2. Convert ProductGetItemDto to JSON
-        String json = objectMapper.writeValueAsString(ProductGetItemDto);
+        String json = objectMapper.writeValueAsString(request);
 
         // 3. Perform POST request and verify response
         mvc.perform(post("/api/v1/admin/product")

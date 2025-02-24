@@ -1,24 +1,149 @@
 "use client";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-solid-svg-icons";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LoginUserContext, useLoginUser } from "@/stores/auth/auth-store";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import client from "@/lib/backend/client";
 
 export default function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
+  const {
+    setLoginUser,
+    isLogin,
+    loginUser,
+    removeLoginUser,
+    isLoginUserPending,
+    setAnonymousUser,
+  } = useLoginUser();
+
+  const loginUserContextValue = {
+    loginUser,
+    setLoginUser,
+    removeLoginUser,
+    isLogin,
+    isLoginUserPending,
+    setAnonymousUser,
+  };
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log(accessToken);
+    if (!accessToken) {
+      setAnonymousUser();
+      return;
+    }
+
+    client
+      .GET("/api/v1/user", {
+        headers: {
+          Authorization: "Bearer " + "accessToken",
+        },
+        credentials: "include",
+      })
+      .then((userResponse) => {
+        if (userResponse.error) {
+          removeLoginUser();
+        } else {
+          setLoginUser(userResponse.data.data!!);
+        }
+      })
+      .catch(() => removeLoginUser())
+      .finally(() => setAnonymousUser());
+  }, []);
 
   return (
     <>
-      <header className="flex justify-end gap-3 px-4"></header>
-      <div className="flex flex-col flex-grow justify-center items-center">
-        {children}
-      </div>
-      <footer className="flex justify-center gap-7 p-4">
-        <Link href="/product/list">상품 목록</Link>
-      </footer>
+      <LoginUserContext.Provider value={loginUserContextValue}>
+        <header className="w-full bg-white shadow-sm py-4 px-8 flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold">
+            CoffeeProject
+          </Link>
+
+          <NavigationMenu>
+            <NavigationMenuList className="gap-4">
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className="text-sm font-medium">
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/product/list" legacyBehavior passHref>
+                  <NavigationMenuLink className="text-sm font-medium">
+                    상품 목록
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faHouse} />
+                {isLogin ? loginUser.username : "로그인"}
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+              {isLogin && (
+                <>
+                  <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/profile">내 정보</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/cart">장바구니</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/logout">로그아웃</Link>
+                  </DropdownMenuItem>
+                </>
+              )}
+
+              {!isLogin && (
+                <DropdownMenuItem asChild>
+                  <Link href="/user/login">로그인</Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+
+        <main className="flex flex-col flex-grow justify-center items-center">
+          {children}
+        </main>
+
+        <footer className="w-full flex justify-center p-4 bg-gray-50">
+          <p className="text-muted-foreground text-sm">
+            © {new Date().getFullYear()} CoffeeProject. All rights reserved.
+          </p>
+        </footer>
+      </LoginUserContext.Provider>
     </>
   );
 }

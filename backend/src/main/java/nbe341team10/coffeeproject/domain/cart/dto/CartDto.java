@@ -7,16 +7,16 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class CartDetailResponse {
+public class CartDto {
     private long id;
     private long userId;
-    private List<CartAddProductCartItemDto> cartItems;
+    private List<CartItemDto> cartItems;
 
-    public CartDetailResponse(Cart cart) {
+    public CartDto(Cart cart) {
         this.id = cart.getId();
         this.userId = cart.getUser().getId();
         this.cartItems = cart.getCartItems().stream()
-                .map(CartAddProductCartItemDto::new)
+                .map(CartItemDto::new)
                 .toList();
     }
 
