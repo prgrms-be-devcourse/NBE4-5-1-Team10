@@ -1,6 +1,16 @@
 import ClientPage from "./client-page";
 import client from "@/lib/backend/client";
 
+export const addToCartAPI = async (productId: number, quantity: number) => {
+  const response = await client.POST("/api/v1/cart", {
+    body: {
+      productId,
+      quantity,
+    },
+  });
+  if (response.error) return;
+};
+
 export default async function Page({
   searchParams,
 }: {
