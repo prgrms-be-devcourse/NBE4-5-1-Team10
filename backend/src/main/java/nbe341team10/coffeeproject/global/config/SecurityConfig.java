@@ -74,8 +74,6 @@ public class SecurityConfig {
                         // 건들지마세요
                         .requestMatchers("api/*/user/login", "/", "api/*/user/join","/swagger-ui/**","/v3/api-docs/**","api/*/user/reissue").permitAll()    // 접근 허용
                         .requestMatchers("/admin").hasRole("ADMIN") // 관리자만
-                        .requestMatchers("/order/**").permitAll()
-                        .requestMatchers("/orders/**").permitAll()
                         .anyRequest().authenticated());
         http
                 .addFilterBefore(new JWTFilter(jwtUtil,blacklistRepository), CustomLoginFilter.class);

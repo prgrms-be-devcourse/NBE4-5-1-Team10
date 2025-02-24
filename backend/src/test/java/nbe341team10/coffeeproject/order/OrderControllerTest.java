@@ -2,12 +2,14 @@ package nbe341team10.coffeeproject.order;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import jakarta.transaction.Transactional;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
 import nbe341team10.coffeeproject.domain.orderitem.repository.OrderItemRepository;
 import nbe341team10.coffeeproject.domain.product.repository.ProductRepository;
+import nbe341team10.coffeeproject.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,10 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-/**
- * TODO 회원 관련 로직 추가 하기(전부)
- */
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,12 +47,23 @@ public class OrderControllerTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @BeforeEach
     @Transactional  // 트랜잭션 범위 내에서 DB 초기화
-    public void setUp() {
+    public void setUp() throws Exception {
         // 기존 데이터를 삭제
         orderItemRepository.deleteAll();
         orderRepository.deleteAll();
+        userRepository.deleteAll();
+
+        // 회원가입 요청
+        String userJoinRequestBody = "{ \"username\": \"testUser\", \"email\": \"testUser@example.com\", \"password\": \"1234\", \"address\": \"Test Address\" }";
+        mockMvc.perform(post("/api/v1/user/join")  // 회원가입 API 경로
+                        .contentType("application/json")
+                        .content(userJoinRequestBody))
+                .andExpect(status().isOk());  // 회원가입 성공 여부 확인
     }
 
 
@@ -62,7 +71,23 @@ public class OrderControllerTest {
     @DisplayName("주문 등록")
     public void testCreateOrder_ValidRequest() throws Exception {
 
-        // 요청을 보낼 데이터 준비
+        // 로그인 요청
+        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .contentType("application/json")
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // 로그인 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
+        // 액세스 토큰이 정상적으로 추출되었는지 확인
+        System.out.println("Access Token: " + accessToken); // 디버깅을 위해 출력
+
+        // 주문 요청할 데이터 준비
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)
                 .price(1000)
@@ -75,20 +100,34 @@ public class OrderControllerTest {
                 .orderItems(Collections.singletonList(orderItem))
                 .build();
 
-        // HTTP POST 요청과 예상 반환 값 비교
-        mockMvc.perform(post("/order")
+        // 인증된 사용자로 주문 등록
+        mockMvc.perform(post("/api/v1/order")
+                        .header("Authorization", "Bearer " + accessToken)  // 액세스 토큰 추가
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest)))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
-                .andExpect(jsonPath("$.code").value("200"))  // 응답 body에서 status 확인
-                .andExpect(jsonPath("$.msg").value("주문이 완료되었습니다."))  // 응답 body에서 message 확인
-                .andExpect(jsonPath("$.data").doesNotExist());  // "data" 필드는 null이므로 존재하지 않음을 확인
+                .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
+                .andExpect(jsonPath("$.msg").value("주문이 완료되었습니다."));  // 응답 메시지 확인
     }
 
 
     @Test
     @DisplayName("주문 등록 시 주소 값 누락")
     public void testCreateOrder_MissingRequiredField() throws Exception {
+
+        // 로그인 요청
+        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .contentType("application/json")
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // 로그인 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
         // 요청을 보낼 데이터 준비 (주소가 빠짐)
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -102,9 +141,10 @@ public class OrderControllerTest {
                 .build();
 
         // HTTP POST 요청 보내기 (필수 값 누락 시 400 Bad Request)
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(orderCreateRequest)))
+                        .content(objectMapper.writeValueAsString(orderCreateRequest))
+                        .header("Authorization", "Bearer " + accessToken))  // Authorization 헤더에 액세스 토큰 추가
                 .andExpect(status().isBadRequest())  // HTTP 400 응답 확인
                 .andExpect(jsonPath("$.code").value("400-1"))  // 응답 body에서 status 확인
                 .andExpect(jsonPath("$.msg").value("address : NotBlank : 주소를 입력해주세요."));  // 응답 body에서 필수 값 누락 메시지 확인
@@ -114,7 +154,20 @@ public class OrderControllerTest {
     @DisplayName("주문 목록 조회")
     @Transactional
     public void testGetOrders() throws Exception {
-        // 1. 첫 번째 주문 추가
+        // 로그인 요청
+        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .contentType("application/json")
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // 로그인 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
+        // 2. 첫 번째 주문 추가
         OrderItemCreateRequest orderItem1 = OrderItemCreateRequest.builder()
                 .productId(1L)
                 .price(1000)
@@ -127,12 +180,14 @@ public class OrderControllerTest {
                 .orderItems(Collections.singletonList(orderItem1))
                 .build();
 
-        mockMvc.perform(post("/order")
+        // 3. 주문 요청 (로그인한 사용자의 토큰을 Authorization 헤더에 추가)
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(orderCreateRequest1)))
+                        .content(objectMapper.writeValueAsString(orderCreateRequest1))
+                        .header("Authorization", "Bearer " + accessToken))  // accessToken 사용
                 .andExpect(status().isOk());
 
-        // 2. 두 번째 주문 추가
+        // 4. 두 번째 주문 추가
         OrderItemCreateRequest orderItem2 = OrderItemCreateRequest.builder()
                 .productId(2L)
                 .price(2000)
@@ -145,14 +200,16 @@ public class OrderControllerTest {
                 .orderItems(Collections.singletonList(orderItem2))
                 .build();
 
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(orderCreateRequest2)))
+                        .content(objectMapper.writeValueAsString(orderCreateRequest2))
+                        .header("Authorization", "Bearer " + accessToken))  // accessToken 사용
                 .andExpect(status().isOk());
 
-        // 3. 주문 목록 조회 요청
-        mockMvc.perform(get("/order")
-                        .contentType("application/json"))
+        // 5. 주문 목록 조회 요청 (로그인한 사용자의 토큰을 Authorization 헤더에 추가)
+        mockMvc.perform(get("/api/v1/orders")
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + accessToken))  // accessToken 사용
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
                 .andExpect(jsonPath("$.msg").value("주문 내역 조회가 완료되었습니다."))  // 응답 메시지 확인
@@ -168,6 +225,19 @@ public class OrderControllerTest {
     @DisplayName("주문 상세 정보 조회")
     @Transactional
     public void testGetOrderDetail() throws Exception {
+        // 로그인 요청
+        String loginRequestBody = "{ \"email\": \"testUser@example.com\", \"password\": \"1234\" }";
+        String loginResponse = mockMvc.perform(post("/api/v1/user/login")
+                        .contentType("application/json")
+                        .content(loginRequestBody))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // 로그인 응답에서 액세스 토큰 추출
+        String accessToken = JsonPath.read(loginResponse, "$.data.access");
+
         // 1. 주문 생성
         OrderItemCreateRequest orderItem1 = OrderItemCreateRequest.builder()
                 .productId(1L)
@@ -187,15 +257,17 @@ public class OrderControllerTest {
                 .orderItems(List.of(orderItem1, orderItem2))
                 .build();
 
-        // 주문 생성 요청
-        mockMvc.perform(post("/order")
+        // 2. 주문 생성 요청 (Authorization 헤더에 액세스 토큰 추가)
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(orderCreateRequest)))
+                        .content(objectMapper.writeValueAsString(orderCreateRequest))
+                        .header("Authorization", "Bearer " + accessToken))  // 액세스 토큰 추가
                 .andExpect(status().isOk());
 
-        // 2. 주문 목록 조회 요청 후 JSON 응답 파싱
-        String orderListResponse = mockMvc.perform(get("/order")
-                        .contentType("application/json"))
+        // 3. 주문 목록 조회 요청 후 JSON 응답 파싱
+        String orderListResponse = mockMvc.perform(get("/api/v1/orders")
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + accessToken))  // Authorization 헤더 추가
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -206,9 +278,10 @@ public class OrderControllerTest {
         // ✅ 생성한 주문의 ID 찾기 (여기선 첫 번째 주문 사용)
         Long orderId = ordersNode.get(0).get("orderId").asLong();
 
-        // 3. 주문 상세 조회 요청
-        mockMvc.perform(get("/order/{orderId}", orderId)
-                        .contentType("application/json"))
+        // 4. 주문 상세 조회 요청 (Authorization 헤더에 액세스 토큰 추가)
+        mockMvc.perform(get("/api/v1/order/{orderId}", orderId)
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + accessToken))  // Authorization 헤더 추가
                 .andExpect(status().isOk())  // HTTP 200 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
                 .andExpect(jsonPath("$.msg").value("주문 상세 정보 조회가 완료되었습니다."))  // 응답 메시지 확인

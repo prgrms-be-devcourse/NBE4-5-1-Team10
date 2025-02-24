@@ -6,6 +6,8 @@ import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.service.OrderService;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.global.Rq;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +15,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class OrderController {
 
     private final OrderService orderService;
 
+    private final Rq rq;
+
     //Orders 등록
-    //TODO 로그인 및 회원 정보 등록 로직 필요
     @PostMapping("/order")
     public RsData<Void> createOrder(@Valid @RequestBody OrderCreateRequest orderDto) {
-        orderService.createOrder(orderDto);
+        Users actor = rq.getCurrentActor();
+        orderService.createOrder(orderDto, actor);
         return new RsData<>(
                 "200",
                 "주문이 완료되었습니다."
@@ -31,10 +36,10 @@ public class OrderController {
     public record OrdersResponseBody(List<OrderListResponse> items) {}
 
     //Orders 목록 조회
-    //TODO 본인의 주문만 볼 수 있도록 하는 로직 추가 필요
-    @GetMapping("/order")
+    @GetMapping("/orders")
     public RsData<OrdersResponseBody> getOrders() {
-        List<OrderListResponse> orders = orderService.getOrders();
+        Users actor = rq.getCurrentActor();
+        List<OrderListResponse> orders = orderService.getOrders(actor);
 
         return new RsData<>(
                 "200",
@@ -44,10 +49,10 @@ public class OrderController {
     }
 
     //Orders 상세 정보 조회
-    //TODO 본인의 상세 주문만 볼 수 있도록 하는 로직 추가 필요
     @GetMapping("/order/{id}")
     public RsData<OrderDetailResponse> getOrderDetail(@PathVariable Long id) {
-        OrderDetailResponse order = orderService.getOrderDetail(id);
+        Users actor = rq.getCurrentActor();
+        OrderDetailResponse order = orderService.getOrderDetail(id, actor);
         return new RsData<>(
                 "200",
                 "주문 상세 정보 조회가 완료되었습니다.",
