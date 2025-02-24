@@ -27,20 +27,19 @@ public class OrderCreateRequest {
     @Size(min = 1, message = "주문 상품을 선택해주세요.")
     private List<OrderItemCreateRequest> orderItems;
 
-    public Orders toOrder(List<Product> products, Users actor){
+    public Orders toOrder(Users user){
 
         int totalPrice = orderItems.stream()
                 .mapToInt(product -> product.getPrice() * product.getQuantity()) // price * quantity를 계산
                 .sum(); // 모든 값을 합산하여 총 가격 계산
 
-
         return Orders.builder()
-                .email(actor.getEmail())
+                .email(user.getEmail())
                 .address(address)
                 .postalCode(postalCode)
                 .status(OrderStatus.ORDERED)
                 .totalPrice(totalPrice)
-                .user(actor)
+                .user(user)
                 .build();
     }
 }
