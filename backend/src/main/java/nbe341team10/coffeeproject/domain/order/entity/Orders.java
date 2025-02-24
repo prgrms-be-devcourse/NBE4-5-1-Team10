@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-//import nbe341team10.coffeeproject.domain.user.entity.Users;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.entity.BaseTime;
 
 @Entity
@@ -31,6 +31,6 @@ public class Orders extends BaseTime {
     @Column(nullable = false)
     private int totalPrice;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private Users user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Users user;
 }

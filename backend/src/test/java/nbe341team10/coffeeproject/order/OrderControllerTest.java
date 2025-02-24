@@ -76,7 +76,7 @@ public class OrderControllerTest {
                 .build();
 
         // HTTP POST 요청과 예상 반환 값 비교
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("api/v1/order")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest)))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
@@ -102,7 +102,7 @@ public class OrderControllerTest {
                 .build();
 
         // HTTP POST 요청 보내기 (필수 값 누락 시 400 Bad Request)
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest)))
                 .andExpect(status().isBadRequest())  // HTTP 400 응답 확인
@@ -127,7 +127,7 @@ public class OrderControllerTest {
                 .orderItems(Collections.singletonList(orderItem1))
                 .build();
 
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest1)))
                 .andExpect(status().isOk());
@@ -145,13 +145,13 @@ public class OrderControllerTest {
                 .orderItems(Collections.singletonList(orderItem2))
                 .build();
 
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("/api/v1/order")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest2)))
                 .andExpect(status().isOk());
 
         // 3. 주문 목록 조회 요청
-        mockMvc.perform(get("/order")
+        mockMvc.perform(get("api/v1/orders")
                         .contentType("application/json"))
                 .andExpect(status().isOk())  // HTTP 200 OK 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
@@ -188,13 +188,13 @@ public class OrderControllerTest {
                 .build();
 
         // 주문 생성 요청
-        mockMvc.perform(post("/order")
+        mockMvc.perform(post("api/v1/order")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(orderCreateRequest)))
                 .andExpect(status().isOk());
 
         // 2. 주문 목록 조회 요청 후 JSON 응답 파싱
-        String orderListResponse = mockMvc.perform(get("/order")
+        String orderListResponse = mockMvc.perform(get("api/v1/orders")
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -207,7 +207,7 @@ public class OrderControllerTest {
         Long orderId = ordersNode.get(0).get("orderId").asLong();
 
         // 3. 주문 상세 조회 요청
-        mockMvc.perform(get("/order/{orderId}", orderId)
+        mockMvc.perform(get("api/v1/order/{orderId}", orderId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())  // HTTP 200 응답 확인
                 .andExpect(jsonPath("$.code").value("200"))  // 응답 코드 확인
