@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { components } from "@/lib/backend/generated/schema";
+import { isValidUrl } from "@/lib/utils";
 
 export default function ClientPage({
   data,
@@ -71,54 +72,62 @@ export default function ClientPage({
           </div>
 
           <div className="grid grid-cols-4 gap-6 w-full">
-            {products.map((product) => (
-              <Card
-                key={product.id}
-                className="p-4 shadow-md border border-gray-200"
-              >
-                <Link href={`/product/${product.id}`}>
-                  <div className="relative w-full h-40 overflow-hidden rounded-md">
-                    <Image
-                      src={product.imageUrl || ""}
-                      alt={product.name || ""}
-                      fill
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                  <div className="mt-4 space-y-1">
-                    <p className="text-lg font-medium">{product.name}</p>
-                    <p className="text-xl font-bold">
-                      {product.price.toLocaleString()}원
-                    </p>
-                    <p
-                      className={`text-sm ${
-                        product.stockQuantity
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {product.stockQuantity ? "재고 있음" : "재고 없음"}
-                    </p>
-                  </div>
-                </Link>
+            {products.map((product) => {
+              const isValidImage =
+                product.imageUrl &&
+                product.imageUrl.length > 0 &&
+                isValidUrl(product.imageUrl);
 
-                <Button
-                  className={`w-full mt-4 flex items-center gap-2 ${
-                    product.stockQuantity
-                      ? "bg-black text-white"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                  disabled={!product.stockQuantity}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleAddToCart(product.id);
-                  }}
+              const imageUrl = isValidImage ? product.imageUrl : "/none.jpg";
+              return (
+                <Card
+                  key={product.id}
+                  className="p-4 shadow-md border border-gray-200"
                 >
-                  <ShoppingCart size={16} />
-                  장바구니 담기
-                </Button>
-              </Card>
-            ))}
+                  <Link href={`/product/${product.id}`}>
+                    <div className="relative w-full h-40 overflow-hidden rounded-md">
+                      <Image
+                        src={imageUrl || "/none.jpg"}
+                        alt={product.name}
+                        fill
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="mt-4 space-y-1">
+                      <p className="text-lg font-medium">{product.name}</p>
+                      <p className="text-xl font-bold">
+                        {product.price.toLocaleString()}원
+                      </p>
+                      <p
+                        className={`text-sm ${
+                          product.stockQuantity
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {product.stockQuantity ? "재고 있음" : "재고 없음"}
+                      </p>
+                    </div>
+                  </Link>
+
+                  <Button
+                    className={`w-full mt-4 flex items-center gap-2 ${
+                      product.stockQuantity
+                        ? "bg-black text-white"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                    disabled={!product.stockQuantity}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddToCart(product.id);
+                    }}
+                  >
+                    <ShoppingCart size={16} />
+                    장바구니 담기
+                  </Button>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </Card>

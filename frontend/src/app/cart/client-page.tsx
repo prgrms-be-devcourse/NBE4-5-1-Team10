@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 import debounce from "lodash/debounce";
 import {
   TableHeader,
@@ -118,7 +118,7 @@ export default function ClientPage() {
 
         <Table className="w-full">
           <TableHeader>
-            <TableRow>
+            <TableRow key="table">
               <TableHead className="text-center">선택</TableHead>
               <TableHead className="text-left">제품</TableHead>
               <TableHead className="text-center">수량</TableHead>

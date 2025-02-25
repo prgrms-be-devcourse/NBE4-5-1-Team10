@@ -38,7 +38,7 @@ export default function ClientPage() {
       console.error("Post product failed:", res.status);
       return;
     }
-    router.push("/admin");
+    router.push("/admin/product/list");
   };
 
   return (
