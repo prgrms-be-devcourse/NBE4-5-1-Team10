@@ -128,48 +128,46 @@ export default function ClientLayout({
             </NavigationMenuList>
           </NavigationMenu>
 
-          <div className="absolute right-8">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={faHouse} />
-                  {isLogin ? loginUser.username : "로그인"}
-                </Button>
-              </DropdownMenuTrigger>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faHouse} />
+                {isLogin ? loginUser.username : "로그인/회원가입"}
+              </Button>
+            </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end">
-                {isLogin && (
-                  <>
-                    <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/user/profile">내 정보</Link>
-                    </DropdownMenuItem>
-                    {!isAdmin && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/cart">장바구니</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/order/list">주문 내역</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem asChild>
-                      <Link href="/user/logout">로그아웃</Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-
-                {!isLogin && (
+            <DropdownMenuContent align="end">
+              {isLogin && (
+                <>
+                  <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/profile">내 정보</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/cart">장바구니</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/order/list">주문 내역</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/logout">로그아웃</Link>
+                  </DropdownMenuItem>
+                </>
+              )}
+              {!isLogin && (
+                <>
                   <DropdownMenuItem asChild>
                     <Link href="/user/login">로그인</Link>
                   </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/signup">회원가입</Link> 
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         <main className="flex flex-col flex-grow justify-center items-center">

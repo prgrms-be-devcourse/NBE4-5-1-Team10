@@ -42,7 +42,7 @@ export function useLoginUser() {
   const [isAdmin, _setIsAdmin] = useState(false);
 
   const removeLoginUser = () => {
-    _setLoginUser(createEmptyUser());
+    _setLoginUser(createEmptyUser()); // 로그아웃 시 초기 상태로 되돌리기
     setLoginUserPending(false);
     _setIsAdmin(false);
   };
