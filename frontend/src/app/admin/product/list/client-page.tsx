@@ -125,7 +125,9 @@ export default function ClientPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push("/admin/product/edit")}
+                      onClick={() =>
+                        router.push(`/admin/product/${product.id}`)
+                      }
                     >
                       수정
                     </Button>
