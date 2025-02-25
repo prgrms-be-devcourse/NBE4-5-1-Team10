@@ -180,3 +180,9 @@ npm run codegen:watch # Watch for API changes and regenerate types automatically
 
 ![Wireframe](docs/wireframe.png)
 
+## Agile & TDD: Development Approach
+
+이 프로젝트는 애자일(Agile)과 테스트 주도 개발(TDD) 방식을 적용하여 빠른 개발과 유지보수성을 고려했습니다. 자세한 내용은 [development_process.md](docs/development_process.md)에서 확인할 수 있습니다.
+
+
+
