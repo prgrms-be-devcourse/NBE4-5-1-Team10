@@ -19,11 +19,11 @@ public class DeliveryService {
         this.deliveryRepository = deliveryRepository;
     }
     // 매일 오후 2시에 배송 준비 및 시작
-    @Scheduled(cron = "0 48 17 * * *") // 매일 오후 2시
+    @Scheduled(cron = "0 0 14 * * *") // 매일 오후 2시
     public void handleDeliveries() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = now.minusDays(1).withHour(14).withMinute(0).withSecond(0);
-        LocalDateTime endTime = now.withHour(18).withMinute(0).withSecond(0);
+        LocalDateTime endTime = now.withHour(14).withMinute(0).withSecond(0);
         List<Orders> ordersToPrepare = orderRepository.findAllByCreatedAtBetween(startTime, endTime);
         for (Orders order : ordersToPrepare) {
             Delivery delivery = new Delivery();
@@ -42,16 +42,17 @@ public class DeliveryService {
         }
     }
     // 매일 오후 3시에 배송 완료 상태로 업데이트
-    @Scheduled(cron = "0 49 17 * * *") // 매일 오후 3시
+    @Scheduled(cron = "0 0 15 * * *") // 매일 오후 3시
     public void completeDeliveries() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = now.minusDays(1).withHour(14).withMinute(0).withSecond(0);
-        LocalDateTime endTime = now.withHour(18).withMinute(0).withSecond(0);
+        LocalDateTime endTime = now.withHour(14).withMinute(0).withSecond(0);
         List<Delivery> deliveriesToComplete = deliveryRepository.findAllByDeliveryStartDateBetween(startTime, endTime);
         for (Delivery delivery : deliveriesToComplete) {
             // 배송 상태를 DELIVERED로 업데이트
             delivery.getOrder().setStatus(OrderStatus.DELIVERED);
-
+            orderRepository.save(delivery.getOrder());
+            deliveryRepository.save(delivery);
             System.out.println("배송 완료");
             // 이메일 전송
             sendEmail(delivery);
