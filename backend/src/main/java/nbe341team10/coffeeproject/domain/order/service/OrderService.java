@@ -2,6 +2,7 @@ package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.cart.service.CartService;
+import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
@@ -33,6 +34,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final DeliveryRepository deliveryRepository;
     private final CartService cartService;
 
     //Orders 등록
