@@ -6,7 +6,6 @@ import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation"; 
-
 import debounce from "lodash/debounce";
 import {
   TableHeader,
@@ -50,7 +49,6 @@ export default function ClientPage() {
       console.error("Fetch cart error:", err);
     }
   }
-
   // 화면 초기화
   useEffect(() => {
     fetchCart();
