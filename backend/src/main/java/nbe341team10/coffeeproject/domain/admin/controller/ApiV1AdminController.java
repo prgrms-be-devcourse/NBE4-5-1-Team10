@@ -2,13 +2,23 @@ package nbe341team10.coffeeproject.domain.admin.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import nbe341team10.coffeeproject.domain.order.controller.OrderController;
+import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
+import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
+import nbe341team10.coffeeproject.domain.order.dto.OrderResponse;
+import nbe341team10.coffeeproject.domain.order.entity.Orders;
+import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
 import nbe341team10.coffeeproject.global.dto.RsData;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class ApiV1AdminController {
 
     private final ProductService productService;
-    //    private final OrderService orderService;
+    private final OrderService orderService;
 
     public record ProductAddRequest(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
 
@@ -62,35 +72,43 @@ public class ApiV1AdminController {
         return new RsData<>("200", "상품 삭제 성공");
     }
 
+    @GetMapping("orders/ordered/count")
+    public RsData<Integer> countOrdered() {
+            int countOrdered = orderService.countOrdered();
+
+        return new RsData<>(
+                "200",
+                "대기 중인 주문 개수 조회를 완료했습니다.",
+                countOrdered
+        );
+    }
+
+    public record OrdersResponseBody(List<OrderListResponse> items) {}
+
+    @GetMapping("orders")
+    public RsData<OrdersResponseBody> getOrderList() {
+            List<OrderListResponse> orderList = orderService.getAllOrders();
+
+        return new RsData<>(
+                "200",
+                "주문 내역 조회가 완료되었습니다.",
+                new OrdersResponseBody(orderList)
+        );
+    }
 
 
+    public record OrdersLatestResponseBody(List<OrderResponse> items) {}
 
-//    @GetMapping("products/orderlist")
-//    public RsData<List<OrderDto>> getOrderList() {
-//        try {
-//            List<Order> orderList = orderService.getAllOrders();
-//
-//            List<OrderDto> orderDtoList = orderList.stream()
-//                    .map(order -> new OrderDto(
-//                            order.getId(),
-//                            order.getEmail(),
-//                            order.getAddress(),
-//                            order.getPostalCode(),
-//                            order.getStatus(),
-//                            order.getTotalPrice(),
-//                            order.getCreatedAt(),
-//                            order.getUpdatedAt(),
-//                            order.getMemberId()
-//                    ))
-//                    .collect(Collectors.toList());
-//
-//            return new RsData<>("200", "주문 목록 조회 성공", orderDtoList);
-//
-//        } catch (Exception e) {
-//            return new RsData<>("500", "주문 목록 조회 실패: " + e.getMessage(), null);
-//        }
-//    }
+    @GetMapping("orders/latest")
+    public RsData<OrdersLatestResponseBody> getLatestOrderList() {
+        List<OrderResponse> orderList = orderService.getLatestTop3OrderList();
 
+        return new RsData<>(
+                "200",
+                "최근 주문 내역 조회가 완료되었습니다.",
+                new OrdersLatestResponseBody(orderList)
+        );
+    }
 
 }
 

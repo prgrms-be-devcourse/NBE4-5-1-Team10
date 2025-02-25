@@ -25,6 +25,20 @@ public class ApiV1ProductController {
 
     public record ItemsResBody(List<ProductGetItemsDto> items) {}
 
+    @Operation(summary = "상품 개수 조회하기")
+    @GetMapping("/count")
+    @Transactional(readOnly = true)
+    public RsData<Long> count() {
+
+        long count = productService.count();
+
+        return new RsData<>(
+                "200",
+                "The count of Products retrieved successfully.",
+                count
+        );
+    }
+
     @Operation(summary = "상품 목록 조회하기")
     @GetMapping()
     @Transactional(readOnly = true)

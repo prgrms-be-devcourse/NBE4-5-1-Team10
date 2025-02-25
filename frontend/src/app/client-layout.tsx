@@ -130,7 +130,7 @@ export default function ClientLayout({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="absolute right-8 gap-2">
                 <FontAwesomeIcon icon={faHouse} />
                 {isLogin ? loginUser.username : "로그인/회원가입"}
               </Button>
@@ -144,12 +144,17 @@ export default function ClientLayout({
                   <DropdownMenuItem asChild>
                     <Link href="/user/profile">내 정보</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/cart">장바구니</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/order/list">주문 내역</Link>
-                  </DropdownMenuItem>
+                  {!isAdmin && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link href="/cart">장바구니</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/order/list">주문 내역</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/user/logout">로그아웃</Link>
@@ -162,7 +167,7 @@ export default function ClientLayout({
                     <Link href="/user/login">로그인</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/user/signup">회원가입</Link> 
+                    <Link href="/user/signup">회원가입</Link>
                   </DropdownMenuItem>
                 </>
               )}
