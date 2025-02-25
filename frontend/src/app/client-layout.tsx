@@ -33,6 +33,7 @@ export default function ClientLayout({
     loginUser,
     removeLoginUser,
     isLoginUserPending,
+    isAdmin,
     setAnonymousUser,
   } = useLoginUser();
 
@@ -42,6 +43,7 @@ export default function ClientLayout({
     removeLoginUser,
     isLogin,
     isLoginUserPending,
+    isAdmin,
     setAnonymousUser,
   };
 
@@ -51,7 +53,6 @@ export default function ClientLayout({
         method: "GET",
       });
       if (!res.ok) {
-        console.error("Fetch user failed:", res.status);
         return;
       }
       const data = await res.json();
@@ -70,74 +71,104 @@ export default function ClientLayout({
           setLoginUser(userResponse!!);
         }
       })
-      .catch(() => removeLoginUser())
-      .finally(() => setAnonymousUser());
+      .catch(() => removeLoginUser());
   }, []);
 
   return (
     <>
       <LoginUserContext.Provider value={loginUserContextValue}>
-        <header className="w-full bg-white shadow-sm py-4 px-8 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold">
-            CoffeeProject
-          </Link>
-
+        <header className="w-full bg-white shadow-sm py-4 px-8 flex items-center justify-center">
+          {isAdmin ? (
+            <Link href="/admin" className="absolute left-8 text-xl font-bold">
+              CoffeeProject
+            </Link>
+          ) : (
+            <Link href="/" className="absolute left-8 text-xl font-bold">
+              CoffeeProject
+            </Link>
+          )}
           <NavigationMenu>
             <NavigationMenuList className="gap-4">
-              <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className="text-sm font-medium">
-                    Home
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link href="/product/list" legacyBehavior passHref>
-                  <NavigationMenuLink className="text-sm font-medium">
-                    상품 목록
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
+              {isAdmin ? (
+                <>
+                  <NavigationMenuItem>
+                    <Link href="/admin/product/list" legacyBehavior passHref>
+                      <NavigationMenuLink className="text-sm font-medium">
+                        상품 관리
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/admin/order/list" legacyBehavior passHref>
+                      <NavigationMenuLink className="text-sm font-medium">
+                        주문 관리
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </>
+              ) : (
+                <>
+                  <NavigationMenuItem>
+                    <Link href="/" legacyBehavior passHref>
+                      <NavigationMenuLink className="text-sm font-medium">
+                        Home
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/product/list" legacyBehavior passHref>
+                      <NavigationMenuLink className="text-sm font-medium">
+                        상품 목록
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faHouse} />
-                {isLogin ? loginUser.username : "로그인"}
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="absolute right-8">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <FontAwesomeIcon icon={faHouse} />
+                  {isLogin ? loginUser.username : "로그인"}
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              {isLogin && (
-                <>
-                  <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/profile">내 정보</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/cart">장바구니</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/order/list">주문 내역</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/logout">로그아웃</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
+              <DropdownMenuContent align="end">
+                {isLogin && (
+                  <>
+                    <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/user/profile">내 정보</Link>
+                    </DropdownMenuItem>
+                    {!isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/cart">장바구니</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/order/list">주문 내역</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/user/logout">로그아웃</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
 
-              {!isLogin && (
-                <DropdownMenuItem asChild>
-                  <Link href="/user/login">로그인</Link>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {!isLogin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/login">로그인</Link>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
 
         <main className="flex flex-col flex-grow justify-center items-center">
