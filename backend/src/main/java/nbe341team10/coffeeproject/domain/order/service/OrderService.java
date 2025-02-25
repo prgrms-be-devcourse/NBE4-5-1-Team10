@@ -1,7 +1,6 @@
 package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
-import nbe341team10.coffeeproject.domain.cart.entity.Cart;
 import nbe341team10.coffeeproject.domain.cart.service.CartService;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
@@ -91,6 +90,7 @@ public class OrderService {
 
                     // 첫 번째 상품명 구하기 (첫 번째 상품이 있을 경우)
                     String firstProductName = orderItems.get(0).getProduct().getName();
+                    String firstProductImage = orderItems.get(0).getProduct().getImageUrl();
 
                     // 해당 주문의 총 가격 구하기
                     int totalPrice = order.getTotalPrice();
@@ -103,6 +103,7 @@ public class OrderService {
                             .firstProductName(firstProductName)
                             .productCategoryCount(orderItemCount)
                             .totalPrice(totalPrice)
+                            .firstProductImageUrl(firstProductImage)
                             .build();
                 })
                 .collect(Collectors.toList());  // 결과를 List로 변환

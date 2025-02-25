@@ -12,11 +12,11 @@ import Combobox from "@/components/ui/custom/combobox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { components } from "@/lib/backend/generated/schema";
-import { addToCartAPI } from "./page";
 
 export default function ClientPage({
   data,
@@ -36,7 +36,16 @@ export default function ClientPage({
 
   const handleAddToCart = async (productId: number) => {
     try {
-      await addToCartAPI(localStorage.getItem("accessToken"), productId, 1);
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      if (!res.ok) {
+        console.error("Post cart failed:", res.status);
+        return;
+      }
       setCartModalOpen(true);
     } catch (error) {
       console.error(error);
@@ -115,9 +124,10 @@ export default function ClientPage({
       </Card>
 
       <Dialog open={cartModalOpen} onOpenChange={setCartModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" aria-describedby="">
           <DialogHeader>
             <DialogTitle>장바구니에 담겼습니다!</DialogTitle>
+            <DialogDescription />
           </DialogHeader>
           <div className="flex justify-between mt-4">
             <Button variant="outline" onClick={() => setCartModalOpen(false)}>

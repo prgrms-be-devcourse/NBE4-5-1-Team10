@@ -1,4 +1,4 @@
-import createClient from "openapi-fetch";
+import createClient from "openapi-fetch"; 
 import { paths } from "./generated/schema";
 
 const client = createClient<paths>({

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation"; 
 import debounce from "lodash/debounce";
 import {
   TableHeader,
@@ -30,6 +31,7 @@ type CartItemDto = components["schemas"]["CartItemDto"] & {
 export default function ClientPage() {
   const [cart, setCart] = useState<CartDto | null>(null);
   const [cartItems, setCartItems] = useState<CartItemDto[]>([]);
+  const router = useRouter();
 
   async function fetchCart() {
     try {
@@ -47,7 +49,6 @@ export default function ClientPage() {
       console.error("Fetch cart error:", err);
     }
   }
-
   // 화면 초기화
   useEffect(() => {
     fetchCart();
@@ -162,6 +163,7 @@ export default function ClientPage() {
                       width={50}
                       height={50}
                       className="rounded-md"
+                      style={{ width: 50, height: 50 }}
                     />
                     <p>{item.productName}</p>
                   </div>
@@ -235,7 +237,16 @@ export default function ClientPage() {
         </Card>
 
         <div className="mt-6 flex justify-end">
-          <Button className="px-6 py-3 text-lg">선택상품 주문하기</Button>
+        <Button
+        className="px-6 py-3 text-lg"
+        onClick={() => {
+          const queryString = new URLSearchParams({
+            items: JSON.stringify(selectedItems)
+          }).toString();
+          
+          router.push(`/order/process?${queryString}`);
+        }}
+        >선택상품 주문하기</Button>
         </div>
       </Card>
     </div>
