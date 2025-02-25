@@ -19,7 +19,8 @@ x
 
 ## ERD
 
-![image](https://github.com/user-attachments/assets/1926e840-1ea1-4524-9d3c-51d05ec91b96)
+![ERD](docs/ERD.png)
+
 
 ## 주요 기능
 
@@ -68,48 +69,105 @@ x
 
 - Swagger API 문서화
 
-### 📌 Running MySQL with Docker Compose & Enabling Query Logs
+## 🏗️ Architecture Overview
 
-Start the container:
+```
++-------------------------------------------------+
+|                Frontend (Next.js)               |
+|                [Runs in Browser]                |
++-----------------------+-------------------------+
+                        |
+                        | HTTP/REST (JSON)
+                        |
++-----------------------v-------------------------+
+|              Backend (Spring Boot)              |
+|                [REST API Server]                |
++-----------------------+-------------------------+
+                        |
+                        | JPA (ORM)
+                        |
++-----------------------v-------------------------+
+|               DB (MySQL Container)              |
+|           [Local DB via Docker-compose]         |
++-------------------------------------------------+
+
+```
+## 🏗️ System Components
+
+**1️⃣ Frontend (Next.js)**
+
+- **기술 스택**: Next.js (React 기반 프레임워크)
+- **렌더링 방식**: SSR(서버사이드 렌더링) 및 CSR(클라이언트사이드 렌더링) 혼합 사용
+- **API 호출 방식**:
+    - 내장된 `fetch` API 사용
+    - `openapi-fetch` 라이브러리를 활용하여 API 호출
+- **역할**: 사용자 인터페이스 제공 및 RESTful API를 통해 백엔드와 통신
+
+**2️⃣ Backend (Spring Boot)**
+
+- **기술 스택**: Spring Boot (Java 기반 프레임워크)
+- **역할**:
+    - RESTful API 제공 (JSON 형식)
+    - 비즈니스 로직 처리 및 데이터 검증
+    - 프론트엔드 요청을 처리하고 MySQL 데이터베이스와 연동
+- **데이터 연동 방식**:
+    - `Spring Data JPA (ORM)`을 사용하여 MySQL과 연결
+    - 트랜잭션 관리 및 데이터 접근 계층 구성
+
+**3️⃣ Database (MySQL - Docker-compose)**
+
+- **기술 스택**: MySQL 8 (Docker-compose 컨테이너로 실행)
+- **역할**:
+    - 애플리케이션의 영구적인 데이터 저장소 역할 수행
+    - Spring Boot 백엔드와 연결하여 CRUD 연산 수행
+- **구동 방식**:
+    - `docker-compose`를 활용하여 로컬 환경에서 MySQL 컨테이너 실행
+
+## 🛠️ Development Setup
+
+**1️⃣ Run Backend (Spring Boot)**
 
 ```bash
+# Navigate to backend project directory
+cd backend
+
+# Run the application
+./gradlew bootRun
+
+```
+
+**2️⃣ Run Database (Docker Compose)**
+
+```bash
+# Start MySQL container with Docker Compose
+# in root directory
 docker-compose up -d
-```
 
-Since logs are mapped to your local machine in `./mysql/conf`, you can monitor them directly:
-
-```bash
+# Monitoring Logs
+# Since logs are mapped to your local machine in ./mysql/conf, you can monitor them directly:
 tail -f ./mysql_logs/general.log
-```
 
-Stop the container:
-
-```bash
+# Stop Containers
 docker-compose down
+
 ```
 
-### OpenAPI TypeScript Code Generation
-
-`openapi-typescript`를 사용하여 OpenAPI 스펙(`apiV1.json`)을 기반으로 TypeScript 타입을 자동 생성합니다.  
-이를 통해 백엔드 API의 변경 사항을 자동으로 반영하고, 타입 안정성을 유지할 수 있습니다.
-
-- ./apiV1.json 파일을 기반으로 TypeScript 타입을 생성합니다.
-
-- 생성된 타입은 **./frontend/src/lib/backend/generated/schema.d.ts**에 저장됩니다.
-
----
-
-1️⃣ **Codegen 실행 (`npm run codegen`)**
+**3️⃣ Run Frontend (Next.js)**
 
 ```bash
-npm run codegen
+# Navigate to frontend project directory
+cd frontend
+
+# Start Next.js development server
+npm install  # Install dependencies (only needed once)
+npm run dev  # Start development server
+
+# Use OpenAPI to generate TypeScript types for the backend API
+npm run codegen # Generate openapi typeScript definitions
+npm run codegen:watch # Watch for API changes and regenerate types automatically
+
 ```
 
-2️⃣ **Codegen 실시간 감지 (`npm run codegen --watch`)**
-
-```bash
-npm run codegen:watch
-```
 
 ## 와이어프레임(Wireframe)
 
@@ -117,6 +175,3 @@ npm run codegen:watch
 
 ![Wireframe](docs/wireframe.png)
 
-```
-
-```
