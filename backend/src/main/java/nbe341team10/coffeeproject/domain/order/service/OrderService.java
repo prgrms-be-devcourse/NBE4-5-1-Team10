@@ -141,6 +141,8 @@ public class OrderService {
                 .orderStatus(order.getStatus())
                 .email(order.getEmail())
                 .address(order.getAddress())
+                .postalCode(order.getPostalCode())
+                .totalPrice(order.getTotalPrice())
                 .build();//Orders 상세 정보 조회
 
     }
