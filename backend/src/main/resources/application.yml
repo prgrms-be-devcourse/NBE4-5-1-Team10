@@ -2,8 +2,6 @@ server:
   port: ${SERVER_PORT:8080} # 만약 환경변수가 없으면 기본 8080 사용
 
 spring:
-  profiles:
-    active: dev
   config:
     import: optional:file:../.env[.properties]
   application:
@@ -13,16 +11,16 @@ spring:
       enabled: always
 
   datasource:
-    url: jdbc:mysql://localhost:3306/coffee?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: dmlwls12
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
@@ -35,6 +33,8 @@ spring:
   jwt:
     secret: b075fb05b988c8e6e1065f35e6d6b992b68cc216d2265aac73e088d9a3ffdf7fecbd554c8ba0cd7c8e45a7e32b7aede0e72b6a2788bdc5518b8b313473f3b1a0
 
+
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -44,4 +44,3 @@ logging:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
-
