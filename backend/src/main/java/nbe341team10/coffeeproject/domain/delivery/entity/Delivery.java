@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Delivery extends BaseTime {
+
     @ManyToOne
     @JoinColumn(nullable = false)
     private Orders order;
