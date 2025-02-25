@@ -1,8 +1,12 @@
 package nbe341team10.coffeeproject.domain.delivery.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.global.entity.BaseTime;
 
@@ -20,13 +24,5 @@ public class Delivery extends BaseTime {
 
     private LocalDateTime deliveryStartDate;
     private LocalDateTime deliveryArriveDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status;
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-    }
 }
 

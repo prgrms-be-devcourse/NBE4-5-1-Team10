@@ -2,7 +2,6 @@ package nbe341team10.coffeeproject.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.cart.service.CartService;
-import nbe341team10.coffeeproject.domain.delivery.entity.Delivery;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
@@ -71,14 +70,8 @@ public class OrderService {
                 })
                 .collect(Collectors.toList());
 
-        //Delivery 생성
-        Delivery delivery = new Delivery();
-        delivery.setStatus(OrderStatus.ORDERED);
-        delivery.setOrder(order);
-
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItemList);
-        deliveryRepository.save(delivery);
 
         // 주문 완료된 장바구니 비우기
         cartService.getCart(user.getId())
