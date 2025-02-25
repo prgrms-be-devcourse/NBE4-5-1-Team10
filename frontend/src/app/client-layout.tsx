@@ -106,7 +106,7 @@ export default function ClientLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faHouse} />
-                {isLogin ? loginUser.username : "로그인"}
+                {isLogin ? loginUser.username : "로그인/회원가입"}
               </Button>
             </DropdownMenuTrigger>
 
@@ -130,11 +130,15 @@ export default function ClientLayout({
                   </DropdownMenuItem>
                 </>
               )}
-
               {!isLogin && (
-                <DropdownMenuItem asChild>
-                  <Link href="/user/login">로그인</Link>
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/login">로그인</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/user/signup">회원가입</Link> 
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

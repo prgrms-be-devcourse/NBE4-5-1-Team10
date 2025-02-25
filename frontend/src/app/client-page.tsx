@@ -11,9 +11,12 @@ export default function Page() {
   return (
     <>
       {!isLogin && (
-        <div className="flex flex-grow justify-center items-center">
+        <div className="flex flex-grow justify-center items-center gap-4">
           <Button>
             <Link href="/user/login">로그인</Link>
+          </Button>
+          <Button>
+            <Link href="/user/join">회원가입</Link>
           </Button>
         </div>
       )}
