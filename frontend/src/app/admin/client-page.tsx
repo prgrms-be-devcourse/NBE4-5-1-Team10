@@ -93,7 +93,7 @@ export default function ClientPage() {
         </div>
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow key="table">
               <TableHead>주문번호</TableHead>
               <TableHead>고객명</TableHead>
               <TableHead>상태</TableHead>

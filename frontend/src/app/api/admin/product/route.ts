@@ -3,12 +3,6 @@ import { cookies } from "next/headers";
 import client from "@/lib/backend/client";
 import { components } from "@/lib/backend/generated/schema";
 
-type CartResponse = {
-  code?: string;
-  msg?: string;
-  data?: components["schemas"]["CartDto"];
-};
-
 export async function POST(req: NextRequest) {
   const token = (await cookies()).get("accessToken");
   if (!token) {
@@ -36,7 +30,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: response["error"] }, { status: 400 });
   }
 
-  const getProduct = response.data as CartResponse;
+  const getProduct = response.data;
   return NextResponse.json(getProduct);
 }
 
@@ -69,7 +63,7 @@ export async function PUT(req: NextRequest) {
   if (response.error) {
     return NextResponse.json({ error: response["error"] }, { status: 400 });
   }
-  const updatedProduct = response.data as CartResponse;
+  const updatedProduct = response.data;
   return NextResponse.json(updatedProduct);
 }
 
