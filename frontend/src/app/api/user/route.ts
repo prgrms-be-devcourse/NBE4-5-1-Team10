@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No token" }, { status: 401 });
   }
 
-
   const response = await client.GET("/api/v1/user", {
     headers: {
       Authorization: `Bearer ${token.value}`,

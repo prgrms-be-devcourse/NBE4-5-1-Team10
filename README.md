@@ -32,6 +32,9 @@ x
 - 장바구니
 - 배송 관리
 
+## 유저 스토리
+[유저스토리](https://www.notion.so/WTL-16f3550b7b5581a58277dac2626af8c1?p=1a53550b7b5580cda73cff80383e7668&pm=s)
+
 ## 브랜치 전략
 
 - **브랜치 종류 및 역할**
@@ -68,6 +71,8 @@ x
 ## API 문서화
 
 - Swagger API 문서화
+  ![image](https://github.com/user-attachments/assets/aa447085-3ba2-4758-8973-f69b3c2aaf37)
+  [로그인/로그아웃 명세서](https://www.notion.so/WTL-16f3550b7b5581a58277dac2626af8c1?p=1a03550b7b5580839539dbea48c93f45&pm=s)
 
 ## 🏗️ Architecture Overview
 
