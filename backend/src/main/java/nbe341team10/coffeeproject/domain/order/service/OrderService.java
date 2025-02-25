@@ -5,6 +5,8 @@ import nbe341team10.coffeeproject.domain.cart.service.CartService;
 import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
+import nbe341team10.coffeeproject.domain.order.dto.OrderResponse;
+import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
 import nbe341team10.coffeeproject.domain.orderitem.dto.OrderItemCreateRequest;
@@ -32,7 +34,6 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final CartService cartService;
-
 
     //Orders 등록
     public void createOrder(OrderCreateRequest orderDto, Users user) {
@@ -145,5 +146,41 @@ public class OrderService {
                 .totalPrice(order.getTotalPrice())
                 .build();//Orders 상세 정보 조회
 
+    }
+
+    public List<OrderResponse> getLatestTop3OrderList() {
+        List<Orders> allOrders = orderRepository.findTop3ByOrderByCreatedAtDesc();
+        return allOrders.stream().map(OrderResponse::new).collect(Collectors.toList());
+    }
+
+    public List<OrderListResponse> getAllOrders() {
+        List<Orders> allOrders = orderRepository.findAll();
+        return allOrders.stream()
+                .map(order -> {
+                    List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
+
+                    int orderItemCount = orderItems.size();
+
+                    String firstProductName = orderItems.get(0).getProduct().getName();
+                    String firstProductImage = orderItems.get(0).getProduct().getImageUrl();
+
+                    int totalPrice = order.getTotalPrice();
+
+                    return OrderListResponse.builder()
+                            .orderId(order.getId())
+                            .orderDate(order.getCreatedAt())
+                            .orderStatus(order.getStatus())
+                            .firstProductName(firstProductName)
+                            .productCategoryCount(orderItemCount)
+                            .totalPrice(totalPrice)
+                            .firstProductImageUrl(firstProductImage)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    public int countOrdered() {
+        return orderRepository.countByStatus(OrderStatus.ORDERED);
     }
 }
