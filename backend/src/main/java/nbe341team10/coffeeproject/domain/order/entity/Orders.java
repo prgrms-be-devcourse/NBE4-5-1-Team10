@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.entity.BaseTime;
@@ -12,6 +13,7 @@ import nbe341team10.coffeeproject.global.entity.BaseTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @SuperBuilder
 public class Orders extends BaseTime {
 
