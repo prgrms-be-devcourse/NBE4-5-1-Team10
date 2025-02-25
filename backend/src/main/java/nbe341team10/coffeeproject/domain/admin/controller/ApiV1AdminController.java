@@ -1,6 +1,6 @@
 package nbe341team10.coffeeproject.domain.admin.controller;
 
-import jakarta.persistence.EntityNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
@@ -21,6 +21,7 @@ public class ApiV1AdminController {
 
     public record ProductAddRequest(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
 
+    @Operation(summary = "상품 등록하기(관리자)")
     @PostMapping("/product")
     public RsData<ProductGetItemDto> addProduct(@RequestBody ProductAddRequest request) {
         Product addedProduct = productService.register(
@@ -38,6 +39,7 @@ public class ApiV1AdminController {
 
     public record ProductModifyProduct(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
 
+    @Operation(summary = "상품 정보 수정하기(관리자)")
     @PutMapping("/product/{id}")
     public RsData<ProductGetItemDto> modifyProduct(@PathVariable Long id, @RequestBody ProductModifyProduct request) {
         Product modifiedProduct = productService.modify(
@@ -53,6 +55,7 @@ public class ApiV1AdminController {
     }
 
 
+    @Operation(summary = "등록된 상품 삭제하기(관리자)")
     @DeleteMapping("/product/{id}")
     public RsData<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

@@ -7,6 +7,7 @@ import { components } from "@/lib/backend/generated/schema";
 import { ShoppingCart, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function ClientPage({
   product,
@@ -15,14 +16,16 @@ export default function ClientPage({
   product: components["schemas"]["ProductGetItemDto"];
   reviews: any;
 }) {
+  const [data, setData] = useState(product);
+
   return (
     <div className="flex justify-center items-center w-full min-h-screen px-8 py-12">
       <Card className="w-full max-w-screen-lg p-8 bg-white shadow-md">
         <div className="flex flex-col md:flex-row gap-10">
           <div className="w-full md:w-1/2">
             <Image
-              src={product.imageUrl || ""}
-              alt={product.name || ""}
+              src={data.imageUrl || ""}
+              alt={data.name || ""}
               width={500}
               height={400}
               className="w-full h-auto rounded-md object-cover"
@@ -31,11 +34,11 @@ export default function ClientPage({
           </div>
 
           <div className="w-full md:w-1/2 flex flex-col justify-center">
-            <h2 className="text-2xl font-semibold">{product.name}</h2>
+            <h2 className="text-2xl font-semibold">{data.name}</h2>
             <p className="text-3xl font-bold mt-2">
-              {Number(product.price).toLocaleString()}원
+              {Number(data.price).toLocaleString()}원
             </p>
-            <p className="text-gray-600 mt-4">{product.description}</p>
+            <p className="text-gray-600 mt-4">{data.description}</p>
 
             <Button className="w-full mt-6 flex items-center gap-2 bg-black text-white">
               <ShoppingCart size={16} />

@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.user.dto.UserDto;
 import nbe341team10.coffeeproject.domain.user.entity.Users;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class ApiV1UserController {
     private final Rq rq;
 
+    @Operation(summary = "내 프로필 확인하기")
     @GetMapping()
     public RsData<UserDto> getUser() {
         Users actor = rq.getCurrentActor();

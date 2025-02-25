@@ -6,6 +6,7 @@ type User = {
   id: number;
   username: string;
   email: string;
+  role: "ROLE_USER" | "ROLE_ADMIN";
 };
 
 export const LoginUserContext = createContext<{
@@ -14,6 +15,7 @@ export const LoginUserContext = createContext<{
   removeLoginUser: () => void;
   isLogin: boolean;
   isLoginUserPending: boolean;
+  isAdmin: boolean;
   setAnonymousUser: () => void;
 }>({
   loginUser: createEmptyUser(),
@@ -21,6 +23,7 @@ export const LoginUserContext = createContext<{
   removeLoginUser: () => {},
   isLogin: false,
   isLoginUserPending: true,
+  isAdmin: false,
   setAnonymousUser: () => {},
 });
 
@@ -29,25 +32,30 @@ function createEmptyUser(): User {
     id: 0,
     username: "",
     email: "",
+    role: "ROLE_USER",
   };
 }
 
 export function useLoginUser() {
   const [isLoginUserPending, setLoginUserPending] = useState(true);
   const [loginUser, _setLoginUser] = useState<User>(createEmptyUser());
+  const [isAdmin, _setIsAdmin] = useState(false);
 
   const removeLoginUser = () => {
     _setLoginUser(createEmptyUser());
     setLoginUserPending(false);
+    _setIsAdmin(false);
   };
 
   const setLoginUser = (user: User) => {
     _setLoginUser(user);
+    _setIsAdmin(user.role == "ROLE_ADMIN");
     setLoginUserPending(false);
   };
 
   const setAnonymousUser = () => {
     setLoginUserPending(false);
+    _setIsAdmin(false);
   };
 
   const isLogin = loginUser.id !== 0;
@@ -58,6 +66,7 @@ export function useLoginUser() {
     isLogin,
     isLoginUserPending,
     setLoginUser,
+    isAdmin,
     setAnonymousUser,
   };
 }

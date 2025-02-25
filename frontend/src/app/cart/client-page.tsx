@@ -6,7 +6,6 @@ import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation"; 
-
 import debounce from "lodash/debounce";
 import {
   TableHeader,
@@ -30,11 +29,10 @@ type CartItemDto = components["schemas"]["CartItemDto"] & {
 };
 
 export default function ClientPage() {
-  const [cart, setCart] = useState<CartDto | null>(null);
   const [cartItems, setCartItems] = useState<CartItemDto[]>([]);
   const router = useRouter();
 
-  async function fetchCart() {
+  async function initFetchCart() {
     try {
       const res = await fetch("/api/cart", {
         method: "GET",
@@ -44,8 +42,13 @@ export default function ClientPage() {
         console.error("Fetch cart failed:", res.status);
         return;
       }
-      const data = await res.json();
-      setCart(data.data as CartDto);
+      const { data } = await res.json();
+      setCartItems(
+        data.cartItems.map((item: CartItemDto) => ({
+          ...item,
+          selected: true,
+        }))
+      );
     } catch (err) {
       console.error("Fetch cart error:", err);
     }
@@ -53,70 +56,50 @@ export default function ClientPage() {
 
   // 화면 초기화
   useEffect(() => {
-    fetchCart();
+    initFetchCart();
   }, []);
 
-  //cart 변경 감지 시, cartItems에 복사 (selected 기본값 true)
-  useEffect(() => {
-    if (cart?.cartItems) {
-      setCartItems(
-        cart.cartItems.map((item) => ({
-          ...item,
-          selected: true,
-        }))
-      );
-    }
-  }, [cart]);
-
   // productId와 quantity만 넘기면 500ms 후 updateCartAPI 호출
-  const debouncedUpdateCart = useMemo(
-    () =>
-      debounce(async (productId: number, quantity: number) => {
-        if (quantity < 0) return;
-        try {
-          const res = await fetch("/api/cart", {
-            method: "PATCH",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId, quantity }),
-          });
-          if (!res.ok) {
-            console.error("Patch cart failed:", res.status);
-            return;
-          }
-          const updatedCart = await res.json();
-          setCart(updatedCart.data as CartDto);
-        } catch (error) {
-          console.error("장바구니 업데이트 중 오류가 발생했습니다.", error);
+  const debouncedUpdateCart = () =>
+    debounce(async (productId: number, quantity: number) => {
+      if (quantity < 0) return;
+      try {
+        const res = await fetch("/api/cart", {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, quantity }),
+        });
+        if (!res.ok) {
+          console.error("Patch cart failed:", res.status);
+          return;
         }
-      }, 500),
-    []
-  );
+      } catch (error) {
+        console.error("장바구니 업데이트 중 오류가 발생했습니다.", error);
+      }
+    }, 500);
 
   // 수량 변경 시 상태 업데이트 + 디바운스 API 호출
-  const updateProductQuantity = useCallback(
-    (productId: number, quantity: number) => {
-      setCartItems((prev) =>
-        prev.map((item) =>
-          item.productId === productId
-            ? { ...item, quantity: Math.max(quantity, 0) }
-            : item
-        )
-      );
-      debouncedUpdateCart(productId, Math.max(quantity, 0));
-    },
-    [debouncedUpdateCart]
-  );
+  const updateProductQuantity = (productId: number, quantity: number) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId
+          ? { ...item, quantity: Math.max(quantity, 0) }
+          : item
+      )
+    );
+    debouncedUpdateCart()(productId, Math.max(quantity, 0));
+  };
 
-  const toggleSelect = useCallback((cartItemId: number) => {
+  const toggleSelect = (cartItemId: number) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item.id === cartItemId ? { ...item, selected: !item.selected } : item
       )
     );
-  }, []);
+  };
 
-  if (!cart) {
+  if (!cartItems) {
     return <div>장바구니 데이터를 불러오는 중입니다...</div>;
   }
 
@@ -239,16 +222,18 @@ export default function ClientPage() {
         </Card>
 
         <div className="mt-6 flex justify-end">
-        <Button
-        className="px-6 py-3 text-lg"
-        onClick={() => {
-          const queryString = new URLSearchParams({
-            items: JSON.stringify(selectedItems)
-          }).toString();
-          
-          router.push(`/order/process?${queryString}`);
-        }}
-        >선택상품 주문하기</Button>
+          <Button
+            className="px-6 py-3 text-lg"
+            onClick={() => {
+              const queryString = new URLSearchParams({
+                items: JSON.stringify(selectedItems),
+              }).toString();
+
+              router.push(`/order/process?${queryString}`);
+            }}
+          >
+            선택상품 주문하기
+          </Button>
         </div>
       </Card>
     </div>

@@ -7,13 +7,13 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { components } from "@/lib/backend/generated/schema";
 
+
 export default function ClientPage({
   orders
 }: {
   orders: components["schemas"]["OrdersResponseBody"];
 }) {
   const router = useRouter(); // ✅ 라우터 사용
-
   return (
     <div className="flex justify-center w-full min-h-screen px-8 py-12 bg-gray-100">
       <div className="w-full max-w-screen-lg">

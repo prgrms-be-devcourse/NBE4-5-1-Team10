@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.product.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemsDto;
@@ -24,6 +25,7 @@ public class ApiV1ProductController {
 
     public record ItemsResBody(List<ProductGetItemsDto> items) {}
 
+    @Operation(summary = "상품 목록 조회하기")
     @GetMapping()
     @Transactional(readOnly = true)
     public RsData<ItemsResBody> getItems() {
@@ -39,7 +41,7 @@ public class ApiV1ProductController {
         );
     }
 
-
+    @Operation(summary = "특정 상품 정보 조회하기")
     @GetMapping("{productId}")
     public RsData<ProductGetItemDto> getItem(@PathVariable long productId) {
         Product product = productService.getItem(productId).orElseThrow(

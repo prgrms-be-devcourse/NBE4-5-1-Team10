@@ -9,7 +9,7 @@ import { use } from "react";
 
 export default function ClientPage() {
   const router = useRouter();
-  const { setLoginUser } = use(LoginUserContext);
+  const { setLoginUser, isAdmin } = use(LoginUserContext);
 
   async function login(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,7 +51,7 @@ export default function ClientPage() {
 
     const data = await res.json();
     setLoginUser(data.data!!);
-    router.replace("/");
+    isAdmin ? router.replace("/admin") : router.replace("/");
   }
 
   return (

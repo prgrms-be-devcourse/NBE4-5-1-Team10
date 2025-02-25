@@ -1,5 +1,6 @@
 package nbe341team10.coffeeproject.domain.cart.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class ApiV1CartController {
 
     public record CartAddProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
+    @Operation(summary = "장바구니에 상품 담기")
     @PostMapping()
     @Transactional()
     public RsData<CartDto> addProduct(@Valid @RequestBody CartAddProductRequest request) {
@@ -38,6 +40,7 @@ public class ApiV1CartController {
 
     public record CartUpdateProductRequest(@NotNull long productId, @NotNull int quantity) {}
 
+    @Operation(summary = "장바구니에 담은 상품 수정하기")
     @PatchMapping()
     @Transactional()
     public RsData<CartDto> updateProduct(@Valid @RequestBody CartUpdateProductRequest request) {
@@ -51,6 +54,7 @@ public class ApiV1CartController {
         );
     }
 
+    @Operation(summary = "장바구니 조회하기")
     @GetMapping()
     @Transactional(readOnly = true)
     public RsData<CartDto> getCart() {
