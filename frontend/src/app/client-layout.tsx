@@ -53,6 +53,7 @@ export default function ClientLayout({
         method: "GET",
       });
       if (!res.ok) {
+        console.error("Fetch user failed:", res.status);
         return;
       }
       const data = await res.json();

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { components } from "@/lib/backend/generated/schema";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; 
 import debounce from "lodash/debounce";
 import {
   TableHeader,

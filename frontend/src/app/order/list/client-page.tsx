@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation"; // ✅ useRouter 추가
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -11,7 +12,8 @@ export default function ClientPage({
   orders
 }: {
   orders: components["schemas"]["OrdersResponseBody"];
-}){
+}) {
+  const router = useRouter(); // ✅ 라우터 사용
   return (
     <div className="flex justify-center w-full min-h-screen px-8 py-12 bg-gray-100">
       <div className="w-full max-w-screen-lg">
@@ -21,11 +23,12 @@ export default function ClientPage({
             <Card
               key={order.orderId}
               className="p-4 flex justify-between items-center hover:bg-gray-50 transition cursor-pointer"
+              onClick={() => router.push(`/order/${order.orderId}`)} // ✅ 주문 상세 페이지로 이동
             >
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
                   <Image
-                    src={order.firstProductImageUrl|| ""}
+                    src={order.firstProductImageUrl || ""}
                     alt={order.firstProductName || ""}
                     width={70}
                     height={70}
@@ -37,7 +40,7 @@ export default function ClientPage({
                   <p className="text-sm text-gray-500">주문일자: {order.orderDate}</p>
                   <p className="font-semibold">주문번호: {order.orderId}</p>
                   <p className="mt-1 text-gray-700">
-                    {order.firstProductName} 외 {order.productCategoryCount ? order.productCategoryCount-1 : 0}
+                    {order.firstProductName} 외 {order.productCategoryCount ? order.productCategoryCount - 1 : 0}
                   </p>
                   <p className="font-medium text-gray-600">
                     {order.totalPrice?.toLocaleString()}원
