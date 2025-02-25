@@ -24,10 +24,8 @@ export default function ClientPage() {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    const res = await fetch("/admin/product", {
+    const res = await fetch("/api/admin/product", {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
         description,
