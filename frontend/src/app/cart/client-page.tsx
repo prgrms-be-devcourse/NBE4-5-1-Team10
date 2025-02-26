@@ -63,6 +63,9 @@ export default function ClientPage() {
   const debouncedUpdateCart = () =>
     debounce(async (productId: number, quantity: number) => {
       if (quantity < 0) return;
+      if (quantity == 0) {
+        setCartItems(cartItems.filter((item) => item.productId != productId));
+      }
       try {
         const res = await fetch("/api/cart", {
           method: "PATCH",
@@ -112,7 +115,7 @@ export default function ClientPage() {
   const totalAmount = selectedTotal + shippingFee;
 
   return (
-    <div className="flex justify-center items-center w-full min-h-screen px-8 py-12">
+    <div className="flex justify-center items-center w-full min-h-screen px-8 py-12 bg-gray-100">
       <Card className="w-full max-w-screen-lg p-8 bg-white shadow-md">
         <h2 className="text-2xl font-semibold text-center mb-6">장바구니</h2>
 

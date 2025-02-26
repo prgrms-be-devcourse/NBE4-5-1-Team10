@@ -77,11 +77,3 @@ export async function POST(req: NextRequest) {
   const addedToCart = response.data as CartResponse;
   return NextResponse.json(addedToCart);
 }
-
-export async function POST_LOGOUT(req: NextRequest) {
-  // 쿠키에서 accessToken 제거
-  const cookieStore = await cookies();
-  cookieStore.set("accessToken", "", { maxAge: -1, path: '/' }); // 쿠키 만료 설정
-
-  return NextResponse.json({ success: true, message: "로그아웃 성공" });
-}

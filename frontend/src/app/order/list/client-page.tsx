@@ -7,9 +7,24 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { components } from "@/lib/backend/generated/schema";
 
+const statusString = {
+  ORDERED: "주문 완료", // 주문 완료 → 파란색
+  READY_DELIVERY_SAME_DAY: "당일 배송 준비 완료", // 당일 배송 준비 → 노란색
+  READY_DELIVERY_NEXT_DAY: "익일 백송 준비 완료", // 익일 배송 준비 → 주황색
+  SHIPPED: "배송 출발", // 배송 출발 → 보라색
+  DELIVERED: "배송 완료", // 배송 완료 → 회색
+};
+
+const statusColors = {
+  ORDERED: "bg-blue-100 text-blue-700", // 주문 완료 → 파란색
+  READY_DELIVERY_SAME_DAY: "bg-yellow-100 text-yellow-700", // 당일 배송 준비 → 노란색
+  READY_DELIVERY_NEXT_DAY: "bg-orange-100 text-orange-700", // 익일 배송 준비 → 주황색
+  SHIPPED: "bg-purple-100 text-purple-700", // 배송 출발 → 보라색
+  DELIVERED: "bg-gray-100 text-gray-700", // 배송 완료 → 회색
+};
 
 export default function ClientPage({
-  orders
+  orders,
 }: {
   orders: components["schemas"]["OrdersResponseBody"];
 }) {
@@ -37,10 +52,14 @@ export default function ClientPage({
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">주문일자: {order.orderDate}</p>
+                  <p className="text-sm text-gray-500">
+                    주문일자: {order.orderDate}
+                  </p>
                   <p className="font-semibold">주문번호: {order.orderId}</p>
                   <p className="mt-1 text-gray-700">
-                    {order.firstProductName} 외 {order.productCategoryCount ? order.productCategoryCount - 1 : 0}
+                    {order.firstProductName}
+                    {order.productCategoryCount > 1 &&
+                      ` 외 ${order.productCategoryCount - 1}건`}
                   </p>
                   <p className="font-medium text-gray-600">
                     {order.totalPrice?.toLocaleString()}원
@@ -49,7 +68,9 @@ export default function ClientPage({
               </div>
 
               <div className="flex items-center gap-2">
-                <Badge className={`${order.orderStatus}`}>{order.orderStatus}</Badge>
+                <Badge className={statusColors[order.orderStatus]}>
+                  {statusString[order.orderStatus]}
+                </Badge>
                 <ChevronRight className="text-gray-400" />
               </div>
             </Card>

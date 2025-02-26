@@ -5,6 +5,7 @@ import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
+import nbe341team10.coffeeproject.global.exception.ServiceException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -66,4 +67,20 @@ public class DeliveryService {
     public void deleteDelivery(Long id) {
         deliveryRepository.deleteById(id);
     }
+
+    public void handleDelivery(Orders order) {
+        if (order.getStatus() !=OrderStatus.ORDERED) {
+            throw new ServiceException(
+                    "404",
+                    "이미 배송된 주문입니다.");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Delivery delivery = new Delivery();
+        delivery.setOrder(order);
+        delivery.setDeliveryStartDate(now);
+
+        order.setStatus(OrderStatus.SHIPPED);
+        orderRepository.save(order);
+        deliveryRepository.save(delivery);
+        sendEmail(delivery);}
 }

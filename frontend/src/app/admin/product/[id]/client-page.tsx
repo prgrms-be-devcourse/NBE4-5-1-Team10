@@ -71,10 +71,7 @@ export default function ClientPage({
         <div className="space-y-6">
           <div>
             <p className="text-sm font-medium mb-1">상품명</p>
-            <Input
-              value={product.name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <div>

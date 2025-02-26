@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       }
     );
 
@@ -20,9 +21,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to login" }, { status: 401 });
     }
 
-    const accessToken = (await loginResponse.json()).data["access"] || "";
+    const setCookieHeader = loginResponse.headers.get("set-cookie");
+    const { data } = await loginResponse.json();
+    const accessToken = data["access"] || "";
 
     const response = NextResponse.json({ success: true });
+
     response.cookies.set({
       name: "accessToken",
       value: accessToken,
@@ -30,6 +34,9 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
 
+    if (setCookieHeader) {
+      response.headers.append("Set-Cookie", setCookieHeader);
+    }
     return response;
   } catch (err) {
     console.error("Login route error:", err);

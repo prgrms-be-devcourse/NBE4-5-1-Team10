@@ -2,7 +2,9 @@ package nbe341team10.coffeeproject.domain.admin.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import nbe341team10.coffeeproject.domain.delivery.service.DeliveryService;
 import nbe341team10.coffeeproject.domain.order.controller.OrderController;
+import nbe341team10.coffeeproject.domain.order.dto.OrderDetailListResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
 import nbe341team10.coffeeproject.domain.order.dto.OrderResponse;
@@ -11,6 +13,7 @@ import nbe341team10.coffeeproject.domain.order.service.OrderService;
 import nbe341team10.coffeeproject.domain.product.dto.ProductGetItemDto;
 import nbe341team10.coffeeproject.domain.product.entity.Product;
 import nbe341team10.coffeeproject.domain.product.service.ProductService;
+import nbe341team10.coffeeproject.domain.user.entity.Users;
 import nbe341team10.coffeeproject.global.dto.RsData;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.lang.NonNull;
@@ -28,6 +31,7 @@ public class ApiV1AdminController {
 
     private final ProductService productService;
     private final OrderService orderService;
+    private final DeliveryService deliveryService;
 
     public record ProductAddRequest(@NonNull String name, String description, @NonNull int price, String imageUrl, @NonNull int stockQuantity) {}
 
@@ -83,16 +87,16 @@ public class ApiV1AdminController {
         );
     }
 
-    public record OrdersResponseBody(List<OrderListResponse> items) {}
+    public record OrdersListResponseBody(List<OrderDetailListResponse> items) {}
 
     @GetMapping("orders")
-    public RsData<OrdersResponseBody> getOrderList() {
-            List<OrderListResponse> orderList = orderService.getAllOrders();
+    public RsData<OrdersListResponseBody> getOrderList() {
+            List<OrderDetailListResponse> orderList = orderService.getAllOrders();
 
         return new RsData<>(
                 "200",
                 "주문 내역 조회가 완료되었습니다.",
-                new OrdersResponseBody(orderList)
+                new OrdersListResponseBody(orderList)
         );
     }
 
@@ -107,6 +111,26 @@ public class ApiV1AdminController {
                 "200",
                 "최근 주문 내역 조회가 완료되었습니다.",
                 new OrdersLatestResponseBody(orderList)
+        );
+    }
+
+    @GetMapping("/orders/{id}")
+    public RsData<OrderDetailResponse> getOrderDetail(@PathVariable Long id) {
+        OrderDetailResponse order = orderService.getOrder(id);
+        return new RsData<>(
+                "200",
+                "주문 상세 정보 조회가 완료되었습니다.",
+                order
+        );
+    }
+
+    @PostMapping("orders/{id}/delivery")
+    public RsData<Void> orderDelivery(@PathVariable Long id) {
+        Orders order = orderService.getOrderEntity(id);
+        deliveryService.handleDelivery(order);
+        return new RsData<>(
+                "200",
+                "배송 처리가 완료되었습니다."
         );
     }
 

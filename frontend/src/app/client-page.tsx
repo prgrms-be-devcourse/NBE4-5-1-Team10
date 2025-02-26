@@ -1,26 +1,36 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { LoginUserContext } from "@/stores/auth/auth-store";
-import Link from "next/link";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
+import AdminPage from "./admin/page";
+import Loading from "@/components/utils/loading";
+import LoginPage from "./user/login/page";
+import ProductListPage from "./product/list/page";
+import ProductClientPage from "./product/list/client-page";
 
 export default function Page() {
-  const { isLogin, loginUser } = use(LoginUserContext);
+  const { isLogin, isAdmin, isLoginUserPending } = use(LoginUserContext);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isLoginUserPending) {
+      setLoading(false);
+    }
+  }, [isLoginUserPending]);
+
+  if (loading) {
+    return <Loading message="페이지를 불러오는 중..." />;
+  }
 
   return (
     <>
-      {!isLogin && (
-        <div className="flex flex-grow justify-center items-center gap-4">
-          <Button>
-            <Link href="/user/login">로그인</Link>
-          </Button>
-          <Button>
-            <Link href="/user/join">회원가입</Link>
-          </Button>
-        </div>
-      )}
-      {isLogin && <div>{loginUser.username}님 환영합니다.</div>}
+      {!isLogin && <LoginPage />}
+      {isLogin &&
+        (isAdmin ? (
+          <AdminPage />
+        ) : (
+          <ProductClientPage data={null} keyword={""} page={1} pageSize={10} />
+        ))}
     </>
   );
 }

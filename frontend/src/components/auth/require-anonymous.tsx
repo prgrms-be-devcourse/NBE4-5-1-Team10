@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { LoginUserContext } from "@/stores/auth/auth-store";
 import Link from "next/link";
 import { use } from "react";
+import Loading from "../utils/loading";
 
 export default function RequireAnonymous({
   children,
