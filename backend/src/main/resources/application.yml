@@ -33,9 +33,7 @@ spring:
     open-in-view: false
   # 시크릿 키
   jwt:
-    secret: b075fb05b988c8e6e1065f35e6d6b992b68cc216d2265aac73e088d9a3ffdf7fecbd554c8ba0cd7c8e45a7e32b7aede0e72b6a2788bdc5518b8b313473f3b1a0
-
-
+    secret: ${JWT_SECRET_KEY}
 
 logging:
   level:
