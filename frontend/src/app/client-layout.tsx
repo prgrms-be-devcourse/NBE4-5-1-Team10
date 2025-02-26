@@ -21,12 +21,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import client from "@/lib/backend/client";
+import { usePathname, useRouter } from "next/navigation";
+import AuthProvider from "@/providers/auth.provider";
 
 export default function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const router = useRouter();
+
   const {
     setLoginUser,
     isLogin,
@@ -62,13 +68,30 @@ export default function ClientLayout({
     }
   }
 
+  async function logout() {
+    try {
+      const res = await fetch("/api/user/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        return;
+      }
+      removeLoginUser();
+      router.replace("/");
+    } catch (err) {
+      return;
+    }
+  }
+
   useEffect(() => {
     fetchUser()
       .then((userResponse) => {
         if (!userResponse) {
           removeLoginUser();
         } else {
-          setLoginUser(userResponse!!);
+          const user = userResponse!!;
+          setLoginUser(user);
         }
       })
       .catch(() => removeLoginUser());
@@ -92,16 +115,50 @@ export default function ClientLayout({
               {isAdmin ? (
                 <>
                   <NavigationMenuItem>
+                    <Link href="/admin" legacyBehavior passHref>
+                      <NavigationMenuLink
+                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                          pathname === "/admin"
+                            ? "text-[#6F4E37]"
+                            : "text-sm hover:text-[#D2B48C]"
+                        }`}
+                      >
+                        대시보드
+                        {pathname === "/admin" && (
+                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
+                        )}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
                     <Link href="/admin/product/list" legacyBehavior passHref>
-                      <NavigationMenuLink className="text-sm font-medium">
+                      <NavigationMenuLink
+                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                          pathname === "/admin/product/list"
+                            ? "text-[#6F4E37]"
+                            : "text-sm hover:text-[#D2B48C]"
+                        }`}
+                      >
                         상품 관리
+                        {pathname === "/admin/product/list" && (
+                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
+                        )}
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Link href="/admin/order/list" legacyBehavior passHref>
-                      <NavigationMenuLink className="text-sm font-medium">
+                      <NavigationMenuLink
+                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                          pathname === "/admin/order/list"
+                            ? "text-[#6F4E37]"
+                            : "text-sm hover:text-[#D2B48C]"
+                        }`}
+                      >
                         주문 관리
+                        {pathname === "/admin/order/list" && (
+                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
+                        )}
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
@@ -110,15 +167,33 @@ export default function ClientLayout({
                 <>
                   <NavigationMenuItem>
                     <Link href="/" legacyBehavior passHref>
-                      <NavigationMenuLink className="text-sm font-medium">
+                      <NavigationMenuLink
+                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                          pathname === "/"
+                            ? "text-[#6F4E37]"
+                            : "text-sm hover:text-[#D2B48C]"
+                        }`}
+                      >
                         Home
+                        {pathname === "/" && (
+                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
+                        )}
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Link href="/product/list" legacyBehavior passHref>
-                      <NavigationMenuLink className="text-sm font-medium">
+                      <NavigationMenuLink
+                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                          pathname === "/product/lis"
+                            ? "text-[#6F4E37]"
+                            : "text-sm hover:text-[#D2B48C]"
+                        }`}
+                      >
                         상품 목록
+                        {pathname === "/product/lis" && (
+                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
+                        )}
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
@@ -127,51 +202,52 @@ export default function ClientLayout({
             </NavigationMenuList>
           </NavigationMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="absolute right-8 gap-2">
-                <FontAwesomeIcon icon={faHouse} />
-                {isLogin ? loginUser.username : "로그인/회원가입"}
-              </Button>
-            </DropdownMenuTrigger>
+          {isLogin ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="absolute right-8 gap-2">
+                  <FontAwesomeIcon icon={faHouse} />
+                  {loginUser.username}님
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              {isLogin && (
-                <>
-                  <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/profile">내 정보</Link>
-                  </DropdownMenuItem>
-                  {!isAdmin && (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/cart">장바구니</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/order/list">주문 내역</Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
+              <DropdownMenuContent align="end">
+                {isLogin && (
+                  <>
+                    <DropdownMenuLabel>{loginUser.username}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/user/profile">내 정보</Link>
+                    </DropdownMenuItem>
+                    {!isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/cart">장바구니</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/order/list">주문 내역</Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/logout">로그아웃</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-              {!isLogin && (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/login">로그인</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/user/signup">회원가입</Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>
+                      로그아웃
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="outline"
+              className="absolute right-8 gap-2"
+              onClick={() => router.push("/user/login")}
+            >
+              <FontAwesomeIcon icon={faHouse} />
+              로그인
+            </Button>
+          )}
         </header>
 
         <main className="flex flex-col flex-grow justify-center items-center">

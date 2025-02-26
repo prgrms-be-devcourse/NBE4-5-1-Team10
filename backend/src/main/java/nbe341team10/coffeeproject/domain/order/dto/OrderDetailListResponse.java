@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @Builder
-public class OrderListResponse {
+public class OrderDetailListResponse {
 
     @NonNull
     private Long orderId;
@@ -25,12 +25,15 @@ public class OrderListResponse {
     @NonNull
     private String firstProductName;
 
+    private String firstProductImageUrl;
+
     @NonNull
     private int productCategoryCount;
 
     @NonNull
     private int totalPrice;
 
-    private String firstProductImageUrl;
+    @NonNull
+    private String username;
 
 }

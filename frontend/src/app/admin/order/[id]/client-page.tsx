@@ -1,4 +1,10 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
+import { components } from "@/lib/backend/generated/schema";
 import {
   Table,
   TableBody,
@@ -7,8 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { components } from "@/lib/backend/generated/schema";
-import { CheckCircle } from "lucide-react";
+import Loading from "@/components/utils/loading";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const statusIndex = {
   ORDERED: 0, // 주문 완료 → 파란색
@@ -18,36 +31,76 @@ const statusIndex = {
   DELIVERED: 3, // 배송 완료 → 회색
 };
 
-const statusString = {
-  ORDERED: "주문 완료", // 주문 완료 → 파란색
-  READY_DELIVERY_SAME_DAY: "배송 준비", // 당일 배송 준비 → 노란색
-  READY_DELIVERY_NEXT_DAY: "배송 준비", // 익일 배송 준비 → 주황색
-  SHIPPED: "배송 출발", // 배송 출발 → 보라색
-  DELIVERED: "배송 완료", // 배송 완료 → 회색
-};
+export default function ClientPage({ id }: { id: number }) {
+  const [order, setOrder] =
+    useState<components["schemas"]["OrderDetailResponse"]>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [deliveryModalOpen, setDeliveryModalOpen] = useState(false);
 
-export default function ClientPage({
-  order,
-}: {
-  order: components["schemas"]["OrderDetailResponse"];
-}) {
+  async function initFetchOrder() {
+    try {
+      const res = await fetch(`/api/admin/order?id=${id}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        console.error("Fetch order failed:", res.status);
+        return;
+      }
+      const { data } = await res.json();
+      setOrder(data);
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Fetch cart error:", err);
+    }
+  }
+
+  useEffect(() => {
+    initFetchOrder();
+  }, [deliveryModalOpen]);
+
+  const handleDelivery = async () => {
+    const res = await fetch("/api/admin/order/delivery", {
+      method: "POST",
+      body: JSON.stringify({
+        id,
+      }),
+    });
+    if (!res.ok) {
+      console.error("Update product failed:", res.status);
+      return;
+    }
+    setDeliveryModalOpen(true);
+  };
+  if (isLoading || order == undefined) {
+    return <Loading />;
+  }
+
   return (
     <div className="flex justify-center items-center w-full min-h-screen px-8 py-12 bg-gray-100">
       <Card className="w-full max-w-screen-lg p-8 bg-white shadow-md">
-        <h2 className="text-2xl font-semibold text-center mb-8">
-          주문 상세 정보
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-center mb-8">
+            주문 상세 정보
+          </h2>
+          <Button
+            className="bg-black text-white"
+            size="lg"
+            onClick={() => handleDelivery()}
+            disabled={order.orderStatus !== "ORDERED"}
+          >
+            {order.orderStatus == "ORDERED"
+              ? "배송 처리하기"
+              : "배송 처리 완료"}
+          </Button>
+        </div>
 
         <Table className="mb-8">
           <TableHeader>
             <TableRow className="bg-gray-100">
-              <TableHead className="text-gray-700 font-semibold pl-4">
-                상품명
-              </TableHead>
-              <TableHead className="text-gray-700 font-semibold text-center">
-                수량
-              </TableHead>
-              <TableHead className="text-gray-700 font-semibold text-right pr-4">
+              <TableHead className="text-gray-700 pl-4">상품명</TableHead>
+              <TableHead className="text-gray-700 text-center">수량</TableHead>
+              <TableHead className="text-gray-700 text-right pr-4">
                 가격
               </TableHead>
             </TableRow>
@@ -165,8 +218,6 @@ export default function ClientPage({
             </div>
           </div>
         </div>
-
-        {/* 배송 정보 & 결제 정보 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <div>
             <h3 className="text-lg font-semibold mb-2">배송 정보</h3>
@@ -183,6 +234,28 @@ export default function ClientPage({
           </div>
         </div>
       </Card>
+
+      <Dialog open={deliveryModalOpen} onOpenChange={setDeliveryModalOpen}>
+        <DialogContent className="sm:max-w-md" aria-describedby="">
+          <DialogHeader>
+            <DialogTitle>배송 처리 완료</DialogTitle>
+            <DialogDescription>
+              주문 상품이 성공적으로 발송 처리되었습니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter>
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                setDeliveryModalOpen(false);
+              }}
+            >
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

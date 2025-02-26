@@ -13,32 +13,30 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CreditCard } from "lucide-react";
 import client from "@/lib/backend/client";
 
-export default function ClientPage()
-  {
-    const searchParams = useSearchParams();
-    const items = JSON.parse(searchParams.get('items') || '[]') as CartItemDto[];
-    const {loginUser} = use(LoginUserContext);
-    const [address, setAddress] = useState("");
-    const [postalCode, setPostalCode] = useState("");
-    const selectedTotal = items.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
-    const shippingFee = selectedTotal > 0 ? 3000 : 0;
-    const totalAmount = selectedTotal + shippingFee;
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+export default function ClientPage() {
+  const searchParams = useSearchParams();
+  const items = JSON.parse(searchParams.get("items") || "[]") as CartItemDto[];
+  const { loginUser } = use(LoginUserContext);
+  const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const selectedTotal = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+  const shippingFee = selectedTotal > 0 ? 3000 : 0;
+  const totalAmount = selectedTotal + shippingFee;
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
-    const day = String(tomorrow.getDate()).padStart(2, "0");
+  const year = tomorrow.getFullYear();
+  const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
+  const day = String(tomorrow.getDate()).padStart(2, "0");
 
   const tomorrowString = `${year}.${month}.${day}`;
-  const isWrite = address.length > 0 && postalCode.length > 0
+  const isWrite = address.length > 0 && postalCode.length > 0;
   const router = useRouter();
 
   async function handleCreateOrder() {
-    
     try {
       const res = await fetch("/api/order", {
         method: "POST",
@@ -46,7 +44,7 @@ export default function ClientPage()
           address,
           postalCode,
           shippingPrice: shippingFee,
-          items
+          items,
         }),
         credentials: "include",
       });
@@ -71,16 +69,24 @@ export default function ClientPage()
             {/* 주문자 정보 */}
             <Card className="p-6">
               <h3 className="font-semibold mb-4">주문자 정보</h3>
-              <div>
-                이름: {loginUser.username}
-              </div>
+              <div>이름: {loginUser.username}</div>
             </Card>
 
             {/* 배송 정보 */}
             <Card className="p-6">
               <h3 className="font-semibold mb-4">배송 정보</h3>
-              <Input placeholder="주소를 입력해주세요" className="mb-4" value={address} onChange={(e) => setAddress(e.target.value)} />
-              <Input placeholder="우편번호를 입력해주세요" className="mb-4" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+              <Input
+                placeholder="주소를 입력해주세요"
+                className="mb-4"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+              <Input
+                placeholder="우편번호를 입력해주세요"
+                className="mb-4"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+              />
             </Card>
           </div>
 
@@ -93,13 +99,13 @@ export default function ClientPage()
                 <div className="flex gap-4" key={item.id}>
                   <div className="w-14 h-14 bg-gray-200 rounded-md flex items-center justify-center">
                     <Image
-                                        src={item.productImageUrl|| ""}
-                                        alt={item.productName || ""}
-                                        width={50}
-                                        height={50}
-                                        className="rounded-md"
-                                        style={{ width: 50, height: 50 }}
-                                      />
+                      src={item.productImageUrl || ""}
+                      alt={item.productName || ""}
+                      width={50}
+                      height={50}
+                      className="rounded-md"
+                      style={{ width: 50, height: 50 }}
+                    />
                   </div>
                   <div className="text-sm">
                     <p className="font-medium">{item.productName}</p>
@@ -130,22 +136,20 @@ export default function ClientPage()
               </p>
 
               <Button
-                  className={`w-full mt-4 bg-black text-white ${
-                    isWrite
-                      ? "bg-black text-white"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                  disabled={!isWrite}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleCreateOrder();
-                  }}
-                >
+                className={`w-full mt-4 bg-black text-white ${
+                  isWrite
+                    ? "bg-black text-white"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                disabled={!isWrite}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleCreateOrder();
+                }}
+              >
                 <CreditCard size={16} />
-                결재하기
+                결제하기
               </Button>
-              
-            
             </div>
           </Card>
         </div>

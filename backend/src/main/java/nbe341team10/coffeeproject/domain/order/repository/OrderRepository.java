@@ -14,8 +14,9 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Orders, Long> {
-    List<Orders> findByUser(Users actor);
+    List<Orders> findByUserOrderByCreatedAtDesc(Users actor);
     List<Orders> findAllByCreatedAtBetween(LocalDateTime startTime, LocalDateTime endTime);
     int countByStatus(OrderStatus status);
     List<Orders> findTop3ByOrderByCreatedAtDesc();
+    List<Orders> findAllByOrderByCreatedAtDesc();
 }

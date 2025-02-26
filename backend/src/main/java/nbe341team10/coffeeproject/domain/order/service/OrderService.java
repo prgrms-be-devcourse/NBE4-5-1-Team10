@@ -3,10 +3,7 @@ package nbe341team10.coffeeproject.domain.order.service;
 import lombok.RequiredArgsConstructor;
 import nbe341team10.coffeeproject.domain.cart.service.CartService;
 import nbe341team10.coffeeproject.domain.delivery.repository.DeliveryRepository;
-import nbe341team10.coffeeproject.domain.order.dto.OrderCreateRequest;
-import nbe341team10.coffeeproject.domain.order.dto.OrderDetailResponse;
-import nbe341team10.coffeeproject.domain.order.dto.OrderListResponse;
-import nbe341team10.coffeeproject.domain.order.dto.OrderResponse;
+import nbe341team10.coffeeproject.domain.order.dto.*;
 import nbe341team10.coffeeproject.domain.order.entity.OrderStatus;
 import nbe341team10.coffeeproject.domain.order.entity.Orders;
 import nbe341team10.coffeeproject.domain.order.repository.OrderRepository;
@@ -81,8 +78,8 @@ public class OrderService {
     }
 
     //Orders 목록 조회
-    public List<OrderListResponse> getOrders(Users actor) {
-        List<Orders> allOrders = orderRepository.findByUser(actor);  // 모든 주문 가져오기
+    public List<OrderListResponse> getOrdersOrderByCreatedAtDesc(Users actor) {
+        List<Orders> allOrders = orderRepository.findByUserOrderByCreatedAtDesc(actor);  // 모든 주문 가져오기
         return allOrders.stream()
                 .map(order -> {
                     // 해당 주문에 대한 OrderItem 리스트 가져오기
@@ -142,6 +139,7 @@ public class OrderService {
         return OrderDetailResponse.builder()
                 .orderItems(orderItems)
                 .orderStatus(order.getStatus())
+                .username(actor.getUsername())
                 .email(order.getEmail())
                 .address(order.getAddress())
                 .postalCode(order.getPostalCode())
@@ -150,13 +148,47 @@ public class OrderService {
 
     }
 
+    public Orders getOrderEntity(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(
+                        "404",
+                        id + "번 주문을 찾을 수 없습니다.")
+                );
+    }
+
+    public OrderDetailResponse getOrder(Long id) {
+        Orders order = orderRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(
+                        "404",
+                        id + "번 주문을 찾을 수 없습니다.")
+                );
+
+        List<OrderItemDetailResponse> orderItems = orderItemRepository.findByOrder(order).stream()
+                .map(orderItem -> OrderItemDetailResponse.builder()
+                        .productName(orderItem.getProduct().getName())
+                        .quantity(orderItem.getQuantity())
+                        .price(orderItem.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+
+        return OrderDetailResponse.builder()
+                .orderItems(orderItems)
+                .orderStatus(order.getStatus())
+                .username(order.getUser().getUsername())
+                .email(order.getEmail())
+                .address(order.getAddress())
+                .postalCode(order.getPostalCode())
+                .totalPrice(order.getTotalPrice())
+                .build();//Orders 상세 정보 조회
+    }
+
     public List<OrderResponse> getLatestTop3OrderList() {
         List<Orders> allOrders = orderRepository.findTop3ByOrderByCreatedAtDesc();
         return allOrders.stream().map(OrderResponse::new).collect(Collectors.toList());
     }
 
-    public List<OrderListResponse> getAllOrders() {
-        List<Orders> allOrders = orderRepository.findAll();
+    public List<OrderDetailListResponse> getAllOrders() {
+        List<Orders> allOrders = orderRepository.findAllByOrderByCreatedAtDesc();
         return allOrders.stream()
                 .map(order -> {
                     List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
@@ -168,7 +200,7 @@ public class OrderService {
 
                     int totalPrice = order.getTotalPrice();
 
-                    return OrderListResponse.builder()
+                    return OrderDetailListResponse.builder()
                             .orderId(order.getId())
                             .orderDate(order.getCreatedAt())
                             .orderStatus(order.getStatus())
@@ -176,6 +208,7 @@ public class OrderService {
                             .productCategoryCount(orderItemCount)
                             .totalPrice(totalPrice)
                             .firstProductImageUrl(firstProductImage)
+                            .username(order.getUser().getUsername())
                             .build();
                 })
                 .collect(Collectors.toList());

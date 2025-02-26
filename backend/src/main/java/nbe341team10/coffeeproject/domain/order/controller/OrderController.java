@@ -42,7 +42,7 @@ public class OrderController {
     @GetMapping("/orders")
     public RsData<OrdersResponseBody> getOrders() {
         Users actor = rq.getCurrentActor();
-        List<OrderListResponse> orders = orderService.getOrders(actor);
+        List<OrderListResponse> orders = orderService.getOrdersOrderByCreatedAtDesc(actor);
 
         return new RsData<>(
                 "200",

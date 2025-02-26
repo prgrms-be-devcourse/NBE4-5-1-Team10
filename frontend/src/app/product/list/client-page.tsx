@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,43 +18,68 @@ import {
 } from "@/components/ui/dialog";
 import { components } from "@/lib/backend/generated/schema";
 import { isValidUrl } from "@/lib/utils";
+import { LoginUserContext } from "@/stores/auth/auth-store";
 
-export default function ClientPage({
-  data,
+export default function ProductClientPage({
   keyword,
   pageSize,
   page,
 }: {
-  data: components["schemas"]["RsDataItemsResBody"];
+  // data: components["schemas"]["RsDataItemsResBody"] | null;
   keyword: string;
   pageSize: number;
   page: number;
 }) {
+  const { isLogin } = use(LoginUserContext);
   const router = useRouter();
-  const products = data.data?.items || [];
 
+  const [products, setProducts] = useState<
+    components["schemas"]["ProductGetItemsDto"][]
+  >([]);
   const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+
+  async function initFetchProducts() {
+    try {
+      const res = await fetch("/api/products", {
+        method: "GET",
+      });
+      if (!res.ok) return;
+      const { data } = await res.json();
+      setProducts(data.items);
+    } catch (err) {
+      console.error("Fetch products error:", err);
+    }
+  }
+
+  useEffect(() => {
+    initFetchProducts();
+  }, []);
 
   const handleAddToCart = async (productId: number) => {
-    try {
-      const res = await fetch("/api/cart", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 1 }),
-      });
-      if (!res.ok) {
-        console.error("Post cart failed:", res.status);
-        return;
+    if (isLogin) {
+      try {
+        const res = await fetch("/api/cart", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, quantity: 1 }),
+        });
+        if (!res.ok) {
+          console.error("Post cart failed:", res.status);
+          return;
+        }
+        setCartModalOpen(true);
+      } catch (error) {
+        console.error(error);
       }
-      setCartModalOpen(true);
-    } catch (error) {
-      console.error(error);
+    } else {
+      setLoginModalOpen(true);
     }
   };
 
   return (
-    <div className="flex justify-center items-center w-full min-h-screen px-8 py-12">
+    <div className="flex justify-center items-center w-full min-h-screen px-8 py-12 bg-gray-100">
       <Card className="w-full min-h-screen flex flex-col p-8 gap-6 bg-white shadow-sm shadow-black/10">
         <div className="w-full flex flex-col gap-6">
           <div className="w-full flex justify-center items-center">
@@ -147,6 +172,33 @@ export default function ClientPage({
               onClick={() => router.push("/cart")}
             >
               장바구니로 이동
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={loginModalOpen} onOpenChange={setLoginModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>로그인이 필요합니다</DialogTitle>
+            <DialogDescription>
+              이 기능을 이용하려면 먼저 로그인해야 합니다.
+              <br />
+              로그인 페이지로 이동하시겠습니까?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end mt-4 space-x-2">
+            <Button variant="outline" onClick={() => setLoginModalOpen(false)}>
+              취소
+            </Button>
+            <Button
+              className="bg-black text-white"
+              onClick={() => {
+                setLoginModalOpen(false);
+                router.push("/user/login");
+              }}
+            >
+              로그인 하러 가기
             </Button>
           </div>
         </DialogContent>

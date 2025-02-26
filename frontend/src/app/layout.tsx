@@ -6,6 +6,8 @@ import ClientLayout from "./client-layout";
 
 import { config } from "@fortawesome/fontawesome-svg-core";
 import localFont from "next/font/local";
+import AuthProvider from "@/providers/auth.provider";
+import { Toaster } from "@/components/ui/sonner";
 
 config.autoAddCss = false;
 
@@ -34,6 +36,7 @@ export default async function RootLayout({
     >
     <body className={`min-h-[100dvh] flex flex-col ${pretendard.className}`}>
           <ClientLayout>{children}</ClientLayout>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

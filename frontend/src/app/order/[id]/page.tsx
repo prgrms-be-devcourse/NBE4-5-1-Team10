@@ -2,20 +2,18 @@ import { cookies } from "next/headers";
 import ClientPage from "./client-page";
 import client from "@/lib/backend/client";
 
-
-
 export default async function Page({
-params,
+  params,
 }: {
-params: {
+  params: {
     id: number;
-};
+  };
 }) {
-const { id } = await params;
+  const { id } = await params;
 
-const token = (await cookies()).get("accessToken");
+  const token = (await cookies()).get("accessToken");
   if (!token) {
-    console.log("no token")
+    console.log("no token");
   }
 
   const response = await client.GET("/api/v1/order/{id}", {
@@ -30,13 +28,12 @@ const token = (await cookies()).get("accessToken");
     credentials: "include",
   });
 
-if (response.error) {
+  if (response.error) {
     return <div>{response["error"]["msg"]}</div>;
+  }
+
+  const data = response.data!!;
+  const product = data.data!!;
+
+  return <ClientPage order={product} />;
 }
-
-const data = response.data!!;
-const product = data.data!!;
-
-return (
-<ClientPage order={product} />
-);}
