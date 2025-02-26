@@ -103,11 +103,11 @@ export default function ClientLayout({
         <header className="w-full bg-white shadow-sm py-4 px-8 flex items-center justify-center">
           {isAdmin ? (
             <Link href="/admin" className="absolute left-8 text-xl font-bold">
-              CoffeeProject
+              Grids & Circles
             </Link>
           ) : (
             <Link href="/" className="absolute left-8 text-xl font-bold">
-              CoffeeProject
+              Grids & Circles
             </Link>
           )}
           <NavigationMenu>
@@ -240,7 +240,7 @@ export default function ClientLayout({
 
         <footer className="w-full flex justify-center p-4 bg-gray-50">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} CoffeeProject. All rights reserved.
+            © {new Date().getFullYear()} Grids & Circles. All rights reserved.
           </p>
         </footer>
       </LoginUserContext.Provider>

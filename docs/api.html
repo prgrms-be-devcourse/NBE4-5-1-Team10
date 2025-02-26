@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>API 목록 (OpenAPI 기반)</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: top;
+        word-wrap: break-word;
+      }
+      th {
+        background-color: #f2f2f2;
+        text-align: left;
+      }
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      code {
+        font-family: Consolas, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="overflow-x: auto">
+      <table>
+        <thead>
+          <tr>
+            <th>API</th>
+            <th>URL</th>
+            <th>Method</th>
+            <th>Headers</th>
+            <th>Cookies</th>
+            <th>Body</th>
+            <th>Response Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 로그인 -->
+          <tr>
+            <td><strong>로그인</strong></td>
+            <td><code>localhost:8080/api/v1/user/login</code></td>
+            <td>POST</td>
+            <td>
+              <pre>Content-Type: application/json</pre>
+            </td>
+            <td>–</td>
+            <td>
+              <pre class="language-json">
+{
+  "email": string,
+  "password": string
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "access": string,
+    "refresh": string
+  }
+}
+              </pre>
+
+              <br />
+              <strong>401 Unauthorized:</strong>
+              <br />
+              <strong>• 이메일 미존재 (UsernameNotFoundException):</strong>
+              <pre class="language-json">
+{
+  "code": "401-1",
+  "msg": "Invalid email",
+  "data": null
+}
+              </pre>
+              <strong>• 비밀번호 불일치 (BadCredentialsException):</strong>
+              <pre class="language-json">
+{
+  "code": "401-2",
+  "msg": "Invalid password",
+  "data": null
+}
+              </pre>
+              <strong>• 기타 인증 실패:</strong>
+              <pre class="language-json">
+{
+  "code": "401-3",
+  "msg": "Authentication failed.",
+  "data": null
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 로그아웃 -->
+          <tr>
+            <td><strong>로그아웃</strong></td>
+            <td><code>localhost:8080/api/v1/user/logout</code></td>
+            <td>POST</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td><strong>200 OK</strong></td>
+          </tr>
+          <!-- 회원가입 -->
+          <tr>
+            <td><strong>회원가입</strong></td>
+            <td><code>localhost:8080/api/v1/user/join</code></td>
+            <td>POST</td>
+            <td>
+              <pre>Content-Type: application/json</pre>
+            </td>
+            <td>–</td>
+            <td>
+              <pre class="language-json">
+{
+  "username": string,
+  "email": string,
+  "password": string,
+  "address": string
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "username": string,
+    "email": string,
+    "address": string,
+    "role": string
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 프로필 조회 -->
+          <tr>
+            <td><strong>프로필 조회</strong></td>
+            <td><code>localhost:8080/api/v1/user</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "email": string,
+    "username": string,
+    "role": string  /* ROLE_USER 또는 ROLE_ADMIN */
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- refresh 토큰 재발급 -->
+          <tr>
+            <td><strong>refresh 토큰 재발급</strong></td>
+            <td><code>localhost:8080/api/v1/user/reissue</code></td>
+            <td>POST</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "access": string,
+    "refresh": string
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 등록(관리자) -->
+          <tr>
+            <td><strong>상품 등록(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/product</code></td>
+            <td>POST</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>
+              <pre class="language-json">
+{
+  "name": string,
+  "description": string,
+  "price": integer,
+  "imageUrl": string,
+  "stockQuantity": integer
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "name": string,
+    "description": string,
+    "price": integer,
+    "imageUrl": string,
+    "stockQuantity": integer
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 삭제(관리자) -->
+          <tr>
+            <td><strong>상품 삭제(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/product/{id}</code></td>
+            <td>DELETE</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {}
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 정보 수정(관리자) -->
+          <tr>
+            <td><strong>상품 정보 수정(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/product/{id}</code></td>
+            <td>PUT</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>
+              <pre class="language-json">
+{
+  "name": string,
+  "description": string,
+  "price": integer,
+  "imageUrl": string,
+  "stockQuantity": integer
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "name": string,
+    "description": string,
+    "price": integer,
+    "imageUrl": string,
+    "stockQuantity": integer
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 목록 조회 -->
+          <tr>
+            <td><strong>상품 목록 조회</strong></td>
+            <td><code>localhost:8080/api/v1/products</code></td>
+            <td>GET</td>
+            <td>
+              <pre>Content-Type: application/json</pre>
+            </td>
+            <td>–</td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "items": [
+      {
+        "id": long,
+        "name": string,
+        "price": integer,
+        "imageUrl": string,
+        "stockQuantity": integer
+      }
+    ]
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 개수 조회 -->
+          <tr>
+            <td><strong>상품 개수 조회</strong></td>
+            <td><code>localhost:8080/api/v1/products/count</code></td>
+            <td>GET</td>
+            <td>
+              <pre>Content-Type: application/json</pre>
+            </td>
+            <td>–</td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": integer
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 상품 정보 조회 -->
+          <tr>
+            <td><strong>상품 정보 조회</strong></td>
+            <td><code>localhost:8080/api/v1/products/{productId}</code></td>
+            <td>GET</td>
+            <td>
+              <pre>Content-Type: application/json</pre>
+            </td>
+            <td>–</td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "name": string,
+    "description": string,
+    "price": integer,
+    "imageUrl": string,
+    "stockQuantity": integer
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 장바구니 조회 -->
+          <tr>
+            <td><strong>장바구니 조회</strong></td>
+            <td><code>localhost:8080/api/v1/cart</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "userId": long,
+    "cartItems": [
+      {
+        "id": long,
+        "productId": long,
+        "productName": string,
+        "productImageUrl": string,
+        "quantity": integer,
+        "price": integer,
+        "totalPrice": integer
+      }
+    ]
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 장바구니 상품 담기 -->
+          <tr>
+            <td><strong>장바구니 상품 담기</strong></td>
+            <td><code>localhost:8080/api/v1/cart</code></td>
+            <td>POST</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>
+              <pre class="language-json">
+{
+  "productId": long,
+  "quantity": integer
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "userId": long,
+    "cartItems": [
+      {
+        "id": long,
+        "productId": long,
+        "productName": string,
+        "productImageUrl": string,
+        "quantity": integer,
+        "price": integer,
+        "totalPrice": integer
+      }
+    ]
+  }
+}
+                              </pre
+              >
+            </td>
+          </tr>
+          <!-- 장바구니 상품 수정 -->
+          <tr>
+            <td><strong>장바구니 상품 수정</strong></td>
+            <td><code>localhost:8080/api/v1/cart</code></td>
+            <td>PATCH</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>
+              <pre class="language-json">
+{
+  "productId": long,
+  "quantity": integer
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "id": long,
+    "userId": long,
+    "cartItems": [
+      {
+        "id": long,
+        "productId": long,
+        "productName": string,
+        "productImageUrl": string,
+        "quantity": integer,
+        "price": integer,
+        "totalPrice": integer
+      }
+    ]
+  }
+}
+                              </pre
+              >
+            </td>
+          </tr>
+          <!-- 주문 처리 -->
+          <tr>
+            <td><strong>주문 처리</strong></td>
+            <td><code>localhost:8080/api/v1/order</code></td>
+            <td>POST</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>
+              <pre class="language-json">
+{
+  "address": string,
+  "postalCode": string,
+  "shippingPrice": integer,
+  "orderItems": [
+    {
+      "productId": long,
+      "price": integer,
+      "quantity": integer
+    }
+  ]
+}
+              </pre>
+            </td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {}
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 내역 조회 -->
+          <tr>
+            <td><strong>주문 내역 조회</strong></td>
+            <td><code>localhost:8080/api/v1/orders</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "items": [
+      {
+        "orderId": long,
+        "orderDate": string,      /* ISO date-time */
+        "orderStatus": string,
+        "firstProductName": string,
+        "productCategoryCount": integer,
+        "totalPrice": integer,
+        "firstProductImageUrl": string
+      }
+    ]
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 상세 조회 -->
+          <tr>
+            <td><strong>주문 상세 조회</strong></td>
+            <td><code>localhost:8080/api/v1/order/{id}</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Content-Type: application/json
+Authorization: Bearer ACCESS_TOKEN
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "orderItems": [
+      {
+        "productName": string,
+        "quantity": integer,
+        "price": integer
+      }
+    ],
+    "orderStatus": string,
+    "email": string,
+    "address": string,
+    "postalCode": string
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 배송 처리 (관리자) -->
+          <tr>
+            <td><strong>주문 배송 처리 (관리자)</strong></td>
+            <td>
+              <code>localhost:8080/api/v1/admin/orders/{id}/delivery</code>
+            </td>
+            <td>POST</td>
+            <td>
+              <pre>
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {}
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 목록 조회 (관리자) -->
+          <tr>
+            <td><strong>주문 목록 조회(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/orders</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "items": [
+      {
+        "orderId": long,
+        "orderDate": string,
+        "orderStatus": string,
+        "firstProductName": string,
+        "productCategoryCount": integer,
+        "totalPrice": integer,
+        "firstProductImageUrl": string
+      }
+    ]
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 상세 조회 (관리자) -->
+          <tr>
+            <td><strong>주문 상세 조회(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/orders/{id}</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "orderItems": [
+      {
+        "productName": string,
+        "quantity": integer,
+        "price": integer
+      }
+    ],
+    "orderStatus": string,
+    "email": string,
+    "address": string,
+    "postalCode": string
+  }
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 주문 완료 상태인 주문 개수 조회 (관리자) -->
+          <tr>
+            <td><strong>주문 완료 상태인 주문 개수 조회(관리자)</strong></td>
+            <td>
+              <code>localhost:8080/api/v1/admin/orders/ordered/count</code>
+            </td>
+            <td>GET</td>
+            <td>
+              <pre>
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": integer
+}
+              </pre>
+            </td>
+          </tr>
+          <!-- 최근 주문 3개 조회 -->
+          <tr>
+            <td><strong>최근 주문 3개 조회(관리자)</strong></td>
+            <td><code>localhost:8080/api/v1/admin/orders/latest</code></td>
+            <td>GET</td>
+            <td>
+              <pre>
+Authorization: Bearer ACCESS_TOKEN
+Content-Type: application/json
+              </pre>
+            </td>
+            <td><code>REFRESH_TOKEN</code></td>
+            <td>–</td>
+            <td>
+              <strong>200 OK:</strong>
+              <pre class="language-json">
+{
+  "code": string,
+  "msg": string,
+  "data": {
+    "items": [
+      {
+        "orderId": long,
+        "orderDate": string,
+        "orderStatus": string,
+        "username": string,
+        "totalPrice": integer
+      }
+    ]
+  }
+}
+              </pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
