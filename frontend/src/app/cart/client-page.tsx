@@ -260,6 +260,10 @@ export default function ClientPage() {
           </div>
         </Card>
 
+        <div className="mt-4 text-center text-sm text-gray-400">
+          당일 오후 2시 이후의 주문은 다음날 배송을 시작합니다.
+        </div>
+
         <div className="mt-6 flex justify-end">
           <Button
             className="px-6 py-3 text-lg"

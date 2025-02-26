@@ -30,8 +30,6 @@ export default function ClientPage({
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  useEffect(() => {}, [cartModalOpen]);
-
   const handleAddToCart = async (productId: number) => {
     if (isLogin) {
       try {
@@ -90,6 +88,9 @@ export default function ClientPage({
               <ShoppingCart size={16} />
               장바구니 담기
             </Button>
+            <div className="mt-4 text-center text-sm text-gray-400">
+              당일 오후 2시 이후의 주문은 다음날 배송을 시작합니다.
+            </div>
           </div>
         </div>
 
