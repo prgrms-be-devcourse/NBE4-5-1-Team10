@@ -75,9 +75,9 @@ MVP 외에 추가적으로 구현된 기능들은 다음과 같습니다:
 
 ## 주요 기능
 
-> 요구사항 명세서는 `[requirements.md](docs/requirements.md)`에서 확인 가능합니다.
+> 요구사항 명세서는 [requirements.md](docs/requirements.md)에서 확인 가능합니다.
 
-> 유저스토리는 `[userstory.md](docs/userstory.md)`에서 확인 가능합니다.
+> 유저스토리는 [userstory.md](docs/userstory.md)에서 확인 가능합니다.
 
 > 와이어프레임은 [Creatie Link](https://creatie.ai/file/152751559819701?page_id=M&shareId=152751559819701) 에서 확인할 수 있습니다.
 
