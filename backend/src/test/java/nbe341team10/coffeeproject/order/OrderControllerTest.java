@@ -116,8 +116,6 @@ public class OrderControllerTest {
         long productId = 1L;
         int quantity = 2;
         Cart cart = cartService.addProduct(loginUser, productId, quantity);
-        System.out.println("carsrsr");
-        cart.getCartItems().forEach(item -> System.out.println(item.getId()));
         // 주문 요청
         OrderItemCreateRequest orderItem = OrderItemCreateRequest.builder()
                 .productId(1L)

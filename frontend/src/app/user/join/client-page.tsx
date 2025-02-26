@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ClientPage() {
   const router = useRouter();
@@ -37,7 +38,9 @@ export default function ClientPage() {
 
     if (!signUpRes.ok) {
       const errorResponse = await signUpRes.json();
-      alert(errorResponse.error || "회원가입 실패");
+      toast.error("로그인 실패", {
+        description: errorResponse.error || "회원가입 실패",
+      });
       return;
     }
 

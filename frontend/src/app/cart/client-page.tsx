@@ -43,6 +43,9 @@ export default function ClientPage() {
         return;
       }
       const { data } = await res.json();
+      if (!data) {
+        return;
+      }
       setCartItems(
         data.cartItems.map((item: CartItemDto) => ({
           ...item,
@@ -64,7 +67,9 @@ export default function ClientPage() {
     debounce(async (productId: number, quantity: number) => {
       if (quantity < 0) return;
       if (quantity == 0) {
-        setCartItems(cartItems.filter((item) => item.productId != productId));
+        setCartItems(
+          cartItems.filter((item: CartItemDto) => item.productId != productId)
+        );
       }
       try {
         const res = await fetch("/api/cart", {
@@ -122,7 +127,7 @@ export default function ClientPage() {
         <Table className="w-full">
           <TableHeader>
             <TableRow key="table">
-              <TableHead className="text-center">선택</TableHead>
+              <TableHead className="text-left">선택</TableHead>
               <TableHead className="text-left">제품</TableHead>
               <TableHead className="text-center">수량</TableHead>
               <TableHead className="text-center whitespace-nowrap">
@@ -136,7 +141,7 @@ export default function ClientPage() {
           <TableBody>
             {cartItems.map((item) => (
               <TableRow key={item.id} className="h-20">
-                <TableCell className="text-center">
+                <TableCell className="text-left">
                   <Checkbox
                     checked={item.selected}
                     onCheckedChange={() => toggleSelect(item.id)}
@@ -227,6 +232,7 @@ export default function ClientPage() {
         <div className="mt-6 flex justify-end">
           <Button
             className="px-6 py-3 text-lg"
+            disabled={selectedItems.length == 0}
             onClick={() => {
               const queryString = new URLSearchParams({
                 items: JSON.stringify(selectedItems),

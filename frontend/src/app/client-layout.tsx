@@ -181,22 +181,6 @@ export default function ClientLayout({
                       </NavigationMenuLink>
                     </Link>
                   </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="/product/list" legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                          pathname === "/product/lis"
-                            ? "text-[#6F4E37]"
-                            : "text-sm hover:text-[#D2B48C]"
-                        }`}
-                      >
-                        상품 목록
-                        {pathname === "/product/lis" && (
-                          <span className="absolute left-0 bottom-0 w-full h-1 bg-[#D2B48C] rounded-full"></span>
-                        )}
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
                 </>
               )}
             </NavigationMenuList>

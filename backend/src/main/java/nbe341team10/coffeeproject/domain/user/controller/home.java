@@ -34,7 +34,6 @@ public class home {
     public ResponseEntity<RsData<String>> user(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Optional<Users> user=userRepository.findByEmail(userDetails.getEmail());
         if(user.isPresent()) {
-            System.out.println(user.get().getEmail());
             RsData<String> response=new RsData<>("200","welcome",user.get().getEmail());
             return ResponseEntity.ok(response);
         }

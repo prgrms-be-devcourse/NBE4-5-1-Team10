@@ -31,8 +31,6 @@ public class DeliveryService {
             delivery.setOrder(order);
             delivery.setDeliveryStartDate(now);
 
-            System.out.println("배송 준비 시작");
-
             // 주문 상태를 SHIPPED로 업데이트
             order.setStatus(OrderStatus.SHIPPED);
             orderRepository.save(order); // 주문 상태 업데이트 저장
@@ -54,7 +52,6 @@ public class DeliveryService {
             delivery.getOrder().setStatus(OrderStatus.DELIVERED);
             orderRepository.save(delivery.getOrder());
             deliveryRepository.save(delivery);
-            System.out.println("배송 완료");
             // 이메일 전송
             sendEmail(delivery);
         }

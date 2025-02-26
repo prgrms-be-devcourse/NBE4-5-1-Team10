@@ -49,26 +49,6 @@ class ApiV1LoginTest {
     @Autowired
     private BlacklistRepository blacklistRepository;
 
-//    @Test
-//    @DisplayName("DB연결확인")
-//    public void testDatabaseConnection() {
-//        // 데이터베이스에서 사용자 조회
-//        Optional<Users> user = userRepository.findByEmail("user@naver.com");
-//
-//        // 확인할 조건
-//        // 사용자가 null이 아님을 확인
-//        assertNotNull(user, "User repository should not return null.");
-//
-//        // 만약 user가 존재해야 한다면:
-//        if (user.isPresent()) {
-//            // 추가적인 검증 등을 하면 좋습니다.
-//            UserResponse userResponse = new UserResponse(user.get());
-//            System.out.println("User found: " + userResponse);
-//        } else {
-//            System.out.println("No user found with the given email.");
-//        }
-//    }
-
     @Test
     @DisplayName("가입 성공 확인")
     void join() throws Exception {
@@ -190,7 +170,6 @@ class ApiV1LoginTest {
             assertEquals("testUser@example.com", user.get().getEmail());
             assertEquals("testUser", user.get().getUsername());
             UserResponse userResponse = new UserResponse(user.get());
-            System.out.println("사용자: "+ userResponse);
         } else {
             // 사용자가 존재하지 않는 경우
             fail("User should exist in the database but was not found");
@@ -252,7 +231,6 @@ class ApiV1LoginTest {
             Users user1 = user.get();
             assertEquals("user@naver.com", user1.getEmail());
             UserResponse userResponse = new UserResponse(user1);
-            System.out.println(userResponse);
         }else{
             fail("User should exist in the database but was not found.");
         }

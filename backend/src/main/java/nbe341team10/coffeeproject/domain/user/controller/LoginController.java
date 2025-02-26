@@ -39,7 +39,7 @@ public class LoginController {
         if(loginService.checkName(dto.username())){
             throw new ServiceException("400-1","Username already exists");
         } else if (loginService.checkEmail(dto.email())) {
-            throw new ServiceException("400-1","Email is already in use");
+            throw new ServiceException("400-2","Email is already in use");
         }
 
         Users user = loginService.join(dto);

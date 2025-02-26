@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { components } from "@/lib/backend/generated/schema";
+import dayjs from "dayjs";
 
 const statusString = {
   ORDERED: "주문 완료", // 주문 완료 → 파란색
@@ -53,7 +54,10 @@ export default function ClientPage({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">
-                    주문일자: {order.orderDate}
+                    주문일자:{" "}
+                    {dayjs(order.orderDate).format(
+                      "YYYY년 MM월 DD일 HH시 mm분"
+                    )}
                   </p>
                   <p className="font-semibold">주문번호: {order.orderId}</p>
                   <p className="mt-1 text-gray-700">

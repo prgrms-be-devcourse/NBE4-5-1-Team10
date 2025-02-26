@@ -2,6 +2,7 @@ import { components } from "@/lib/backend/generated/schema";
 import ClientPage from "./client-page";
 import client from "@/lib/backend/client";
 import { cookies } from "next/headers";
+import { toast } from "sonner";
 
 export type CartItemDto = components["schemas"]["CartItemDto"] & {
   selected: boolean;
@@ -14,7 +15,7 @@ export async function postOrder(
 ) {
   const token = (await cookies()).get("accessToken");
   if (!token) {
-    console.log("no token");
+    return;
   }
   const response = await client.POST("/api/v1/order", {
     headers: {
@@ -35,7 +36,9 @@ export async function postOrder(
   });
 
   if (response.error) {
-    alert("결제 오류입니다.");
+    toast.error("로그인 실패", {
+      description: "결제 오류입니다.",
+    });
     return;
   }
 }

@@ -3,10 +3,9 @@ import ClientPage from "./client-page";
 import client from "@/lib/backend/client";
 
 export default async function Page() {
-
   const token = (await cookies()).get("accessToken");
   if (!token) {
-    console.log("no token")
+    return;
   }
 
   const response = await client.GET("/api/v1/orders", {
@@ -20,7 +19,5 @@ export default async function Page() {
 
   const order = data.data!!;
 
-  return (
-    <ClientPage orders={order} />
-  );
+  return <ClientPage orders={order} />;
 }
