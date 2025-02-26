@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 type CartDto = {
   id: number;
@@ -26,6 +27,8 @@ type CartDto = {
 
 type CartItemDto = components["schemas"]["CartItemDto"] & {
   selected: boolean;
+  productStockQuantity: number;
+  hasError?: boolean;
 };
 
 export default function ClientPage() {
@@ -50,6 +53,7 @@ export default function ClientPage() {
         data.cartItems.map((item: CartItemDto) => ({
           ...item,
           selected: true,
+          hasError: false,
         }))
       );
     } catch (err) {
@@ -66,9 +70,9 @@ export default function ClientPage() {
   const debouncedUpdateCart = () =>
     debounce(async (productId: number, quantity: number) => {
       if (quantity < 0) return;
-      if (quantity == 0) {
-        setCartItems(
-          cartItems.filter((item: CartItemDto) => item.productId != productId)
+      if (quantity === 0) {
+        setCartItems((prev) =>
+          prev.filter((item: CartItemDto) => item.productId !== productId)
         );
       }
       try {
@@ -92,7 +96,7 @@ export default function ClientPage() {
     setCartItems((prev) =>
       prev.map((item) =>
         item.productId === productId
-          ? { ...item, quantity: Math.max(quantity, 0) }
+          ? { ...item, quantity: Math.max(quantity, 0), hasError: false }
           : item
       )
     );
@@ -118,6 +122,30 @@ export default function ClientPage() {
   );
   const shippingFee = selectedTotal > 0 ? 3000 : 0;
   const totalAmount = selectedTotal + shippingFee;
+
+  const handleOrder = () => {
+    let hasError = false;
+    const updatedItems = cartItems.map((item) => {
+      // 선택된 상품만 재고 체크
+      if (item.selected && item.quantity > item.productStockQuantity) {
+        hasError = true;
+        toast.error(
+          `${item.productName}의 재고가 부족합니다. 최대 ${item.productStockQuantity}개로 수정합니다.`
+        );
+        return { ...item, quantity: item.productStockQuantity, hasError: true };
+      }
+      return { ...item, hasError: false };
+    });
+    if (hasError) {
+      setCartItems(updatedItems);
+      return;
+    }
+    const queryString = new URLSearchParams({
+      items: JSON.stringify(selectedItems),
+    }).toString();
+
+    router.push(`/order/process?${queryString}`);
+  };
 
   return (
     <div className="flex justify-center items-center w-full min-h-screen px-8 py-12 bg-gray-100">
@@ -183,7 +211,10 @@ export default function ClientPage() {
                           Number(e.target.value)
                         )
                       }
-                      className="w-16 text-center"
+                      // 수량이 재고 초과 시 빨간 테두리 표시
+                      className={`w-16 text-center ${
+                        item.hasError ? "border border-red-500" : ""
+                      }`}
                     />
                     <Button
                       variant="outline"
@@ -232,14 +263,8 @@ export default function ClientPage() {
         <div className="mt-6 flex justify-end">
           <Button
             className="px-6 py-3 text-lg"
-            disabled={selectedItems.length == 0}
-            onClick={() => {
-              const queryString = new URLSearchParams({
-                items: JSON.stringify(selectedItems),
-              }).toString();
-
-              router.push(`/order/process?${queryString}`);
-            }}
+            disabled={selectedItems.length === 0}
+            onClick={handleOrder}
           >
             선택상품 주문하기
           </Button>

@@ -16,6 +16,9 @@ public class CartItemDto {
     private String productName;
     private String productImageUrl;
     @NonNull
+    private int productStockQuantity;
+
+    @NonNull
     private int quantity;
     @NonNull
     private int price;
@@ -27,6 +30,7 @@ public class CartItemDto {
         this.productId = cartItem.getProduct().getId();
         this.productName = cartItem.getProduct().getName();
         this.productImageUrl = cartItem.getProduct().getImageUrl();
+        this.productStockQuantity = cartItem.getProduct().getStockQuantity();
         this.quantity = cartItem.getQuantity();
         this.price = cartItem.getProduct().getPrice();
         this.totalPrice = cartItem.getProduct().getPrice() * this.quantity;

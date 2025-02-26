@@ -30,6 +30,8 @@ export default function ClientPage({
   const [cartModalOpen, setCartModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
+  useEffect(() => {}, [cartModalOpen]);
+
   const handleAddToCart = async (productId: number) => {
     if (isLogin) {
       try {

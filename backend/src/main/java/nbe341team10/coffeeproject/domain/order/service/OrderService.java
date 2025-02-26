@@ -45,7 +45,7 @@ public class OrderService {
         Map<Long, Product> productMap = productRepository.findAllById(productIds).stream()
             .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        //Orders 생성
+        // Orders 생성
         Orders order = orderDto.toOrder(user);
 
         // OrderItem 엔티티 생성 및 Order와 Product와 연결
@@ -54,7 +54,11 @@ public class OrderService {
                     // orderItems의 productId에 해당하는 Product를 products 리스트에서 찾음
                     Product product = productMap.get(item.getProductId());
                     if (product == null) {
-                        throw new ServiceException("404","%d번 상품은 존재하지 않는 상품입니다.".formatted(item.getProductId()));
+                        throw new ServiceException("404", "%d번 상품은 존재하지 않는 상품입니다.".formatted(item.getProductId()));
+                    }
+                    // 주문 수량이 재고보다 많을 경우 예외 처리
+                    if (product.getStockQuantity() < item.getQuantity()) {
+                        throw new ServiceException("400", "%d번 상품의 재고가 부족합니다.".formatted(item.getProductId()));
                     }
 
                     // OrderItem 생성 후 Order와 Product와 연결
@@ -69,6 +73,14 @@ public class OrderService {
 
         orderRepository.save(order);
         orderItemRepository.saveAll(orderItemList);
+
+        // 각 상품의 재고 수량 차감
+        orderDto.getOrderItems().forEach(item -> {
+            Product product = productMap.get(item.getProductId());
+            // 이미 재고 체크를 진행했으므로 안전하게 차감
+            product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
+        });
+        productRepository.saveAll(productMap.values());
 
         // 주문 완료된 장바구니 비우기
         cartService.getCart(user.getId())

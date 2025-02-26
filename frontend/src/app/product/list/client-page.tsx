@@ -54,7 +54,7 @@ export default function ProductClientPage({
 
   useEffect(() => {
     initFetchProducts();
-  }, []);
+  }, [cartModalOpen]);
 
   const handleAddToCart = async (productId: number) => {
     if (isLogin) {
