@@ -249,10 +249,10 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.msg").value("주문 내역 조회가 완료되었습니다."))  // 응답 메시지 확인
                 .andExpect(jsonPath("$.data.items").isArray())  // data 필드가 배열인지 확인
                 .andExpect(jsonPath("$.data.items.length()").value(2))  // 주문이 2개 존재하는지 확인
-                .andExpect(jsonPath("$.data.items[0].firstProductName").value("에티오피아 예가체프"))  // 첫 번째 주문 상품명 확인
-                .andExpect(jsonPath("$.data.items[1].firstProductName").value("콜롬비아 수프리모"))  // 두 번째 주문 상품명 확인
-                .andExpect(jsonPath("$.data.items[0].totalPrice").value(2000))  // 첫 번째 주문 가격 확인
-                .andExpect(jsonPath("$.data.items[1].totalPrice").value(2000));  // 두 번째 주문 가격 확인
+                .andExpect(jsonPath("$.data.items[-1].firstProductName").value("에티오피아 예가체프"))  // 첫 번째 주문 상품명 확인
+                .andExpect(jsonPath("$.data.items[-2].firstProductName").value("콜롬비아 수프리모"))  // 두 번째 주문 상품명 확인
+                .andExpect(jsonPath("$.data.items[-1].totalPrice").value(2000))  // 첫 번째 주문 가격 확인
+                .andExpect(jsonPath("$.data.items[-2].totalPrice").value(2000));  // 두 번째 주문 가격 확인
     }
 
     @Test
